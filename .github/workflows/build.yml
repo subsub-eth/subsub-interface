@@ -1,0 +1,27 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 15
+      uses: actions/setup-node@v1
+      with:
+        node-version: '15.x'
+    - name: Install dependencies
+      run: npm ci
+    - name: Truffle - build
+      run: npx truffle build
+    - name: Frontend - Clean and build
+      run: npm run build
+    - name: Frontend - Tests
+      run: npm test
