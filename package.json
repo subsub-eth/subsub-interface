@@ -29,7 +29,8 @@
     "start": "npm run start-dev",
     "start-dev": "webpack serve --config=app/configs/webpack/dev.js",
     "start-prod": "npm run build && node express.js",
-    "test": "jest --coverage --watchAll --config=app/configs/jest.json"
+    "test": "jest --coverage --config=app/configs/jest.json",
+    "test-watch": "jest --coverage --watchAll --config=app/configs/jest.json"
   },
   "devDependencies": {
     "@babel/cli": "^7.13.10",

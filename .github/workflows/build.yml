@@ -15,8 +15,10 @@ jobs:
         node-version: '15.x'
     - name: Install dependencies
       run: npm ci
-    - name: Truffle - build
-      run: npx truffle build
+    - name: Truffle - compile
+      run: npx truffle compile
+    - name: Truffle - test
+      run: npx truffle test --stacktrace
     - name: Frontend - Clean and build
       run: npm run build
     - name: Frontend - Tests
