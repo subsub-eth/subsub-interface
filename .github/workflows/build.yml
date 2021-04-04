@@ -66,5 +66,5 @@ jobs:
         git config user.name createz-github-actions
         git config user.email github-actions@createz.xyz
         git add docs
-        git commit -m "Deploy build $GITHUB_SHA"
+        git diff-index --quiet HEAD || git commit -m "Deploy build $GITHUB_SHA"
         git push
