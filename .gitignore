@@ -176,3 +176,6 @@ tags
 
 # coverage
 app/tests/__coverage__/
+
+# generated contract types
+types/

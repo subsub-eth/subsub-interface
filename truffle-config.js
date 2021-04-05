@@ -23,6 +23,9 @@
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
+require("ts-node").register({
+  files: true,
+});
 
 module.exports = {
   /**
