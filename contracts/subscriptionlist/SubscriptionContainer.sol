@@ -14,6 +14,10 @@ contract SubscriptionContainer {
     return list.head();
   }
 
+  function get(uint pos) public view returns(bool, uint, uint) {
+    return list.get(pos);
+  }
+
   function next(uint pos) public view returns(bool, uint, uint) {
     return list.next(pos);
   }
@@ -23,11 +27,11 @@ contract SubscriptionContainer {
   }
 
   function insertBefore(uint beforePos, uint pos, uint value) public returns (bool, uint, uint) {
-    return list.insertBefore(beforePos, pos, value);
+    return list._insertBefore(beforePos, pos, value);
   }
 
   function append(uint pos, uint value) public returns (bool, uint, uint) {
-    return list.append(pos, value);
+    return list._append(pos, value);
   }
 
   function add(uint pos, uint value) public returns(bool, uint, uint) {

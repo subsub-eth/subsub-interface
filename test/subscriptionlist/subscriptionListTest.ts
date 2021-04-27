@@ -154,25 +154,55 @@ contract("SubscriptionList", async accounts => {
     equalsBn(head[2], 3);
   });
 
-  it("should fail to add to an non-existing position", async () => {
+  it("should add to a non-existing position - append", async () => {
     const list = await SubscriptionContainer.new();
     await list.append(4, 1);
+    await list.add(5, 2);
 
-    try {
-      await list.add(2, 2);
-    } catch (error) {
+    const subs = await list.activeSubscriptions();
+    equalsBn(subs, 3);
 
-      const subs = await list.activeSubscriptions();
-      equalsBn(subs, 1);
+    const head = await list.head();
+    assert.ok(head[0]);
+    equalsBn(head[1], 4);
+    equalsBn(head[2], 1);
 
-      const head = await list.head();
-      assert.ok(head[0]);
-      equalsBn(head[1], 4);
-      equalsBn(head[2], 1);
-
-      return;
-    }
-    assert.fail("Adding to a non-exiting position did not cause an exception");
-
+    const next = await list.next(head[1]);
+    assert.ok(next[0]);
+    equalsBn(next[1], 5);
+    equalsBn(next[2], 2);
   });
+
+  it("should add to a non-existing position - insert", async () => {
+    const list = await SubscriptionContainer.new();
+    await list.append(4, 1);
+    await list.add(3, 2);
+
+    const subs = await list.activeSubscriptions();
+    equalsBn(subs, 3);
+
+    const head = await list.head();
+    assert.ok(head[0]);
+    equalsBn(head[1], 3);
+    equalsBn(head[2], 2);
+
+    const next = await list.next(head[1]);
+    assert.ok(next[0]);
+    equalsBn(next[1], 4);
+    equalsBn(next[2], 1);
+  });
+
+  it("should add to a non-existing position - empty list", async () => {
+    const list = await SubscriptionContainer.new();
+    await list.add(3, 2);
+
+    const subs = await list.activeSubscriptions();
+    equalsBn(subs, 2);
+
+    const head = await list.head();
+    assert.ok(head[0]);
+    equalsBn(head[1], 3);
+    equalsBn(head[2], 2);
+  });
+
 })

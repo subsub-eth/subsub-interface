@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "solidity-linked-list/contracts/StructuredLinkedList.sol";
+import "./subscriptionlist/SubscriptionList.sol";
 
 import "./Blockaware.sol";
 
@@ -14,18 +15,11 @@ contract CreatorVault is Ownable, Blockaware {
   // TODO refactor _currentBlock() calls with internal method
 
   using SafeERC20 for IERC20;
+  using SubscriptionList for SubscriptionList.List;
   using StructuredLinkedList for StructuredLinkedList.List;
 
   uint private _stateUpdated;
-  // TODO idea: move to separate contract for simplicity and portability
-  // linked list to navigate subscriptionEnds mapping
-  StructuredLinkedList.List private subscriptionEndList;
-  // _currentBlock() => number of users' subsription that end on this block
-  mapping(uint => uint) private subscriptionEnds;
-
-  // number of active subscriptions
-  // TODO make a public view function that calculates the actual active subs
-  uint public activeSubscriptions = 0;
+  SubscriptionList.List private subList;
 
   uint private _claimableEarnings = 0;
 
@@ -72,8 +66,8 @@ contract CreatorVault is Ownable, Blockaware {
       return false;
     }
 
-
-    if (!subscriptionEndList.listExists()) {
+    (bool listNotEmpty, , ) = subList.head();
+    if (!listNotEmpty) {
       _stateUpdated = _currentBlock();
       return true;
     }
@@ -82,18 +76,16 @@ contract CreatorVault is Ownable, Blockaware {
     // update sub counter
     // update creator claimable earnings
 
-    (uint subsEnded, uint creatorEarnings) = _getStateUpdate();
+    (, uint creatorEarnings) = _getStateUpdate();
 
     // actually update state
-    activeSubscriptions -= subsEnded;
     _claimableEarnings += creatorEarnings;
 
     // clean up sub list
-    (bool headExists, uint head) = subscriptionEndList.getNextNode(0);
+    (bool headExists, uint head, uint value) = subList.head();
     while (headExists && head <= _currentBlock()) {
-      subscriptionEndList.remove(head);
-      delete(subscriptionEnds[head]);
-      (headExists, head) = subscriptionEndList.getNextNode(0);
+      subList.remove(head, value);
+      (headExists, head, value) = subList.head();
     }
 
     _stateUpdated = _currentBlock();
@@ -107,24 +99,25 @@ contract CreatorVault is Ownable, Blockaware {
   function _getStateUpdate() private view returns (uint subsEnded,
                                                    uint creatorEarnings) {
 
-    if (!subscriptionEndList.listExists()) {
+    (bool listNotEmpty, , ) = subList.head();
+    if (!listNotEmpty) {
       return (0, 0);
     }
 
-    (bool nodeExists, uint currentNode) = subscriptionEndList.getNextNode(0);
+    (bool nodeExists, uint currentNode, uint subsExpiring) = subList.head();
     uint claimedBlock = _stateUpdated;
-    uint activeSubs = activeSubscriptions;
+    uint activeSubs = subList.activeSubscriptions;
 
     while(nodeExists && currentNode <= _currentBlock()) {
       creatorEarnings += activeSubs * (currentNode - claimedBlock);
 
-      activeSubs -= subscriptionEnds[currentNode];
+      activeSubs -= subsExpiring;
       claimedBlock = currentNode;
-      (nodeExists, currentNode) = subscriptionEndList.getNextNode(currentNode);
+      (nodeExists, currentNode, subsExpiring) = subList.next(currentNode);
     }
 
     creatorEarnings += activeSubs * (_currentBlock() - claimedBlock);
-    subsEnded = activeSubscriptions - activeSubs;
+    subsEnded = subList.activeSubscriptions - activeSubs;
   }
 
   /**
@@ -146,8 +139,6 @@ contract CreatorVault is Ownable, Blockaware {
   function deposit(uint _amount) public returns (bool success){
     // TODO some sort of minimum amount
     // TODO handle deleted node from sublist
-    // TODO handle activeSubscriptions in a centralized method
-    // TODO update creator claim
 
     updateState();
 
@@ -164,7 +155,8 @@ contract CreatorVault is Ownable, Blockaware {
     // TODO handle from last claim/update block
     if (existingDeposit.blocktime > 0) {
       // remove existing sub list entry
-      _removeSubscription(existingDeposit.amount, existingDeposit.blocktime);
+      uint endBlock = _subEndBlock(existingDeposit.amount, existingDeposit.blocktime);
+      subList.remove(endBlock, 1);
     }
 
     // store initial/updated deposit
@@ -180,57 +172,14 @@ contract CreatorVault is Ownable, Blockaware {
     // TODO handle updated deposit
     // TODO emit some event
     // TODO throw exception
-    success = _addSubscription(newAmount, _currentBlock());
+    uint endBlock = _subEndBlock(newAmount, _currentBlock());
+    (success, , ) = subList.add(endBlock, 1);
   }
 
   function _subEndBlock(uint _tokenAmount, uint _depositBlock) private view returns (uint endBlock) {
     // TODO cuts off remaining value => what to do with that?
     uint subBlocks = _tokenAmount / _creatorFeePerBlock;
     endBlock = _depositBlock + subBlocks;
-  }
-
-  function _addSubscription(uint _tokenAmount, uint _depositBlock) private returns (bool) {
-    uint endBlock = _subEndBlock(_tokenAmount, _depositBlock);
-
-    bool exists = subscriptionEndList.nodeExists(endBlock);
-    if (subscriptionEndList.listExists()) {
-      // just append a new node
-      subscriptionEndList.pushBack(endBlock);
-    } else if (!exists) {
-      // create new entry, insert new node into list
-      (bool nExists, uint nPrev, uint nNext) = subscriptionEndList.getNode(0);
-      uint currentNode = nNext;
-      while (nExists && endBlock < currentNode) {
-        (nExists, nPrev, nNext) = subscriptionEndList.getNode(currentNode);
-        currentNode = nNext;
-      }
-
-      subscriptionEndList.insertBefore(currentNode, endBlock);
-    }
-    // else an entry does already exist
-
-    subscriptionEnds[endBlock] = subscriptionEnds[endBlock] + 1;
-    activeSubscriptions++;
-
-    // TODO actually use and/or throw exception
-    return true;
-  }
-
-  function _removeSubscription(uint _tokenAmount, uint _depositBlock) private returns (bool) {
-    uint endBlock = _subEndBlock(_tokenAmount, _depositBlock);
-
-    uint subs = subscriptionEnds[endBlock];
-    if (subs <= 1) {
-      delete subscriptionEnds[endBlock];
-      subscriptionEndList.remove(endBlock);
-    } else {
-      subscriptionEnds[endBlock] = subs - 1;
-    }
-
-    activeSubscriptions--;
-
-    // TODO
-    return true;
   }
 
   function creatorEarnings() public view returns (uint earnings) {
@@ -251,6 +200,10 @@ contract CreatorVault is Ownable, Blockaware {
 
     token.transfer(owner(), _claimableEarnings);
     _claimableEarnings = 0;
+  }
+
+  function activeSubscriptions() public view returns (uint) {
+    return subList.activeSubscriptions;
   }
 
 }

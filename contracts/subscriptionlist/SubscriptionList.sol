@@ -36,6 +36,19 @@ library SubscriptionList {
   }
 
   /**
+    * @notice returns the value at pos
+    * @param self the list that is being read
+    * @param pos the position
+    * @return bool if the value exists, the position, the value. Value and
+    * position are 0 if the entry does not exist
+    */
+  function get(List storage self, uint pos) internal view returns(bool, uint, uint) {
+    require(pos > 0, "position needs to be larger than 0");
+    // TODO
+    return (false, 0, 0);
+  }
+
+  /**
     * @notice returns the next value after pos
     * @param self the list that is being read
     * @param pos the position before the next value
@@ -97,7 +110,7 @@ library SubscriptionList {
     * @param value the new value
     * @return returns success and the new key-value pair
     */
-  function insertBefore(List storage self, uint afterPos, uint pos, uint value) internal returns (bool, uint, uint) {
+  function _insertBefore(List storage self, uint afterPos, uint pos, uint value) internal returns (bool, uint, uint) {
     require(pos > 0, "position needs to be larger than 0");
     require(value > 0, "value must be larger than 0");
     require(afterPos > pos, "new position must be smaller than afterPos");
@@ -126,7 +139,7 @@ library SubscriptionList {
     * @param value new value
     * @return returns success and the new key-value pair
     */
-  function append(List storage self, uint pos, uint value) internal returns (bool, uint, uint) {
+  function _append(List storage self, uint pos, uint value) internal returns (bool, uint, uint) {
     require(self.expirationCount[pos] == 0);
     require(value > 0, "value must be larger than 0");
 
@@ -144,23 +157,41 @@ library SubscriptionList {
   }
 
   /**
-    * @notice adds a number of subs to an existing position
+    * @notice adds a number of subs to a position
     * @param self the list that is being modified
-    * @param pos position to modify
+    * @param pos position to create/modify
     * @param value value to increase the number of subs by
-    * @return returns success and the updated key-value pair
+    * @return returns success and the new/updated key-value pair
     */
   function add(List storage self, uint pos, uint value) internal returns (bool, uint, uint) {
     require(pos > 0, "pos has to be larger than 0, because 0 is the meta head");
     require(value > 0, "value must be larger than 0");
 
+    // does the list exist -> append
+    if (!self.expirations.listExists()) {
+      return _append(self, pos, value);
+    }
+
+    // does the pos exist? -> increase value
     uint subs = self.expirationCount[pos];
-    require(subs > 0, "subs is 0, the given position does not exists");
+    if (subs > 0) {
+      uint newSubs = subs + value;
+      self.expirationCount[pos] = newSubs;
+      self.activeSubscriptions += value;
+      return (true, pos, newSubs);
+    }
 
-    uint newSubs = subs + value;
-    self.expirationCount[pos] = newSubs;
-    self.activeSubscriptions += value;
+    // Do we need to insert in between or append?
+    (bool exists, uint currentNode, uint currentValue) = head(self);
+    while(exists && currentNode < pos) {
 
-    return (true, pos, newSubs);
+      (exists, currentNode, currentValue) = next(self, currentNode);
+    }
+
+    if (!exists) {
+      return _append(self, pos, value);
+    }
+    return _insertBefore(self, currentNode, pos, value);
+
   }
 }
