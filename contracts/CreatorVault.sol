@@ -194,9 +194,10 @@ contract CreatorVault is Ownable, Blockaware {
 
     bool exists = subscriptionEndList.nodeExists(endBlock);
     if (subscriptionEndList.listExists()) {
+      // just append a new node
       subscriptionEndList.pushBack(endBlock);
     } else if (!exists) {
-      // create new entry
+      // create new entry, insert new node into list
       (bool nExists, uint nPrev, uint nNext) = subscriptionEndList.getNode(0);
       uint currentNode = nNext;
       while (nExists && endBlock < currentNode) {

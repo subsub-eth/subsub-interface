@@ -24,7 +24,7 @@
   "homepage": "https://createz.xyz",
   "scripts": {
     "build": "npm run clean-dist && webpack --config=app/configs/webpack/prod.js",
-    "generate-types": "typechain --target=truffle-v5 'build/contracts/*.json'",
+    "generate-types": "typechain --target=truffle-v5 'build/contracts/**.json'",
     "truffle-compile": "truffle compile && npm run generate-types",
     "clean-dist": "rimraf dist/*",
     "lint": "eslint './app/src/**/*.{js,ts,tsx}' --quiet",
