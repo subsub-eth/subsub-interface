@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
-    "lib": ["ES2018", "DOM"],
+    "lib": [
+      "ES2018",
+      "DOM"
+    ],
     "module": "CommonJS",
     "moduleResolution": "node",
     "strict": true,
     "target": "ES2018",
     "sourceMap": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "jsx": "react",
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true
   }
 }

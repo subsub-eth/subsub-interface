@@ -1,16 +1,14 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import * as TestUtils from 'react-dom/test-utils';
+import { shallow } from 'enzyme';
+import * as expect from 'chai';
 import App from '../src/components/App';
 
-it('App is rendered', () => {
-    // Render App in the document
-    const appElement: App = TestUtils.renderIntoDocument(
-        <App/>
-    );
+describe('App is rendered', () => {
+    it("should do something", () => {
+        // Render App in the document
+        const appNode = shallow(<App />);
 
-    const appNode = ReactDOM.findDOMNode(appElement);
-
-    // Verify text content
-    expect(appNode.textContent).toEqual('Hello World!agagagag');
+        // Verify text content
+        expect.expect(appNode.text()).equals('Hello World!agagagag');
+    });
 });

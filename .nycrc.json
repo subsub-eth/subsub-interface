@@ -1,0 +1,6 @@
+{
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "all": true,
+    "extension": [".js", ".jsx", ".ts", ".tsx"],
+    "include": "app/src/**"
+}
