@@ -1,6 +1,7 @@
 // shared config (dev and prod)
 const { resolve } = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 module.exports = {
   resolve: {
@@ -31,7 +32,10 @@ module.exports = {
       },
     ],
   },
-  plugins: [new HtmlWebpackPlugin({ template: "index.html.ejs" })],
+  plugins: [
+    new NodePolyfillPlugin(),
+    new HtmlWebpackPlugin({ template: "index.html.ejs" })
+  ],
   externals: {
     react: "React",
     "react-dom": "ReactDOM",
