@@ -66,6 +66,7 @@
     "eslint-plugin-react": "^7.22.0",
     "express": "^4.17.1",
     "file-loader": "^6.2.0",
+    "global-jsdom": "^8.1.0",
     "html-webpack-plugin": "^5.3.1",
     "ignore-styles": "^5.0.1",
     "image-webpack-loader": "^7.0.1",
@@ -91,5 +92,8 @@
     "webpack-cli": "^4.5.0",
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^5.7.3"
+  },
+  "dependencies": {
+    "web3": "^1.2.9"
   }
 }
