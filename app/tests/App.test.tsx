@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import {shallow} from 'enzyme';
 import * as expect from 'chai';
 import App from '../src/components/App';
 
@@ -8,7 +8,9 @@ describe('App is rendered', () => {
         // Render App in the document
         const appNode = shallow(<App />);
 
+        console.log(appNode.dive().length);
         // Verify text content
-        expect.expect(appNode.text()).equals('Hello World!agagagag');
+        expect.expect(appNode.text())
+            .equals('Hello World!agagagag');
     });
 });

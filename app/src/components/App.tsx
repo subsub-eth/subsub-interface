@@ -9,17 +9,17 @@ const reactLogo = require("./../assets/img/react_logo.svg");
 
 const red = "red";
 
-const AppContainer = styled.div`
+export const AppContainer = styled.div`
   font-family: helvetica, arial, sans-serif;
   padding: 2em;
   border: 5px solid ${red};
 `;
 
-const Paragraph = styled.p`
+export const Paragraph = styled.p`
     background-color: yellow;
 `;
 
-export default class App extends React.Component<Record<string, unknown>, any> {
+class App extends React.Component<Record<string, unknown>, any> {
   componentDidMount() {
 //    console.log(web3.currentProvider);
 //    const metamask = new Web3(web3.currentProvider);
@@ -38,4 +38,4 @@ export default class App extends React.Component<Record<string, unknown>, any> {
   }
 }
 
-//export default hot(App);
+export default hot(module)(App);

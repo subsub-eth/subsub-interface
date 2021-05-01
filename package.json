@@ -23,16 +23,16 @@
   },
   "homepage": "https://createz.xyz",
   "scripts": {
-    "build": "npm run clean-dist && webpack --config=app/configs/webpack/prod.js",
+    "build": "NODE_ENV=production npm run clean-dist && webpack --config=app/configs/webpack/prod.js",
     "generate-types": "typechain --target=truffle-v5 'build/contracts/**.json'",
     "truffle-compile": "truffle compile && npm run generate-types",
     "clean-dist": "rimraf dist/*",
     "lint": "eslint './app/src/**/*.{js,ts,tsx}' --quiet",
-    "start": "npm run start-dev",
+    "start": "NODE_ENV=development npm run start-dev",
     "start-dev": "webpack serve --config=app/configs/webpack/dev.js",
-    "start-prod": "npm run build && node express.js",
-    "test": "nyc --reporter=text ts-mocha --require ./app/tests/setup.js --require ignore-styles ./app/tests/**/*.test.{js,jsx,ts,tsx} --exit",
-    "test-watch": "nyc --reporter=text ts-mocha --require ./app/tests/setup.js --require ignore-styles ./app/tests/**/*.test.{js,jsx,ts,tsx} --exit --watch --watch-files ./app/tests/**",
+    "start-prod": "NODE_ENV=production npm run build && node express.js",
+    "test": "NODE_ENV=test nyc --reporter=text ts-mocha --require ./app/tests/setup.js --require ignore-styles ./app/tests/**/*.test.{js,jsx,ts,tsx} --exit",
+    "test-watch": "NODE_ENV=test nyc --reporter=text ts-mocha --require ./app/tests/setup.js --require ignore-styles ./app/tests/**/*.test.{js,jsx,ts,tsx} --exit --watch --watch-files ./app/tests/**",
     "truffle-test": "truffle test"
   },
   "devDependencies": {
