@@ -1,11 +1,23 @@
 import * as React from "react";
+import styled from "styled-components";
 import { hot } from "react-hot-loader";
 
 import * as Buffer from "buffer";
 import Web3 from 'web3';
 
 const reactLogo = require("./../assets/img/react_logo.svg");
-//import "./../assets/scss/App.scss";
+
+const red = "red";
+
+const AppContainer = styled.div`
+  font-family: helvetica, arial, sans-serif;
+  padding: 2em;
+  border: 5px solid ${red};
+`;
+
+const Paragraph = styled.p`
+    background-color: yellow;
+`;
 
 export default class App extends React.Component<Record<string, unknown>, any> {
   componentDidMount() {
@@ -18,10 +30,10 @@ export default class App extends React.Component<Record<string, unknown>, any> {
 
   public render() {
     return (
-      <div className="app">
+      <AppContainer>
         <h1>Hello World!</h1>
-        <p>agagagag</p>
-      </div>
+        <Paragraph>agagagag</Paragraph>
+      </AppContainer>
     );
   }
 }
