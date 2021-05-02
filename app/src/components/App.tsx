@@ -1,5 +1,11 @@
 import * as React from "react";
 import styled from "styled-components";
+import {
+  HashRouter as Router,
+  Switch,
+  Route,
+  NavLink
+} from "react-router-dom";
 import {hot} from "react-hot-loader";
 import {Reset} from "styled-reset";
 
@@ -36,20 +42,24 @@ export class AppContainer extends React.Component<Record<string, unknown>, any> 
 }
 
 class App extends React.Component<Record<string, unknown>, any> {
-  componentDidMount() {
-    //    console.log(web3.currentProvider);
-    //    const metamask = new Web3(web3.currentProvider);
-    //const metamask = new Web3("ws://localhost:9545")
-    //metamask.eth.getAccounts().then(console.log);
-
-  }
 
   public render() {
     return (
-      <React.Fragment>
+      <Router>
         <Reset />
-        <AppContainer />
-      </React.Fragment>
+        <div>
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="/create">Create</NavLink>
+        </div>
+        <Switch>
+          <Route path="/create">
+            <div>create</div>
+          </Route>
+          <Route path="/">
+            <AppContainer />
+          </Route>
+        </Switch>
+      </Router>
     );
   }
 }
