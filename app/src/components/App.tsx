@@ -1,5 +1,5 @@
 import * as React from "react";
-import styled from "styled-components";
+import styled, {ThemeProvider} from "styled-components";
 import {
   HashRouter as Router,
   Switch,
@@ -9,12 +9,19 @@ import {
 import {hot} from "react-hot-loader";
 import {Reset} from "styled-reset";
 
+import {
+  defaultTheme,
+  Stars,
+  GlobalStyle
+} from "./Theme";
+
 import * as Buffer from "buffer";
 import Web3 from 'web3';
 
 const reactLogo = require("./../assets/img/react_logo.svg");
 
 const red = "red";
+
 
 export const AppDiv = styled.div`
   font-family: helvetica, arial, sans-serif;
@@ -46,19 +53,23 @@ class App extends React.Component<Record<string, unknown>, any> {
   public render() {
     return (
       <Router>
-        <Reset />
-        <div>
-          <NavLink to="/">Home</NavLink>
-          <NavLink to="/create">Create</NavLink>
-        </div>
-        <Switch>
-          <Route path="/create">
-            <div>create</div>
-          </Route>
-          <Route path="/">
-            <AppContainer />
-          </Route>
-        </Switch>
+        <ThemeProvider theme={defaultTheme}>
+          <Reset />
+          <GlobalStyle />
+          <header>
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/create">Create</NavLink>
+          </header>
+          <Switch>
+            <Route path="/create">
+              <div>create</div>
+            </Route>
+            <Route path="/">
+              <AppContainer />
+            </Route>
+          </Switch>
+          <Stars />
+        </ThemeProvider>
       </Router>
     );
   }
