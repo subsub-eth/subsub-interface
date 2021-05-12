@@ -88,14 +88,12 @@ const StarsLarge = styled(StarsBase)`
   animation: ${blink} 3s infinite;
 `;
 
-export class Stars extends React.Component<Record<string, unknown>, any> {
-  public render() {
-    return (
-      <React.Fragment>
-        <StarsSmall />
-        <StarsMedium />
-        <StarsLarge />
-      </React.Fragment>
-    );
-  }
+export function Stars() {
+  return (
+    <React.Fragment>
+      <StarsSmall />
+      <StarsMedium />
+      <StarsLarge />
+    </React.Fragment>
+  );
 }
