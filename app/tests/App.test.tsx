@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {shallow} from 'enzyme';
 import * as expect from 'chai';
-import { AppContainer } from '../src/components/App';
+import { AppContent } from '../src/components/App';
 
 describe('App is rendered', () => {
     it("should do something", () => {
         // Render App in the document
-        const appNode = shallow(<AppContainer />);
+        const appNode = shallow(<AppContent />);
 
         console.log(appNode.dive().length);
         // Verify text content

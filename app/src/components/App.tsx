@@ -14,12 +14,15 @@ import {
   GlobalStyle
 } from "./Theme";
 
-import * as Buffer from "buffer";
 import BN from "bn.js";
 import Web3 from 'web3';
 
+import {HasWeb3Connection} from "./propTypes";
+
 import CreatezAbi from "../../../build/contracts/Createz.json";
 import {Createz} from "../../../types/web3-v1-contracts/Createz";
+import {Web3Connection, Web3Factory} from "./connection/Web3Connection";
+import {VaultFactoryWrapper} from "./contract/VaultFactoryWrapper";
 
 const reactLogo = require("./../assets/img/react_logo.svg");
 
@@ -40,7 +43,7 @@ export const Paragraph = styled.p`
 `;
 
 
-export function AppContainer() {
+export function AppContent() {
   return (
     <AppDiv>
       <h1>Hello World!</h1>
@@ -50,99 +53,154 @@ export function AppContainer() {
 }
 
 async function getWeb3(): Promise<Web3> {
-    console.log(`givenProvider: ${JSON.stringify(Web3.givenProvider)}`);
-    if (window.ethereum) {
-      console.log(`has injected: ${JSON.stringify(window.ethereum)}`);
-      if (window.ethereum.isConnected()) {
-        console.log(`is connected`);
-      }
+  console.log(`givenProvider: ${JSON.stringify(Web3.givenProvider)}`);
+  if (window.ethereum) {
+    console.log(`has injected: ${JSON.stringify(window.ethereum)}`);
+    if (window.ethereum.isConnected()) {
+      console.log(`is connected`);
     }
-    const acc = await getAccount();
-    const web3 = new Web3(window.ethereum);
-
-    return web3;
-}
-
-async function getAccount() {
-  const res = await window.ethereum.request({method: 'eth_accounts'});
-  if (!res) {
-    return "";
   }
-  const account = res[0];
-  console.log(`connected account: ${account}`);
-  return account;
+  const web3 = new Web3(window.ethereum || "ws://localhost:9545");
+  const b = await web3.eth.getBalance("0xe6c9A85134DeA897CFd7DC7bBd8624CbD585173f");
+  console.log(`balance: ${b}`);
+  console.log(`current provider: ${web3.currentProvider}`);
+  //const acc = await getAccount();
+
+  return web3;
 }
 
-async function requestAccounts() {
-  const res = await window.ethereum.request({method: 'eth_requestAccounts'});
-  console.log(`result: ${JSON.stringify(res)}`);
-  const account = res[0];
-  console.log(`requested account: ${account}`);
-  return account;
-}
 
-async function createzContract(web3: Web3) {
 
-  const acc = await getAccount();
+async function createzContract(web3: Web3, web3Connection: Web3Connection) {
+
+  const acc = await web3Connection.getAccount();
   console.log(`setting default account on contract instance: ${acc}`);
   const contract = (new web3.eth.Contract(CreatezAbi.abi, "0x8a1D7e538D37B5aE7aC07FfcD668159cc5aaD12d", {from: acc}) as any) as Createz;
-  contract.defaultAccount = web3.defaultAccount;
   return contract;
 }
 
-async function transfer1() {
-  const acc = "0xe6c9a85134dea897cfd7dc7bbd8624cbd585173f";
+async function transfer1(web3Connection: Web3Connection) {
+  const acc = await web3Connection.getAccount();
+  console.log(`Transferring from account ${acc}`);
   const web3 = await getWeb3();
-  const createz = await createzContract(web3);
+  const createz = await createzContract(web3, web3Connection);
   const receipt = await createz.methods.transfer("0x11e1d4f72447169a54084bd147fbd161b3f9ec1d", Web3.utils.toWei(new BN(1))).send();
   console.log(`events: ${JSON.stringify(receipt.events)}`);
 }
 
+/**
+  * App Main
+  *
+  * Provides basic setup with Router, Theme, global styling and web3 connection
+  *
+  **/
 export function App() {
-
-  const fromWei = Web3.utils.fromWei;
-  const toWei = Web3.utils.toWei;
-  const [acc, setAcc] = useState("0");
+  const [web3Connection, setWeb3Connection] = useState<Web3Connection | null>(null);
 
   useEffect(() => {
-    const func = async () => {
-      const web3 = await getWeb3();
-      const account = (await getAccount()) + "";
-
-      const createz = await createzContract(web3);
-      if (account) {
-        const balance = await createz.methods.balanceOf(account).call();
-        console.log(`balance: ${fromWei(balance)}`);
-        setAcc(account);
-      }
-
-    };
-    func();
-  });
+    if (!web3Connection) {
+      console.log(`creating new web3 connection, exisiting: ${web3Connection}`);
+      Web3Factory.getInstance(setWeb3Connection, window.ethereum)
+        .then(setWeb3Connection);
+    }
+  }, [web3Connection]);
 
   return (
     <Router>
       <ThemeProvider theme={defaultTheme}>
         <Reset />
         <GlobalStyle />
-        <header>
-          <NavLink to="/">Home</NavLink>
-          <NavLink to="/create">Create</NavLink>
-          <p>Account: {acc}</p>
-          <button onClick={() => requestAccounts()}>connect</button>
-          <button onClick={() => transfer1()}>transfer 1</button>
-        </header>
-        <Switch>
-          <Route path="/create">
-            <div>create</div>
-          </Route>
-          <Route path="/">
-            <AppContainer />
-          </Route>
-        </Switch>
+        {web3Connection ? <AppContainer web3Connection={web3Connection} /> : ""}
         <Stars />
       </ThemeProvider>
     </Router>
+  );
+}
+
+function ConnectButton({web3Connection}: {} & HasWeb3Connection) {
+  const [disabled, setDisabled] = useState(false);
+
+  const connect = () => {
+    console.log(`Trying to connect wallet`);
+    setDisabled(true);
+    return web3Connection.connect()
+      .then(acc => {
+        console.log(`connected to ${acc}`);
+        setDisabled(false);
+      })
+      .catch(err => {
+        console.log(`error ${err} occured`);
+        setDisabled(false);
+      })
+  }
+
+  return (
+    <button onClick={connect} disabled={disabled}>connect</button>
+  );
+}
+
+function WalletButton({web3Connection}: {} & HasWeb3Connection) {
+  const [acc, setAccount] = useState<string | null>(null);
+
+  useEffect(() => {
+    web3Connection.getAccount()
+      .then(s => setAccount(s));
+  });
+
+  return (
+    <button >{acc}</button>
+  );
+}
+
+
+function AppContainer({web3Connection}: {} & HasWeb3Connection) {
+  const [connected, setConnected] = useState(false);
+  const [factory, setFactory] = useState<VaultFactoryWrapper | null>(null);
+
+  useEffect(() => {
+    web3Connection.isConnected()
+    .then(b => {
+      console.log(`connected to wallet account: ${b}`);
+      return setConnected(b);
+    })
+  }, [web3Connection]);
+
+  useEffect(() => {
+    web3Connection.getVaultFactory()
+    .then(fac => {
+      console.log(`setting factory ${fac}`);
+      setFactory(fac);
+    })
+
+  }, [web3Connection, connected]);
+
+  const createVault = () => {
+    if (factory) {
+      web3Connection.getAccount()
+      .then(acc => factory.create("" + acc, hash => console.log(`hash: ${hash}`)));
+    }
+  }
+
+  return (
+    <>
+      <header>
+        <NavLink to="/">Home</NavLink>
+        <NavLink to="/create">Create</NavLink>
+        {connected
+          ? <WalletButton web3Connection={web3Connection}/>
+          : <ConnectButton web3Connection={web3Connection} />}
+        <button onClick={() => transfer1(web3Connection)}>transfer 1</button>
+      </header>
+      <Switch>
+        <Route path="/create">
+          <div>create</div>
+          <button onClick={createVault}>do create</button>
+        </Route>
+        <Route path="/">
+          <AppContent />
+        </Route>
+      </Switch>
+    </>
   );
 }
 
