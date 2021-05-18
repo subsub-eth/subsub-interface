@@ -14,6 +14,9 @@ import {
   GlobalStyle
 } from "./Theme";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import BN from "bn.js";
 import Web3 from 'web3';
 
@@ -112,6 +115,7 @@ export function App() {
         <GlobalStyle />
         {web3Connection ? <AppContainer web3Connection={web3Connection} /> : ""}
         <Stars />
+        <ToastContainer />
       </ThemeProvider>
     </Router>
   );
@@ -177,7 +181,8 @@ function AppContainer({web3Connection}: {} & HasWeb3Connection) {
   const createVault = () => {
     if (factory) {
       web3Connection.getAccount()
-      .then(acc => factory.create("" + acc, hash => console.log(`hash: ${hash}`)));
+      .then(acc => factory.create("" + acc, hash => toast.info(`hash: ${hash}`)))
+      .then(res => toast.success(`success! ${res}`), err => toast.error(`Error! ${err}`));
     }
   }
 
