@@ -86,7 +86,7 @@
     "sass-loader": "^11.0.1",
     "solidity-linked-list": "^5.0.0",
     "style-loader": "^2.0.0",
-    "truffle": "^5.3.0",
+    "truffle": "^5.3.6",
     "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.1",
     "typechain": "^4.0.3",
@@ -97,6 +97,8 @@
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
+    "@fontsource/noto-sans": "^4.3.0",
+    "@material-ui/icons": "^4.11.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-hot-loader": "^4.13.0",

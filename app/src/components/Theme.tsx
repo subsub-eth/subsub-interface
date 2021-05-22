@@ -5,6 +5,7 @@ import styled,
     createGlobalStyle,
     ThemeProvider
   } from "styled-components";
+import "@fontsource/noto-sans";
 
 export interface CreatezTheme {
 
@@ -12,6 +13,15 @@ export interface CreatezTheme {
   readonly primary: string;
   readonly secondary: string;
 
+  readonly minTablet: number;
+  readonly maxMobile: number;
+  readonly minDesktop: number;
+  readonly maxTablet: number;
+
+  readonly gutter: number;
+  readonly fontCopy: string;
+  readonly buttonMixin: string;
+  readonly resetButton: string;
 }
 
 export class DefaultTheme implements CreatezTheme {
@@ -19,6 +29,52 @@ export class DefaultTheme implements CreatezTheme {
   background: string = "#2c2c2c";
   primary: string = "#fa5b04";
   secondary: string = "#f9f9f9";
+
+  minTablet: number = 680;
+  maxMobile: number = this.minTablet - 1;
+  minDesktop: number = 1040;
+  maxTablet: number = this.minDesktop - 1;
+
+  gutter: number = 12;
+  fontCopy: string = `
+  font-size: 14px;
+  line-height: 1.5;
+
+  @media screen and (min-width: ${this.minTablet}px) {
+    font-size: 16px;
+  }
+
+  @media screen and (min-width: ${this.minDesktop}px) {
+    font-size: 18px;
+  }
+  `;
+  buttonMixin: string = `
+  ${this.fontCopy}
+  padding: 6px 8px;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 0 15px ${this.primary};
+  background-color: ${this.primary};
+  color: ${this.secondary};
+  font-size: 14px;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  @media screen and (min-width: ${this.minTablet}px) {
+    padding: 8px 10px;
+  }
+  `;
+  resetButton: string = `
+  border: none;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  overflow: visible;
+  background: transparent;
+  color: inherit;
+  `;
 
 }
 

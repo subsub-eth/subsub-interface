@@ -1,26 +1,59 @@
+import {AppConfig, ConnectionConfig, ContractAddresses} from "../Config";
 import Web3 from "web3";
 import {VaultFactoryWrapper, Web3VaultFactory} from "../contract/VaultFactoryWrapper";
 import {CreatorVaultFactory} from "../../../../types/web3-v1-contracts/CreatorVaultFactory";
 import CreatorVaultFactoryAbi from "../../../../build/contracts/CreatorVaultFactory.json";
+import {Address} from "../types";
+
+export function web3Factory(conn: ConnectionConfig,
+  contracts: ContractAddresses): Web3Factory {
+  return new DefaultWeb3Factory(conn, contracts);
+}
 
 /**
   * Creates a Web3 Connection and manages connection changes at runtime
   **/
-export class Web3Factory {
-  private static instance: Web3Connection;
-
-  private static callbacksRegistered: boolean = false;
-
+export interface Web3Factory {
   /**
-    * Returns a new instance that either uses a configured default or uses the 
-    * given provider 
+    * Returns a new instance that either uses a configured default or uses the
+    * given provider
     *
-    * @param changeCallback is called with an updated instance if a runtime 
+    * @param changeCallback is called with an updated instance if a runtime
     * config change occurs
     * @param ethereum given/injected provider
     * @returns a web3Connection
     **/
-  static async getInstance(changeCallback: (connection: Web3Connection) => void,
+  getInstance(changeCallback: (connection: Web3Connection) => void,
+    ethereum: any | null):
+    Promise<Web3Connection>;
+}
+
+/**
+  * Creates a Web3 Connection and manages connection changes at runtime
+  **/
+class DefaultWeb3Factory implements Web3Factory {
+  private connection: ConnectionConfig;
+  private contracts: ContractAddresses;
+
+  // only viable for metamask?
+  private callbacksRegistered: boolean = false;
+
+  constructor(connection: ConnectionConfig,
+    contracts: ContractAddresses) {
+    this.connection = connection;
+    this.contracts = contracts;
+  }
+
+  /**
+    * Returns a new instance that either uses a configured default or uses the
+    * given provider
+    *
+    * @param changeCallback is called with an updated instance if a runtime
+    * config change occurs
+    * @param ethereum given/injected provider
+    * @returns a web3Connection
+    **/
+  async getInstance(changeCallback: (connection: Web3Connection) => void,
     ethereum: any | null):
     Promise<Web3Connection> {
 
@@ -35,7 +68,7 @@ export class Web3Factory {
     return instance;
   }
 
-  private static registerChangeCallbacks(ethereum: any, changeCallback:
+  private registerChangeCallbacks(ethereum: any, changeCallback:
     (connection: Web3Connection) => void) {
     const recreate = () => {
       this.createInstance(ethereum).then(changeCallback);
@@ -51,16 +84,16 @@ export class Web3Factory {
     });
   }
 
-  private static async createInstance(ethereum: any): Promise<Web3Connection> {
+  private async createInstance(ethereum: any): Promise<Web3Connection> {
     const [web3, defaultConnection] = await this.getProvider(ethereum);
 
     console.log(`creating new web3 connection`);
-    this.instance = new DefaultWeb3Connection(web3, defaultConnection);
-
-    return this.instance;
+    return defaultConnection ?
+        new DefaultWeb3Connection(web3, this.contracts) :
+        new InjectedWeb3Connection(web3, this.contracts)
   }
 
-  private static async getProvider(ethereum: any): Promise<[Web3, boolean]> {
+  private async getProvider(ethereum: any): Promise<[Web3, boolean]> {
     const checkChainId = async (id: number) => {
       const res = await ethereum.request({method: "eth_chainId"});
       console.log(`Current chainId is ${res}`);
@@ -69,8 +102,7 @@ export class Web3Factory {
 
     if (ethereum && ethereum.request) {
 
-      // TODO get chainid from config
-      if (await checkChainId(1337)) {
+      if (await checkChainId(this.connection.chainId)) {
         // provider is injected and chain id matches
         console.log(`Using injected web3 provider`);
         return [new Web3(ethereum), false];
@@ -80,17 +112,15 @@ export class Web3Factory {
 
     console.log(`No matching injected provider found, using default connection`);
 
-    // TODO get from config
-    return [new Web3("ws://localhost:9545"), true];
+    return [new Web3(this.connection.rpcUrl), true];
   }
 }
 
 
 export interface Web3Connection {
 
-  isUsingDefaultConnection(): boolean
+  isConnectable(): boolean
 
-  // TODO isConnectable();
   connect(): Promise<string>
 
   isConnected(): Promise<boolean>
@@ -102,38 +132,41 @@ export interface Web3Connection {
   getVaultFactory(): Promise<VaultFactoryWrapper>
 }
 
-// TODO impl for default connection seperated from injected one
-export class DefaultWeb3Connection implements Web3Connection {
-  private web3: Web3;
-  private isDefaultConnection: boolean;
+function getContract<T>(web3: Web3, abi: any,
+  address: Address, account?: Address | null) {
+  const opt = !!account ? {from: account} : {};
+  const web3Contract =
+    (new web3.eth.Contract(abi,
+      address,
+      opt) as any) as T;
 
-  constructor(web3: Web3, isUsingDefaultConnection: boolean) {
+  return web3Contract;
+}
+
+class InjectedWeb3Connection implements Web3Connection {
+  private readonly web3: Web3;
+  private readonly contracts: ContractAddresses;
+
+  constructor(web3: Web3, contracts: ContractAddresses) {
     this.web3 = web3;
-    this.isDefaultConnection = isUsingDefaultConnection;
+    this.contracts = contracts;
   }
 
-  isUsingDefaultConnection(): boolean {
-    return this.isDefaultConnection;
+  isConnectable(): boolean {
+    return false;
   }
 
   async connect(): Promise<string> {
-    if (this.isDefaultConnection) {
-      return Promise.reject("Unable to connect on default connection");
-    }
     const accounts = await this.web3.eth.requestAccounts();
     return accounts[0];
   }
+
   async isConnected(): Promise<boolean> {
-    if (this.isDefaultConnection) {
-      return false;
-    }
     const acc = await this.getAccount();
     return !!acc;
   }
-  async getAccount(): Promise<string | null> {
-    if (this.isDefaultConnection) {
-      return null;
-    }
+
+  async getAccount(): Promise<Address | null> {
     const accounts = await this.web3.eth.getAccounts();
     console.log(`returning accounts: ${accounts}`);
     return accounts[0];
@@ -142,9 +175,43 @@ export class DefaultWeb3Connection implements Web3Connection {
   async getVaultFactory(): Promise<VaultFactoryWrapper> {
     const account = await this.getAccount();
     const web3Contract =
-      (new this.web3.eth.Contract(CreatorVaultFactoryAbi.abi,
-        "0xd97B877441d113E4f972b5310C8d264e1A75714B",
-        {from: account}) as any) as CreatorVaultFactory;
+      getContract<CreatorVaultFactory>(this.web3,
+        CreatorVaultFactoryAbi.abi,
+        this.contracts.vaultFactory,
+        account);
+    console.log(`returning web3Contract ${web3Contract}`);
+    return new Web3VaultFactory(web3Contract);
+  }
+}
+
+class DefaultWeb3Connection implements Web3Connection {
+  private web3: Web3;
+  private readonly contracts: ContractAddresses;
+
+  constructor(web3: Web3, contracts: ContractAddresses) {
+    this.web3 = web3;
+    this.contracts = contracts;
+  }
+
+  isConnectable(): boolean {
+    return true;
+  }
+
+  async connect(): Promise<string> {
+    return Promise.reject("Unable to connect on default connection");
+  }
+  async isConnected(): Promise<boolean> {
+    return false;
+  }
+  async getAccount(): Promise<string | null> {
+    return null;
+  }
+
+  async getVaultFactory(): Promise<VaultFactoryWrapper> {
+    const web3Contract =
+      getContract<CreatorVaultFactory>(this.web3,
+        CreatorVaultFactoryAbi.abi,
+        this.contracts.vaultFactory);
     console.log(`returning web3Contract ${web3Contract}`);
     return new Web3VaultFactory(web3Contract);
   }
