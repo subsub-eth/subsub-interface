@@ -4,7 +4,6 @@ import {
   HashRouter as Router,
   Switch,
   Route,
-  NavLink
 } from "react-router-dom";
 import {hot} from "react-hot-loader";
 import {Reset} from "styled-reset";
@@ -14,26 +13,22 @@ import {
   GlobalStyle
 } from "./Theme";
 
-import { ToastContainer, toast } from 'react-toastify';
+import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import BN from "bn.js";
-import Web3 from 'web3';
 
 import {HasWeb3Connection} from "./propTypes";
-import { AppConfig, local } from "./Config";
-import {Web3Connection, Web3Factory, web3Factory as w3f} from "./connection/Web3Connection";
+import {local} from "./Config";
+import {Web3Connection, web3Factory as w3f} from "./connection/Web3Connection";
 import {VaultFactoryWrapper} from "./contract/VaultFactoryWrapper";
 
-import { Header } from "./Header";
-
-const reactLogo = require("./../assets/img/react_logo.svg");
-
-const red = "red";
+import {Header} from "./Header";
+import {Create} from "./Create";
+import {Vault} from "./Vault";
 
 const web3Factory = w3f(local.connection, local.contracts);
 
-
+const red = "red";
 export const AppDiv = styled.div`
   font-family: helvetica, arial, sans-serif;
   padding: 2em;
@@ -88,33 +83,18 @@ export function App() {
 }
 
 function AppContainer({web3Connection}: {} & HasWeb3Connection) {
-  const [factory, setFactory] = useState<VaultFactoryWrapper | null>(null);
-
-  useEffect(() => {
-    web3Connection.getVaultFactory()
-    .then(fac => {
-      console.log(`setting factory ${fac}`);
-      setFactory(fac);
-    })
-
-  }, [web3Connection]);
-
-  const createVault = () => {
-    if (factory) {
-      web3Connection.getAccount()
-      .then(acc => factory.create("" + acc, hash => toast.info(`hash: ${hash}`)))
-      .then(res => toast.success(`success! ${res}`), err => toast.error(`Error! ${err}`));
-    }
-  }
 
   return (
     <>
-      <Header web3Connection={web3Connection}/>
+      <Header web3Connection={web3Connection} />
       <Switch>
         <Route path="/create">
-          <div>create</div>
-          <button onClick={createVault}>do create</button>
+          <Create web3Connection={web3Connection} />
         </Route>
+        <Route path="/vault/:address"
+          render={(props) =>
+            <Vault address={props.match.params.address}
+              web3Connection={web3Connection} />} />
         <Route path="/">
           <AppContent />
         </Route>

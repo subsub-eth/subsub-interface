@@ -1,8 +1,17 @@
 import {AppConfig, ConnectionConfig, ContractAddresses} from "../Config";
 import Web3 from "web3";
 import {VaultFactoryWrapper, Web3VaultFactory} from "../contract/VaultFactoryWrapper";
+import {VaultWrapper, Web3Vault} from "../contract/VaultWrapper";
+import {IERC20Wrapper, Web3IERC20} from "../contract/IErc20Wrapper";
+
 import {CreatorVaultFactory} from "../../../../types/web3-v1-contracts/CreatorVaultFactory";
+import {CreatorVault} from "../../../../types/web3-v1-contracts/CreatorVault";
+import {IERC20} from "../../../../types/web3-v1-contracts/IERC20";
+
 import CreatorVaultFactoryAbi from "../../../../build/contracts/CreatorVaultFactory.json";
+import CreatorVaultAbi from "../../../../build/contracts/CreatorVault.json";
+import IERC20VaultAbi from "../../../../build/contracts/IERC20.json";
+
 import {Address} from "../types";
 
 export function web3Factory(conn: ConnectionConfig,
@@ -73,6 +82,17 @@ class DefaultWeb3Factory implements Web3Factory {
     const recreate = () => {
       this.createInstance(ethereum).then(changeCallback);
     }
+    // TODO is there a way to trigger on metamask unlock?
+    ethereum.on('connect', (connectionInfo: any) => {
+      // TODO do we actually need this and a disconnect event?
+      console.log(`Connected event`, connectionInfo);
+    });
+
+    ethereum.on('disconnect', (providerRpcError: any) => {
+      // TODO do we actually need this and a disconnect event?
+      console.log(`Disconnect event`, providerRpcError);
+    });
+
     ethereum.on('chainChanged', (chainId: any) => {
       console.log(`Creating new web3 connection after chainId change`);
       recreate();
@@ -129,7 +149,11 @@ export interface Web3Connection {
 
   // get contract X
   // list vault contract
+  getToken(address: Address): Promise<IERC20Wrapper>
+
   getVaultFactory(): Promise<VaultFactoryWrapper>
+
+  getVault(address: Address): Promise<VaultWrapper>
 }
 
 function getContract<T>(web3: Web3, abi: any,
@@ -179,8 +203,30 @@ class InjectedWeb3Connection implements Web3Connection {
         CreatorVaultFactoryAbi.abi,
         this.contracts.vaultFactory,
         account);
-    console.log(`returning web3Contract ${web3Contract}`);
+    console.log(`returning web3Contract`, web3Contract);
     return new Web3VaultFactory(web3Contract);
+  }
+
+  async getVault(address: string): Promise<VaultWrapper> {
+    const account = await this.getAccount();
+    const web3Contract =
+      getContract<CreatorVault>(this.web3,
+        CreatorVaultAbi.abi,
+        address,
+        account);
+    console.log(`returning web3Contract`, web3Contract);
+    return new Web3Vault(web3Contract);
+  }
+
+  async getToken(address: string): Promise<IERC20Wrapper> {
+    const account = await this.getAccount();
+    const web3Contract =
+      getContract<IERC20>(this.web3,
+        IERC20VaultAbi.abi,
+        address,
+        account);
+    console.log(`returning web3Contract`, web3Contract);
+    return new Web3IERC20(web3Contract);
   }
 }
 
@@ -214,5 +260,23 @@ class DefaultWeb3Connection implements Web3Connection {
         this.contracts.vaultFactory);
     console.log(`returning web3Contract ${web3Contract}`);
     return new Web3VaultFactory(web3Contract);
+  }
+
+  async getVault(address: string): Promise<VaultWrapper> {
+    const web3Contract =
+      getContract<CreatorVault>(this.web3,
+        CreatorVaultAbi.abi,
+        address);
+    console.log(`returning web3Contract`, web3Contract);
+    return new Web3Vault(web3Contract);
+  }
+
+  async getToken(address: string): Promise<IERC20Wrapper> {
+    const web3Contract =
+      getContract<IERC20>(this.web3,
+        IERC20VaultAbi.abi,
+        address);
+    console.log(`returning web3Contract`, web3Contract);
+    return new Web3IERC20(web3Contract);
   }
 }

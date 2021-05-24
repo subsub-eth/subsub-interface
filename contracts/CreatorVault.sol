@@ -36,16 +36,16 @@ contract CreatorVault is Ownable, Blockaware {
   }
 
   // The token this contract does accept
-  IERC20 private immutable token;
+  IERC20 private immutable _token;
 
   uint private _creatorFeePerBlock;
 
   // initial deposits of supporters
   mapping(address => UserDeposit) private deposits;
 
-  constructor(address _creator, address _token) {
+  constructor(address _creator, address __token) {
 
-    token = IERC20(_token);
+    _token = IERC20(__token);
     transferOwnership(_creator);
     // TODO hardcoded for now
     _creatorFeePerBlock = 1;
@@ -57,6 +57,10 @@ contract CreatorVault is Ownable, Blockaware {
   // TODO change to public?
   function creatorFeePerBlock() public view returns (uint) {
     return _creatorFeePerBlock;
+  }
+
+  function token() public view returns (IERC20) {
+    return _token;
   }
 
   function updateState() public returns (bool) {
@@ -144,7 +148,7 @@ contract CreatorVault is Ownable, Blockaware {
 
     address user = _msgSender();
 
-    token.safeTransferFrom(user, address(this), _amount);
+    _token.safeTransferFrom(user, address(this), _amount);
 
     UserDeposit storage existingDeposit = deposits[user];
 
@@ -198,7 +202,7 @@ contract CreatorVault is Ownable, Blockaware {
     updateState();
     // transfer tokens
 
-    token.transfer(owner(), _claimableEarnings);
+    _token.safeTransfer(owner(), _claimableEarnings);
     _claimableEarnings = 0;
   }
 

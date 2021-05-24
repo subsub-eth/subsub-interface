@@ -27,15 +27,15 @@ export class Web3VaultFactory implements VaultFactoryWrapper {
   public async create(address: string, onTransactionHash: (hash: string) => void): Promise<string> {
     return this.delegate.methods.create(address)
     .send()
-    .once('sending', () => console.log("sending"))
-    .once('sent', () => console.log("sent"))
+    .once('sending', () => console.debug("sending"))
+    .once('sent', () => console.debug("sent"))
     .once('transactionHash', onTransactionHash)
     .then(res => {
-      console.log(`received result ${JSON.stringify(res)}`);
+      console.log(`received result`, res);
       if (res.events && res.events.VaultCreation) {
         const creation = res.events.VaultCreation as VaultCreation;
         const vaultAddress = creation.returnValues._newContract;
-        console.log(`New vault created at ${vaultAddress}`);
+        console.debug(`New vault created at ${vaultAddress}`);
         return vaultAddress;
       }
       // TODO this is an error
