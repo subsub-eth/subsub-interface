@@ -4,6 +4,9 @@ import {
 
 import {Address} from "../types";
 
+import BN from "bn.js";
+import {bn, maxUint} from "../util";
+
 /**
   * Provides abstraction on top of a ERC20 Token
   */
@@ -17,7 +20,7 @@ export interface IERC20Wrapper {
   /**
     * allowance
     */
-  allowance(owner: Address, spender: Address): Promise<string>
+  allowance(owner: Address, spender: Address): Promise<BN>
 
 }
 
@@ -30,20 +33,27 @@ export class Web3IERC20 implements IERC20Wrapper {
   }
 
   async approve(spender: Address, onTransactionHash: (hash: string) => void): Promise<boolean> {
-    const amount = "100000";
+    const amount = maxUint;
+
+    console.debug(`Approving token amount`, amount, amount.toString());
 
     return this.delegate.methods.approve(spender, amount).send()
-    .once('transactionHash', onTransactionHash)
-    .then(res => {
-      // TODO error handling
-      console.debug('received success', res);
-      return true;
-    });
+      .once('transactionHash', onTransactionHash)
+      .then(res => {
+        // TODO error handling
+        console.debug('received success', res);
+        return true;
+      });
   }
 
-  async allowance(owner: Address, spender: Address): Promise<string> {
-    // TODO cache
-    return this.delegate.methods.allowance(owner, spender).call();
+  async allowance(owner: Address, spender: Address): Promise<BN> {
+    const allowance =
+      await this.delegate.methods.allowance(owner, spender).call()
+        .then(bn);
+
+    console.debug(`Spender ${spender}'s allowance of user ${owner}'s tokens is ${allowance.toString()}`,
+                  this.delegate);
+    return allowance;
   }
 }
 

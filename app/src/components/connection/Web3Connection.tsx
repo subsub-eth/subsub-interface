@@ -109,8 +109,8 @@ class DefaultWeb3Factory implements Web3Factory {
 
     console.log(`creating new web3 connection`);
     return defaultConnection ?
-        new DefaultWeb3Connection(web3, this.contracts) :
-        new InjectedWeb3Connection(web3, this.contracts)
+      new DefaultWeb3Connection(web3, this.contracts) :
+      new InjectedWeb3Connection(web3, this.contracts)
   }
 
   private async getProvider(ethereum: any): Promise<[Web3, boolean]> {
@@ -170,6 +170,7 @@ function getContract<T>(web3: Web3, abi: any,
 class InjectedWeb3Connection implements Web3Connection {
   private readonly web3: Web3;
   private readonly contracts: ContractAddresses;
+  private _account?: Address | null;
 
   constructor(web3: Web3, contracts: ContractAddresses) {
     this.web3 = web3;
@@ -190,10 +191,14 @@ class InjectedWeb3Connection implements Web3Connection {
     return !!acc;
   }
 
-  async getAccount(): Promise<Address | null> {
+  private async _getAccount(): Promise<Address | null> {
     const accounts = await this.web3.eth.getAccounts();
     console.log(`returning accounts: ${accounts}`);
     return accounts[0];
+  }
+
+  async getAccount(): Promise<Address | null> {
+    return this._account ??= await this._getAccount();
   }
 
   async getVaultFactory(): Promise<VaultFactoryWrapper> {

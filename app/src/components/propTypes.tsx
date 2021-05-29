@@ -8,15 +8,15 @@ export interface HasWeb3Connection {
 }
 
 export interface HasAddress {
-  address: Address | null
+  address: Address;
 }
 
 export interface HasVault {
-  vault: VaultWrapper | null
+  vault: VaultWrapper;
 }
 
 export interface HasToken {
-  token: IERC20Wrapper | null
+  token: IERC20Wrapper
 }
 
 export interface HasClassName {

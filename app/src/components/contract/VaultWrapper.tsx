@@ -4,6 +4,9 @@ import {
 
 import {Address} from "../types";
 
+import BN from "bn.js";
+import {bn, maxUint, zero} from "../util";
+
 /**
   * Provides abstraction on top of a CreatorVault
   */
@@ -19,25 +22,26 @@ export interface VaultWrapper {
   /**
     * gets the number of active subscriptions
     */
-  activeSubscriptions(): Promise<string>;
+  activeSubscriptions(): Promise<BN>;
 
   /**
     * gets the current pending deposit of an address
     */
-  depositOf(address: Address): Promise<string>;
+  depositOf(address: Address): Promise<BN>;
 
   /**
     * deposit amount into vault
   */
-  deposit(amount: string,
-                       onTransactionHash: (hash: string) => void): Promise<boolean>;
+  deposit(amount: BN,
+    onTransactionHash: (hash: string) => void): Promise<boolean>;
 }
 
 export class Web3Vault implements VaultWrapper {
 
   private delegate: CreatorVault;
+  private _deposits: Record<Address, BN> = {};
 
-  address: Address;
+  public readonly address: Address;
 
   constructor(delegate: CreatorVault) {
     this.delegate = delegate;
@@ -51,29 +55,35 @@ export class Web3Vault implements VaultWrapper {
     return tokenAddress;
   }
 
-  public async activeSubscriptions(): Promise<string> {
-    const subs = await this.delegate.methods.activeSubscriptions().call();
+  public async activeSubscriptions(): Promise<BN> {
+    const subs =
+      await this.delegate.methods.activeSubscriptions().call()
+        .then(bn);
 
-    console.debug(`Vault has ${subs} subs`, this.delegate);
+    console.debug(`Vault has ${subs.toString()} subs`, this.delegate);
     return subs;
   }
 
-  public async depositOf(address: Address): Promise<string> {
-    const deposit = await this.delegate.methods.depositOf(address).call();
+  public async depositOf(address: Address): Promise<BN> {
+    console.log(`despositOf `, address);
+    const deposit = this._deposits[address] ??=
+      await this.delegate.methods.depositOf(address).call()
+        .then(bn);
 
-    console.debug(`Deposit of address ${address} in vault is ${deposit}`,
+    console.debug(`Deposit of address ${address} in vault is ${deposit.toString()}`,
       this.delegate);
     return deposit;
   }
 
-  public async deposit(amount: string,
-                       onTransactionHash: (hash: string) => void): Promise<boolean> {
+  public async deposit(amount: BN,
+    onTransactionHash: (hash: string) => void): Promise<boolean> {
     return this.delegate.methods.deposit(amount).send()
-    .once("transactionHash", onTransactionHash)
-    .then(res => {
-      console.debug(`Deposited ${amount} to contract`, this.delegate);
-      return true;
-    });
+      .once("transactionHash", onTransactionHash)
+      .then(res => {
+        console.debug(`Deposited ${amount.toString()} to contract`,
+          this.delegate, res);
+        return true;
+      });
 
   }
 }
