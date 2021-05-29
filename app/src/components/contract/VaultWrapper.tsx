@@ -7,10 +7,17 @@ import {Address} from "../types";
 import BN from "bn.js";
 import {bn, maxUint, zero} from "../util";
 
+export interface Vault {
+  readonly address: Address;
+  readonly token: Address;
+  readonly activeSubs: BN;
+}
 /**
   * Provides abstraction on top of a CreatorVault
   */
 export interface VaultWrapper {
+
+  getValues(): Promise<Vault>
 
   readonly address: Address;
 
@@ -39,13 +46,23 @@ export interface VaultWrapper {
 export class Web3Vault implements VaultWrapper {
 
   private delegate: CreatorVault;
-  private _deposits: Record<Address, BN> = {};
 
   public readonly address: Address;
 
   constructor(delegate: CreatorVault) {
     this.delegate = delegate;
     this.address = delegate.options.address;
+  }
+
+  async getValues(): Promise<Vault> {
+    const token = await this.token();
+    const activeSubs = await this.activeSubscriptions();
+
+    return {
+      address: this.address,
+      token: token,
+      activeSubs: activeSubs
+    };
   }
 
   public async token(): Promise<Address> {
@@ -66,7 +83,7 @@ export class Web3Vault implements VaultWrapper {
 
   public async depositOf(address: Address): Promise<BN> {
     console.log(`despositOf `, address);
-    const deposit = this._deposits[address] ??=
+    const deposit =
       await this.delegate.methods.depositOf(address).call()
         .then(bn);
 
