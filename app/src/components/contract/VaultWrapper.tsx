@@ -15,9 +15,8 @@ export interface Vault {
 /**
   * Provides abstraction on top of a CreatorVault
   */
-export interface VaultWrapper {
+export interface VaultWrapper extends VaultService {
 
-  getValues(): Promise<Vault>
 
   readonly address: Address;
 
@@ -30,6 +29,10 @@ export interface VaultWrapper {
     * gets the number of active subscriptions
     */
   activeSubscriptions(): Promise<BN>;
+}
+
+export interface VaultService {
+  getValues(): Promise<Vault>
 
   /**
     * gets the current pending deposit of an address

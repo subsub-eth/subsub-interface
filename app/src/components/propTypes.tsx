@@ -1,6 +1,6 @@
 import {Web3Connection} from "./connection/Web3Connection";
-import {IERC20Wrapper} from "./contract/IErc20Wrapper";
-import {Vault, VaultWrapper} from "./contract/VaultWrapper";
+import {IERC20Service} from "./contract/IErc20Wrapper";
+import {Vault, VaultService} from "./contract/VaultWrapper";
 import {Address} from "./types";
 
 export interface HasWeb3Connection {
@@ -15,16 +15,16 @@ export interface HasAccount {
   account: Address | null;
 }
 
-export interface HasVault {
-  vault: VaultWrapper;
+export interface HasVaultService {
+  vaultService: VaultService;
 }
 
 export interface HasVaultValues {
-  vaultValues: Vault;
+  vault: Vault;
 }
 
 export interface HasToken {
-  token: IERC20Wrapper
+  token: IERC20Service
 }
 
 export interface HasClassName {

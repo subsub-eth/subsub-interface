@@ -10,8 +10,10 @@ import {bn, maxUint} from "../util";
 /**
   * Provides abstraction on top of a ERC20 Token
   */
-export interface IERC20Wrapper {
+export interface IERC20Wrapper extends IERC20Service {
+}
 
+export interface IERC20Service {
   /**
     * approve an address to spend on behalf of user
     */
@@ -22,6 +24,10 @@ export interface IERC20Wrapper {
     */
   allowance(owner: Address, spender: Address): Promise<BN>
 
+  /**
+    * a user's balance
+    */
+  balanceOf(owner: Address): Promise<BN>
 }
 
 export class Web3IERC20 implements IERC20Wrapper {
@@ -54,6 +60,16 @@ export class Web3IERC20 implements IERC20Wrapper {
     console.debug(`Spender ${spender}'s allowance of user ${owner}'s tokens is ${allowance.toString()}`,
                   this.delegate);
     return allowance;
+  }
+
+  async balanceOf(account: string): Promise<BN> {
+    const balance =
+      await this.delegate.methods.balanceOf(account).call()
+        .then(bn);
+
+    console.debug(`Balance of user ${account} is ${balance.toString()}`,
+                  this.delegate);
+    return balance;
   }
 }
 
