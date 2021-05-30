@@ -67,6 +67,18 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     return _token;
   }
 
+  function getValues() public view returns (
+    string memory version,
+    address addr,
+    IERC20 token,
+    uint activeSubscriptions
+  ) {
+    version = this.version();
+    addr = address(this);
+    token = this.token();
+    activeSubscriptions = this.activeSubscriptions();
+  }
+
   function updateState() public returns (bool) {
     require(_stateUpdated <= _currentBlock());
     if (_stateUpdated == _currentBlock()) {

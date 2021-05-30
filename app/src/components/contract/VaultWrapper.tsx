@@ -64,15 +64,13 @@ export class Web3Vault implements VaultWrapper {
   }
 
   async getValues(): Promise<Vault> {
-    const version = await this.version();
-    const token = await this.token();
-    const activeSubs = await this.activeSubscriptions();
+    const values = await this.delegate.methods.getValues().call();
 
+    console.debug(`Vault ${this.address} values loaded`, values, this.delegate);
     return {
-      version: version,
-      address: this.address,
-      token: token,
-      activeSubs: activeSubs
+      ...values,
+      address: values.addr,
+      activeSubs: bn(values.activeSubscriptions)
     };
   }
 
