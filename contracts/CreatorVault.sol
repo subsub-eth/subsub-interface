@@ -9,8 +9,9 @@ import "solidity-linked-list/contracts/StructuredLinkedList.sol";
 import "./subscriptionlist/SubscriptionList.sol";
 
 import "./Blockaware.sol";
+import "./Versioned.sol";
 
-contract CreatorVault is Ownable, Blockaware {
+contract CreatorVault is Ownable, Blockaware, Versioned {
 
   // TODO refactor _currentBlock() calls with internal method
 
@@ -53,6 +54,9 @@ contract CreatorVault is Ownable, Blockaware {
     _stateUpdated = _currentBlock();
   }
 
+  function version() override external view returns (string memory) {
+    return "CreatorVault.v1";
+  }
 
   // TODO change to public?
   function creatorFeePerBlock() public view returns (uint) {

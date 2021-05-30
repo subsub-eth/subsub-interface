@@ -177,24 +177,44 @@ const VaultHandler = ({vaultService, vault, token, account, updateVaultValues}:
 
 
 export const Vault = ({address, web3Connection}: {address: string} & HasWeb3Connection) => {
-  const [vaultService, setVaultService] = useState<VaultService | null>(null);
+  const [vaultService, setVaultService] =
+    useState<VaultService | null>();
   const [token, setToken] = useState<IERC20Wrapper | null>(null);
 
-  const [vaultValues, setVaultValues] = useState<VaultValues | null>(null);
+  const [vaultValues, setVaultValues] = useState<VaultValues | null>();
   const [account, setAccount] = useState<Address | null>(null);
 
-  const getValues = () => {
+  const getService = async () => {
+    try {
+      const service = await web3Connection.getVault(address)
+      setVaultService(service);
+    } catch (error) {
+      console.error(`Unable to load vault from address ${address}`, error);
+      setVaultService(null);
+    }
+  };
+
+  const getValues = async () => {
     if (!!vaultService) {
-      vaultService.getValues()
-        .then(setVaultValues);
+      try {
+        const values = await vaultService.getValues();
+        setVaultValues(values);
+      } catch (error) {
+        console.error(`Unable to load vault data from address ${address}`,
+          error);
+        setVaultValues(null);
+      }
     }
   }
 
   // set vault
   useEffect(() => {
-    web3Connection.getVault(address)
-      .then(setVaultService);
+    getService();
   }, [address, web3Connection]);
+
+  useEffect(() => {
+    getValues();
+  }, [web3Connection, vaultService]);
 
   // set token
   useEffect(() => {
@@ -206,23 +226,22 @@ export const Vault = ({address, web3Connection}: {address: string} & HasWeb3Conn
 
   // set account
   useEffect(() => {
-    web3Connection.getAccount().then(setAccount);
+    web3Connection.getAccount()
+      .then(setAccount);
   }, [web3Connection]);
-
-  useEffect(() => {
-    getValues();
-  }, [web3Connection, vaultService]);
 
   return (
     <>
-      {!!vaultService && !!vaultValues && !!token ?
-        <VaultHandler
-          vaultService={vaultService}
-          vault={vaultValues}
-          token={token}
-          account={account}
-          updateVaultValues={getValues}
-        /> : <div>Loading...</div>
+      { vaultService === null || vaultValues === null ?
+        <div>Unable to load vault</div> :
+        !!vaultService && !!vaultValues && !!token ?
+          <VaultHandler
+            vaultService={vaultService}
+            vault={vaultValues}
+            token={token}
+            account={account}
+            updateVaultValues={getValues}
+          /> : <div>Loading...</div>
       }
     </>
   );

@@ -8,6 +8,7 @@ import BN from "bn.js";
 import {bn, maxUint, zero} from "../util";
 
 export interface Vault {
+  readonly version: string;
   readonly address: Address;
   readonly token: Address;
   readonly activeSubs: BN;
@@ -21,8 +22,13 @@ export interface VaultWrapper extends VaultService {
   readonly address: Address;
 
   /**
+    * version of this vault
+    */
+  version(): Promise<string>;
+
+  /**
     * the token of this vault
-  */
+    */
   token(): Promise<Address>;
 
   /**
@@ -41,7 +47,7 @@ export interface VaultService {
 
   /**
     * deposit amount into vault
-  */
+    */
   deposit(amount: BN,
     onTransactionHash: (hash: string) => void): Promise<boolean>;
 }
@@ -58,14 +64,23 @@ export class Web3Vault implements VaultWrapper {
   }
 
   async getValues(): Promise<Vault> {
+    const version = await this.version();
     const token = await this.token();
     const activeSubs = await this.activeSubscriptions();
 
     return {
+      version: version,
       address: this.address,
       token: token,
       activeSubs: activeSubs
     };
+  }
+
+  public async version(): Promise<string> {
+    const version = await this.delegate.methods.version().call();
+
+    console.debug(`Vault is version ${version}`, this.delegate);
+    return version;
   }
 
   public async token(): Promise<Address> {
