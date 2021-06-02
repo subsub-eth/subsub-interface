@@ -108,11 +108,11 @@ contract("CreatorVault", async accounts => {
 
       await token.approve(vault.address, amount);
       await vault.deposit(amount, {from: user});
-      assert.equal((await vault.activeSubscriptions()).toNumber(), 1);
+      assert.equal((await vault.getActiveSubscriptions()).toNumber(), 1);
 
       // create some random transaction
       await vault.setCurrentBlock(1);
-      assert.equal((await vault.activeSubscriptions()).toNumber(), 1);
+      assert.equal((await vault.getActiveSubscriptions()).toNumber(), 1);
 
       const potentialEarnings = await vault.creatorEarnings();
 

@@ -62,20 +62,20 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     _stateUpdated = _currentBlock();
   }
 
-  function version() override external view returns (string memory) {
+  function getVersion() override external pure returns (string memory) {
     return "CreatorVault.v1";
   }
 
   // TODO change to public?
-  function creatorFeePerBlock() public view returns (uint) {
+  function getCreatorFeePerBlock() public view returns (uint) {
     return _creatorFeePerBlock;
   }
 
-  function activeSubscriptions() public view returns (uint) {
+  function getActiveSubscriptions() public view returns (uint) {
     return subList.activeSubscriptions;
   }
 
-  function token() public view returns (IERC20) {
+  function getToken() public view returns (IERC20) {
     return _token;
   }
 
@@ -85,10 +85,10 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     IERC20 token,
     uint activeSubscriptions
   ) {
-    version = this.version();
+    version = this.getVersion();
     addr = address(this);
-    token = this.token();
-    activeSubscriptions = this.activeSubscriptions();
+    token = this.getToken();
+    activeSubscriptions = this.getActiveSubscriptions();
   }
 
   function updateState() public returns (bool) {
@@ -108,10 +108,10 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     // update sub counter
     // update creator claimable earnings
 
-    (, uint creatorEarnings) = _getStateUpdate();
+    (, uint _creatorEarnings) = _getStateUpdate();
 
     // actually update state
-    _claimableEarnings += creatorEarnings;
+    _claimableEarnings += _creatorEarnings;
 
     // clean up sub list
     (bool headExists, uint head, uint value) = subList.head();
@@ -128,8 +128,8 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
   /**
     what are the changes from previous to current state?
   */
-  function _getStateUpdate() private view returns (uint subsEnded,
-                                                   uint creatorEarnings) {
+  function _getStateUpdate() private view returns (uint _subsEnded,
+                                                   uint _creatorEarnings) {
 
     (bool listNotEmpty, , ) = subList.head();
     if (!listNotEmpty) {
@@ -141,15 +141,15 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     uint activeSubs = subList.activeSubscriptions;
 
     while(nodeExists && currentNode <= _currentBlock()) {
-      creatorEarnings += activeSubs * (currentNode - claimedBlock);
+      _creatorEarnings += activeSubs * (currentNode - claimedBlock);
 
       activeSubs -= subsExpiring;
       claimedBlock = currentNode;
       (nodeExists, currentNode, subsExpiring) = subList.next(currentNode);
     }
 
-    creatorEarnings += activeSubs * (_currentBlock() - claimedBlock);
-    subsEnded = subList.activeSubscriptions - activeSubs;
+    _creatorEarnings += activeSubs * (_currentBlock() - claimedBlock);
+    _subsEnded = subList.activeSubscriptions - activeSubs;
   }
 
   /**
@@ -189,8 +189,8 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     // TODO handle from last claim/update block
     if (userDeposit.lastDepositAt > 0) {
       // remove existing sub list entry
-      uint endBlock = _subEndBlock(userDeposit.amount, userDeposit.lastDepositAt);
-      subList.remove(endBlock, 1);
+      uint _endBlock = _subEndBlock(userDeposit.amount, userDeposit.lastDepositAt);
+      subList.remove(_endBlock, 1);
     }
 
     // store initial/updated deposit
@@ -227,9 +227,9 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
 
   function creatorEarnings() public view returns (uint earnings) {
 
-    (, uint creatorEarnings) = _getStateUpdate();
+    (, uint _creatorEarnings) = _getStateUpdate();
 
-    earnings = _claimableEarnings + creatorEarnings;
+    earnings = _claimableEarnings + _creatorEarnings;
   }
 
   function creatorWithdraw() public {

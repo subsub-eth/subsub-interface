@@ -10,5 +10,5 @@ interface Versioned {
   /**
     * @notice Returns a version
     */
-  function version() external view returns (string memory);
+  function getVersion() external view returns (string memory);
 }

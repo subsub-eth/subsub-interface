@@ -75,14 +75,14 @@ export class Web3Vault implements VaultWrapper {
   }
 
   public async version(): Promise<string> {
-    const version = await this.delegate.methods.version().call();
+    const version = await this.delegate.methods.getVersion().call();
 
     console.debug(`Vault is version ${version}`, this.delegate);
     return version;
   }
 
   public async token(): Promise<Address> {
-    const tokenAddress = await this.delegate.methods.token().call();
+    const tokenAddress = await this.delegate.methods.getToken().call();
 
     console.debug(`Vault uses ${tokenAddress} token`, this.delegate);
     return tokenAddress;
@@ -90,7 +90,7 @@ export class Web3Vault implements VaultWrapper {
 
   public async activeSubscriptions(): Promise<BN> {
     const subs =
-      await this.delegate.methods.activeSubscriptions().call()
+      await this.delegate.methods.getActiveSubscriptions().call()
         .then(bn);
 
     console.debug(`Vault has ${subs.toString()} subs`, this.delegate);

@@ -30,9 +30,9 @@ library SubscriptionList {
       return (false, 0, 0);
     }
 
-    (bool exists, uint head) = self.expirations.getNextNode(0);
+    (bool _exists, uint _head) = self.expirations.getNextNode(0);
 
-    return (exists, head, self.expirationCount[head]);
+    return (_exists, _head, self.expirationCount[_head]);
   }
 
   /**
@@ -61,10 +61,10 @@ library SubscriptionList {
       return (false, 0, 0);
     }
 
-    (bool exists, uint next) = self.expirations.getNextNode(pos);
+    (bool _exists, uint _next) = self.expirations.getNextNode(pos);
 
-    if (exists && next > 0) {
-      return (exists, next, self.expirationCount[next]);
+    if (_exists && _next > 0) {
+      return (_exists, _next, self.expirationCount[_next]);
     }
 
     return (false, 0, 0);
