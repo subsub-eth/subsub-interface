@@ -2,7 +2,7 @@ import BN from 'bn.js';
 import {
 } from '../../types/truffle-contracts';
 
-import eb from '../helper';
+import { equalsBn as eb } from '../helper';
 
 const SubscriptionContainer = artifacts.require("SubscriptionContainer");
 const equalsBn = eb(assert.ok);

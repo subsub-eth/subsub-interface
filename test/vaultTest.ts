@@ -1,12 +1,31 @@
 import BN from 'bn.js';
 import {
   CreatezInstance,
-  BlockdeterminedCreatorVaultInstance
+  BlockdeterminedCreatorVaultInstance,
 } from '../types/truffle-contracts';
+import {
+  UserDeposited
+} from '../types/truffle-contracts/BlockdeterminedCreatorVault';
+
+import { findFirstEvent } from './helper';
 
 const Createz = artifacts.require("Createz");
 const CreatorVault = artifacts.require("BlockdeterminedCreatorVault");
 const CreatorVaultFactory = artifacts.require("CreatorVaultFactory");
+
+const assertUserDeposited = (deposited: UserDeposited, v: {
+  user: string,
+  amount: BN,
+  newDeposit: BN,
+  allTimeDeposit: BN,
+  initialDepositAt: BN,
+}) => {
+    assert.isOk(deposited.args.user == v.user);
+    assert.isOk(deposited.args.amount.eq(v.amount));
+    assert.isOk(deposited.args.newDeposit.eq(v.newDeposit));
+    assert.isOk(deposited.args.allTimeDeposit.eq(v.allTimeDeposit));
+    assert.isOk(deposited.args.initialDepositAt.eq(v.initialDepositAt));
+}
 
 contract("CreatorVault", async accounts => {
 
@@ -39,13 +58,24 @@ contract("CreatorVault", async accounts => {
       const amount = new BN(1000);
 
       await token.approve(vault.address, amount);
-      await vault.deposit(amount, {from: user});
+      const deposit = await vault.deposit(amount, {from: user});
 
       const vaultBalance = await token.balanceOf(vault.address);
       const userDeposit = await vault.depositOf(user);
 
       assert.isOk(vaultBalance.eq(amount));
       assert.isOk(vaultBalance.eq(userDeposit));
+
+      const deposited =
+        findFirstEvent<UserDeposited>(deposit.logs, "UserDeposited")
+
+      assertUserDeposited(deposited, {
+        user: user,
+        amount: amount,
+        newDeposit: amount,
+        allTimeDeposit: amount,
+        initialDepositAt: new BN(0)
+      })
 
     });
 
@@ -92,7 +122,7 @@ contract("CreatorVault", async accounts => {
       await vault.creatorWithdraw();
       const updatedCreatorBalance = await token.balanceOf(creator);
       assert.isOk(updatedCreatorBalance.eq(potentialEarnings.add(new BN(1))),
-                  `Creator balance is actually ${updatedCreatorBalance.toNumber()}`);
+        `Creator balance is actually ${updatedCreatorBalance.toNumber()}`);
 
     });
   })

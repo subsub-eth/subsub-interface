@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 
-export default function equalsBn(func: (value: boolean, msg?: string) => void):
+export function equalsBn(func: (value: boolean, msg?: string) => void):
   (num1: BN | number, num2: BN | number) => void {
 
   return function (num1: BN | number, num2: BN | number): void {
@@ -9,4 +9,8 @@ export default function equalsBn(func: (value: boolean, msg?: string) => void):
 
     func(bn1.eq(bn2), `${bn1.toString()} is not equal to ${bn2.toString()}`);
   }
+}
+
+export function findFirstEvent<T>(logs: any[], type: string) {
+  return (logs.find(e => e.event === `${type}`) as any) as T;
 }

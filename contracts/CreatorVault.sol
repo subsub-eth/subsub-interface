@@ -26,15 +26,23 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
 
   struct UserDeposit {
     // last block of last deposit
-    uint blocktime;
+    uint lastDepositAt;
     // total amount of tokens at last deposit
     uint amount;
     // TODO implement
     // block of first ever deposit
-    uint initialBlock;
+    uint initialDepositAt;
     // total amount of tokens ever deposited
     uint totalAmount;
   }
+
+  event UserDeposited(
+    address indexed user,
+    uint amount,
+    uint newDeposit,
+    uint allTimeDeposit,
+    uint initialDepositAt
+  );
 
   // The token this contract does accept
   IERC20 private immutable _token;
@@ -61,6 +69,10 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
   // TODO change to public?
   function creatorFeePerBlock() public view returns (uint) {
     return _creatorFeePerBlock;
+  }
+
+  function activeSubscriptions() public view returns (uint) {
+    return subList.activeSubscriptions;
   }
 
   function token() public view returns (IERC20) {
@@ -147,7 +159,7 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     // TODO when does payment actually happen? start or end of block?
     UserDeposit storage userDeposit = deposits[_user];
 
-    uint paidAmount = (_currentBlock() - userDeposit.blocktime) * _creatorFeePerBlock;
+    uint paidAmount = (_currentBlock() - userDeposit.lastDepositAt) * _creatorFeePerBlock;
 
     if (paidAmount > userDeposit.amount) {
       return 0;
@@ -164,29 +176,32 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
 
     address user = _msgSender();
 
+    // get the tokens first
     _token.safeTransferFrom(user, address(this), _amount);
 
-    UserDeposit storage existingDeposit = deposits[user];
+    // get possible existing deposit or generate empty new one
+    UserDeposit storage userDeposit = deposits[user];
 
     // existing/remaining deposit value
     uint existing = depositOf(user);
     uint newAmount = existing + _amount;
 
     // TODO handle from last claim/update block
-    if (existingDeposit.blocktime > 0) {
+    if (userDeposit.lastDepositAt > 0) {
       // remove existing sub list entry
-      uint endBlock = _subEndBlock(existingDeposit.amount, existingDeposit.blocktime);
+      uint endBlock = _subEndBlock(userDeposit.amount, userDeposit.lastDepositAt);
       subList.remove(endBlock, 1);
     }
 
     // store initial/updated deposit
-    deposits[user] = UserDeposit({
-      blocktime: _currentBlock(),
-      amount: newAmount,
-      // TODO
-      initialBlock: 0,
-      totalAmount: 0
-    });
+    userDeposit.lastDepositAt = _currentBlock();
+    userDeposit.amount = newAmount;
+    userDeposit.totalAmount += _amount;
+
+    if (userDeposit.initialDepositAt == 0) {
+      // never to be changed again
+      userDeposit.initialDepositAt = _currentBlock();
+    }
 
     // calculate end of subscription
     // TODO handle updated deposit
@@ -194,6 +209,14 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     // TODO throw exception
     uint endBlock = _subEndBlock(newAmount, _currentBlock());
     (success, , ) = subList.add(endBlock, 1);
+
+    emit UserDeposited(
+      user,
+      _amount,
+      newAmount,
+      userDeposit.totalAmount,
+      userDeposit.initialDepositAt
+    );
   }
 
   function _subEndBlock(uint _tokenAmount, uint _depositBlock) private view returns (uint endBlock) {
@@ -220,10 +243,6 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
 
     _token.safeTransfer(owner(), _claimableEarnings);
     _claimableEarnings = 0;
-  }
-
-  function activeSubscriptions() public view returns (uint) {
-    return subList.activeSubscriptions;
   }
 
 }
