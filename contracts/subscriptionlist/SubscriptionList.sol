@@ -15,7 +15,6 @@ library SubscriptionList {
     mapping(uint => uint) expirationCount;
 
     // number of active subscriptions
-    // TODO make a public view function that calculates the actual active subs
     uint activeSubscriptions;
   }
 
@@ -45,6 +44,7 @@ library SubscriptionList {
   function get(List storage self, uint pos) internal view returns(bool, uint, uint) {
     require(pos > 0, "position needs to be larger than 0");
     // TODO
+    require(false, "not implemented");
     return (false, 0, 0);
   }
 

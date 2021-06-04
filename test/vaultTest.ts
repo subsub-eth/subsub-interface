@@ -125,6 +125,138 @@ contract("CreatorVault", async accounts => {
         `Creator balance is actually ${updatedCreatorBalance.toNumber()}`);
 
     });
-  })
+  });
+
+  contract("withdraw", async () => {
+    it("should withdraw all after some time", async () => {
+      const [token, vault] = await deploy();
+      const amount = new BN(1000);
+
+      const passed = new BN(10);
+      const block = new BN(1);
+
+      const userInitialBalance = await token.balanceOf(user);
+      const fee = await vault.getCreatorFeePerBlock();
+      await vault.setCurrentBlock(block);
+
+      await token.approve(vault.address, amount);
+      await vault.deposit(amount, {from: user});
+
+      const laterBlock = block.add(passed);
+      await vault.setCurrentBlock(laterBlock);
+
+      const spent = fee.mul(passed);
+      const toWithdraw = amount.sub(spent);
+
+      await vault.withdraw(toWithdraw, {from: user});
+
+      const vaultBalance = await token.balanceOf(vault.address);
+      const userDeposit = await vault.depositOf(user);
+      const userBalance = await token.balanceOf(user);
+      const subs = await vault.getActiveSubscriptions();
+
+      assert.isOk(vaultBalance.eq(spent),
+                  `Vault balance is actually ${vaultBalance.toString()}`);
+      assert.isOk(userDeposit.isZero(),
+                  `User deposit is ${userDeposit.toString()}`);
+      assert.isOk(userBalance.eq(userInitialBalance.sub(spent)),
+                  `User wallet balance is ${userBalance.toString()}`);
+      assert.isOk(subs.eq(new BN(0)),
+                  `Number of active subs is ${subs.toString()}`);
+    });
+
+    it("should withdraw some after some time", async () => {
+      const [token, vault] = await deploy();
+      const amount = new BN(1000);
+
+      const passed = new BN(10);
+      const block = new BN(1);
+
+      const userInitialBalance = await token.balanceOf(user);
+      const fee = await vault.getCreatorFeePerBlock();
+      await vault.setCurrentBlock(block);
+
+      await token.approve(vault.address, amount);
+      await vault.deposit(amount, {from: user});
+
+      const laterBlock = block.add(passed);
+      await vault.setCurrentBlock(laterBlock);
+
+      const spent = fee.mul(passed);
+      const toWithdraw = new BN(100);
+
+      await vault.withdraw(toWithdraw, {from: user});
+
+      const vaultBalance = await token.balanceOf(vault.address);
+      const userDeposit = await vault.depositOf(user);
+      const userBalance = await token.balanceOf(user);
+      const subs = await vault.getActiveSubscriptions();
+
+      assert.isOk(vaultBalance.eq(amount.sub(toWithdraw)),
+                  `Vault balance is actually ${vaultBalance.toString()}`);
+      assert.isOk(userDeposit.eq(amount.sub(spent).sub(toWithdraw)),
+                  `User deposit is ${userDeposit.toString()}`);
+      assert.isOk(userBalance.eq(userInitialBalance.sub(amount).add(toWithdraw)),
+                  `User wallet balance is ${userBalance.toString()}`);
+      assert.isOk(subs.eq(new BN(1)),
+                  `Number of active subs is ${subs.toString()}`);
+    });
+
+    it("should withdraw more than deposit", async () => {
+      const [token, vault] = await deploy();
+      const amount = new BN(1000);
+
+      const passed = new BN(10);
+      const block = new BN(1);
+
+      await vault.setCurrentBlock(block);
+
+      await token.approve(vault.address, amount);
+      await vault.deposit(amount, {from: user});
+
+      const laterBlock = block.add(passed);
+      await vault.setCurrentBlock(laterBlock);
+
+      const toWithdraw = new BN(10000);
+
+      try {
+        await vault.withdraw(toWithdraw, {from: user});
+        assert.fail("Withdrawing did not fail with exception");
+      } catch (error) {
+        // transaction did revert with exception
+      }
+    });
+
+    it("should withdraw immediately", async () => {
+      const [token, vault] = await deploy();
+      const amount = new BN(1000);
+
+      const block = new BN(1);
+
+      const userInitialBalance = await token.balanceOf(user);
+      await vault.setCurrentBlock(block);
+
+      await token.approve(vault.address, amount);
+      await vault.deposit(amount, {from: user});
+
+      const toWithdraw = amount;
+
+      await vault.withdraw(toWithdraw, {from: user});
+
+      const vaultBalance = await token.balanceOf(vault.address);
+      const userDeposit = await vault.depositOf(user);
+      const userBalance = await token.balanceOf(user);
+      const subs = await vault.getActiveSubscriptions();
+
+      assert.isOk(vaultBalance.isZero(),
+                  `Vault balance is actually ${vaultBalance.toString()}`);
+      assert.isOk(userDeposit.isZero(),
+                  `User deposit is ${userDeposit.toString()}`);
+      assert.isOk(userBalance.eq(userInitialBalance),
+                  `User wallet balance is ${userBalance.toString()}`);
+      assert.isOk(subs.isZero(),
+                  `Number of active subs is ${subs.toString()}`);
+    });
+  });
 
 })

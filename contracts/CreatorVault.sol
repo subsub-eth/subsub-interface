@@ -26,10 +26,9 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
 
   struct UserDeposit {
     // last block of last deposit
-    uint lastDepositAt;
+    uint lastChangeAt;
     // total amount of tokens at last deposit
     uint amount;
-    // TODO implement
     // block of first ever deposit
     uint initialDepositAt;
     // total amount of tokens ever deposited
@@ -37,6 +36,14 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
   }
 
   event UserDeposited(
+    address indexed user,
+    uint amount,
+    uint newDeposit,
+    uint allTimeDeposit,
+    uint initialDepositAt
+  );
+
+  event UserWithdrew(
     address indexed user,
     uint amount,
     uint newDeposit,
@@ -57,6 +64,7 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     _token = IERC20(__token);
     transferOwnership(_creator);
     // TODO hardcoded for now
+    // TODO all subList calls assume a 1:1 relationship right now!
     _creatorFeePerBlock = 1;
 
     _stateUpdated = _currentBlock();
@@ -91,6 +99,9 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     activeSubscriptions = this.getActiveSubscriptions();
   }
 
+  // updates state of contract
+  // calculates creator claims
+  // updates sublist by dropping all expired nodes
   function updateState() public returns (bool) {
     require(_stateUpdated <= _currentBlock());
     if (_stateUpdated == _currentBlock()) {
@@ -153,13 +164,13 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
   }
 
   /**
-    returns the remaining deposit of a user
+    returns the remaining deposit of a user up until the current block.
+    Thus the current block is included and paid for.
   */
   function depositOf(address _user) public view returns (uint userBalance) {
-    // TODO when does payment actually happen? start or end of block?
     UserDeposit storage userDeposit = deposits[_user];
 
-    uint paidAmount = (_currentBlock() - userDeposit.lastDepositAt) * _creatorFeePerBlock;
+    uint paidAmount = (_currentBlock() - userDeposit.lastChangeAt) * _creatorFeePerBlock;
 
     if (paidAmount > userDeposit.amount) {
       return 0;
@@ -187,14 +198,14 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     uint newAmount = existing + _amount;
 
     // TODO handle from last claim/update block
-    if (userDeposit.lastDepositAt > 0) {
+    if (userDeposit.lastChangeAt > 0) {
       // remove existing sub list entry
-      uint _endBlock = _subEndBlock(userDeposit.amount, userDeposit.lastDepositAt);
+      uint _endBlock = _subEndBlock(userDeposit.amount, userDeposit.lastChangeAt);
       subList.remove(_endBlock, 1);
     }
 
     // store initial/updated deposit
-    userDeposit.lastDepositAt = _currentBlock();
+    userDeposit.lastChangeAt = _currentBlock();
     userDeposit.amount = newAmount;
     userDeposit.totalAmount += _amount;
 
@@ -205,7 +216,7 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
 
     // calculate end of subscription
     // TODO handle updated deposit
-    // TODO emit some event
+    // TODO emit some event and update tests
     // TODO throw exception
     uint endBlock = _subEndBlock(newAmount, _currentBlock());
     (success, , ) = subList.add(endBlock, 1);
@@ -214,6 +225,60 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
       user,
       _amount,
       newAmount,
+      userDeposit.totalAmount,
+      userDeposit.initialDepositAt
+    );
+  }
+
+  function withdraw(uint _amount) public returns (bool success){
+
+    updateState();
+
+    address user = _msgSender();
+
+    // get possible existing deposit
+    UserDeposit storage userDeposit = deposits[user];
+    if (userDeposit.initialDepositAt == 0) {
+      // the user never did deposit into this vault
+      // TODO do we want to throw an exception?
+      return false;
+    }
+    success = true;
+
+    // existing/remaining deposit value
+    uint remainingDeposit = depositOf(user);
+
+    require(remainingDeposit >= _amount,
+            "Amount to withdraw is larger than remaining deposit");
+
+    uint leftovers = remainingDeposit - _amount;
+
+    // remove current sub from list
+    uint _endBlock = _subEndBlock(userDeposit.amount, userDeposit.lastChangeAt);
+    subList.remove(_endBlock, 1);
+
+    // update userDeposit state
+    userDeposit.lastChangeAt = _currentBlock();
+    userDeposit.amount = leftovers;
+    userDeposit.totalAmount -= _amount;
+
+    if (leftovers > 0) {
+      // if there are tokens left, update to a reduced subscription length
+      uint newEndBlock = _subEndBlock(leftovers, _currentBlock());
+      if (newEndBlock > _currentBlock()) {
+        // TODO function to block adding subs to _currentBlock
+        (bool newSubSuccess, , ) = subList.add(newEndBlock, 1);
+        success = success && newSubSuccess;
+      }
+    }
+
+    // finally transfer tokens
+    _token.safeTransfer(user, _amount);
+
+    emit UserWithdrew(
+      user,
+      _amount,
+      leftovers,
       userDeposit.totalAmount,
       userDeposit.initialDepositAt
     );
