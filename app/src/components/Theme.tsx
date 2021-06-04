@@ -13,10 +13,20 @@ export interface CreatezTheme {
   readonly primary: string;
   readonly secondary: string;
 
+  readonly cardBackground: string;
+  readonly cardRed: string;
+  readonly cardYellow: string;
+  readonly cardGreen: string;
+  readonly cardBlue: string;
+
   readonly minTablet: number;
   readonly maxMobile: number;
   readonly minDesktop: number;
   readonly maxTablet: number;
+
+  readonly maxHeader: number;
+  readonly maxCard: number;
+  readonly labelWidth: number;
 
   readonly gutter: number;
   readonly fontCopy: string;
@@ -30,10 +40,20 @@ export class DefaultTheme implements CreatezTheme {
   primary: string = "#fa5b04";
   secondary: string = "#f9f9f9";
 
+  cardBackground: string = "#3c3c3c";
+  cardRed: string = "#ea5956";
+  cardYellow: string = "#f2c91e";
+  cardGreen: string = "#7ac4a2";
+  cardBlue: string = "#7eb0e4";
+
   minTablet: number = 680;
   maxMobile: number = this.minTablet - 1;
   minDesktop: number = 1040;
   maxTablet: number = this.minDesktop - 1;
+
+  maxHeader: number = 1560;
+  maxCard: number = 1440;
+  labelWidth: number = 130;
 
   gutter: number = 12;
   fontCopy: string = `
@@ -74,6 +94,9 @@ export class DefaultTheme implements CreatezTheme {
   overflow: visible;
   background: transparent;
   color: inherit;
+  &:hover {
+    cursor: pointer;
+  }
   `;
 
 }

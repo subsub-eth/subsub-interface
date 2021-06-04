@@ -25,6 +25,7 @@ import {VaultFactoryWrapper} from "./contract/VaultFactoryWrapper";
 import {Header} from "./Header";
 import {Create} from "./Create";
 import {Vault} from "./Vault";
+import {Announcements} from "./Announcement";
 
 const web3Factory = w3f(local.connection, local.contracts);
 
@@ -87,6 +88,7 @@ function AppContainer({web3Connection}: {} & HasWeb3Connection) {
   return (
     <>
       <Header web3Connection={web3Connection} />
+      <Announcements />
       <Switch>
         <Route path="/create">
           <Create web3Connection={web3Connection} />
