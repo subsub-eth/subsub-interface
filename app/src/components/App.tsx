@@ -43,6 +43,15 @@ export const Paragraph = styled.p`
     padding: 1rem 0;
 `;
 
+const MainContainer = styled.div`
+margin: ${props => props.theme.gutter * 4}px auto;
+width: 90%;
+max-width: ${props => props.theme.maxCard}px;
+
+@media screen and (min-width: ${props => props.theme.minTablet}px) {
+  width: 85%;
+}
+`;
 
 export function AppContent() {
   return (
@@ -88,19 +97,23 @@ function AppContainer({web3Connection}: {} & HasWeb3Connection) {
   return (
     <>
       <Header web3Connection={web3Connection} />
-      <Announcements />
-      <Switch>
-        <Route path="/create">
-          <Create web3Connection={web3Connection} />
-        </Route>
-        <Route path="/vault/:address"
-          render={(props) =>
-            <Vault address={props.match.params.address}
-              web3Connection={web3Connection} />} />
-        <Route path="/">
-          <AppContent />
-        </Route>
-      </Switch>
+      <main>
+        <MainContainer>
+          <Announcements />
+          <Switch>
+            <Route path="/create">
+              <Create web3Connection={web3Connection} />
+            </Route>
+            <Route path="/vault/:address"
+              render={(props) =>
+                <Vault address={props.match.params.address}
+                  web3Connection={web3Connection} />} />
+            <Route path="/">
+              <AppContent />
+            </Route>
+          </Switch>
+        </MainContainer>
+      </main>
     </>
   );
 }

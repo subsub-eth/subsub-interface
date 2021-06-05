@@ -26,12 +26,13 @@ export interface CreatezTheme {
 
   readonly maxHeader: number;
   readonly maxCard: number;
-  readonly labelWidth: number;
+  readonly vaultInfoLabelWidth: number;
 
   readonly gutter: number;
   readonly fontCopy: string;
   readonly buttonMixin: string;
   readonly resetButton: string;
+  readonly contentSpacing: string;
 }
 
 export class DefaultTheme implements CreatezTheme {
@@ -53,7 +54,7 @@ export class DefaultTheme implements CreatezTheme {
 
   maxHeader: number = 1560;
   maxCard: number = 1440;
-  labelWidth: number = 130;
+  vaultInfoLabelWidth: number = 130;
 
   gutter: number = 12;
   fontCopy: string = `
@@ -82,24 +83,78 @@ export class DefaultTheme implements CreatezTheme {
     cursor: pointer;
   }
 
+  &[disabled] {
+    box-shadow: none;
+    border: 1px solid ${this.secondary};
+    background-color: transparent;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
   @media screen and (min-width: ${this.minTablet}px) {
     padding: 8px 10px;
   }
   `;
-  resetButton: string = `
-  border: none;
-  margin: 0;
-  padding: 0;
-  width: auto;
-  overflow: visible;
-  background: transparent;
-  color: inherit;
-  &:hover {
-    cursor: pointer;
-  }
-  `;
-
+  resetButton: string = resetButton;
+  contentSpacing: string = contentSpacing(this.gutter, this.minTablet);
 }
+
+export const resetButton = `
+border: none;
+margin: 0;
+padding: 0;
+width: auto;
+overflow: visible;
+background: transparent;
+color: inherit;
+&:hover {
+  cursor: pointer;
+}
+`;
+
+export const contentSpacing = (gutter: number, minTablet: number) => `
+margin-top: ${gutter * 2}px;
+
+@media screen and (min-width: ${minTablet}px) {
+  margin-top: ${gutter * 3}px;
+}
+`;
+
+export const fontHeadlineH1 = (minTablet: number, minDesktop: number) => `
+font-size: 24px;
+font-weight: 600;
+line-height: 1.5;
+
+@media screen and (min-width: ${minTablet}px) {
+  font-size: 28px;
+}
+
+@media screen and (min-width: ${minDesktop}px) {
+  font-size: 32px;
+}
+`;
+
+export const fontLabel = (minDesktop: number) => `
+font-size: 14px;
+
+@media screen and (min-width: ${minDesktop}px) {
+  font-size: 16px;
+}
+`;
+
+export const fontValue = (minDesktop: number) => `
+font-size: 20px;
+
+@media screen and (min-width: ${minDesktop}px) {
+  font-size: 22px;
+}
+`;
+
+export const textEllipsis = `
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+`;
 
 const defaultTheme = new DefaultTheme();
 
