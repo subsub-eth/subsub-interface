@@ -4,7 +4,7 @@ import {FileCopy, Link as LinkIcon, Warning, Report, ExpandLess, TrendingFlat}
   from '@material-ui/icons';
 
 import {fontHeadlineH1, resetButton, textEllipsis, fontLabel, fontValue}
-  from "./Theme";
+  from "../Theme";
 
 
 export const VaultContainer = styled.div`

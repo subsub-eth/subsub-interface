@@ -24,7 +24,7 @@ import {VaultFactoryWrapper} from "./contract/VaultFactoryWrapper";
 
 import {Header} from "./Header";
 import {Create} from "./Create";
-import {Vault} from "./Vault";
+import {Vault} from "./vault/Vault";
 import {Announcements} from "./Announcement";
 
 const web3Factory = w3f(local.connection, local.contracts);
