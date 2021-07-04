@@ -412,7 +412,7 @@ justify-content: space-around;
 ${AmountInput}:focus ~ ${InputLabel} {
   ${topLabel}
 }
-${AmountInput}:valid ~ ${InputLabel} {
+${AmountInput}:not([value=""]) ~ ${InputLabel} {
   ${topLabel}
 }
 `;

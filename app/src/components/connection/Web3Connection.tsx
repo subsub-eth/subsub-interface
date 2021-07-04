@@ -2,15 +2,15 @@ import {AppConfig, ConnectionConfig, ContractAddresses} from "../Config";
 import Web3 from "web3";
 import {VaultFactoryWrapper, Web3VaultFactory} from "../contract/VaultFactoryWrapper";
 import {VaultWrapper, Web3Vault} from "../contract/VaultWrapper";
-import {IERC20Wrapper, Web3IERC20} from "../contract/IErc20Wrapper";
+import {ERC20Wrapper, Web3ERC20} from "../contract/Erc20Wrapper";
 
 import {CreatorVaultFactory} from "../../../../types/web3-v1-contracts/CreatorVaultFactory";
 import {CreatorVault} from "../../../../types/web3-v1-contracts/CreatorVault";
-import {IERC20} from "../../../../types/web3-v1-contracts/IERC20";
+import {ERC20} from "../../../../types/web3-v1-contracts/ERC20";
 
 import CreatorVaultFactoryAbi from "../../../../build/contracts/CreatorVaultFactory.json";
 import CreatorVaultAbi from "../../../../build/contracts/CreatorVault.json";
-import IERC20VaultAbi from "../../../../build/contracts/IERC20.json";
+import ERC20VaultAbi from "../../../../build/contracts/ERC20.json";
 
 import {Address} from "../types";
 
@@ -149,7 +149,7 @@ export interface Web3Connection {
 
   // get contract X
   // list vault contract
-  getToken(address: Address): Promise<IERC20Wrapper>
+  getToken(address: Address): Promise<ERC20Wrapper>
 
   getVaultFactory(): Promise<VaultFactoryWrapper>
 
@@ -223,15 +223,15 @@ class InjectedWeb3Connection implements Web3Connection {
     return new Web3Vault(web3Contract);
   }
 
-  async getToken(address: string): Promise<IERC20Wrapper> {
+  async getToken(address: string): Promise<ERC20Wrapper> {
     const account = await this.getAccount();
     const web3Contract =
-      getContract<IERC20>(this.web3,
-        IERC20VaultAbi.abi,
+      getContract<ERC20>(this.web3,
+        ERC20VaultAbi.abi,
         address,
         account);
     console.log(`returning web3Contract`, web3Contract);
-    return new Web3IERC20(web3Contract);
+    return new Web3ERC20(web3Contract);
   }
 }
 
@@ -276,12 +276,12 @@ class DefaultWeb3Connection implements Web3Connection {
     return new Web3Vault(web3Contract);
   }
 
-  async getToken(address: string): Promise<IERC20Wrapper> {
+  async getToken(address: string): Promise<ERC20Wrapper> {
     const web3Contract =
-      getContract<IERC20>(this.web3,
-        IERC20VaultAbi.abi,
+      getContract<ERC20>(this.web3,
+        ERC20VaultAbi.abi,
         address);
     console.log(`returning web3Contract`, web3Contract);
-    return new Web3IERC20(web3Contract);
+    return new Web3ERC20(web3Contract)
   }
 }

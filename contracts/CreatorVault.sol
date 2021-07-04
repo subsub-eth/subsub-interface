@@ -14,6 +14,7 @@ import "./Versioned.sol";
 contract CreatorVault is Ownable, Blockaware, Versioned {
 
   // TODO refactor _currentBlock() calls with internal method
+  // TODO add name
 
   using SafeERC20 for IERC20;
   using SubscriptionList for SubscriptionList.List;
@@ -90,6 +91,7 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
   function getValues() public view returns (
     string memory version,
     address addr,
+    address owner,
     IERC20 token,
     uint activeSubscriptions
   ) {
@@ -97,6 +99,7 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     addr = address(this);
     token = this.getToken();
     activeSubscriptions = this.getActiveSubscriptions();
+    owner = this.owner();
   }
 
   // updates state of contract

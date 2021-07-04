@@ -47,8 +47,20 @@ export class Web3ERC20 implements ERC20Wrapper {
   }
 
   async getValues(): Promise<ERC20Token> {
+    const name = await this.delegate.methods.name().call();
+    const symbol = await this.delegate.methods.symbol().call();
+    const dec = await this.delegate.methods.decimals().call();
+    const decBn = bn(dec);
 
+    const res = {
+      address: this.delegate.options.address,
+      name: name,
+      symbol: symbol,
+      decimals: decBn.toNumber()
+    }
+    console.debug(`Returning token values`, res);
 
+    return res;
   }
 
   async approve(spender: Address, onTransactionHash: (hash: string) => void): Promise<boolean> {

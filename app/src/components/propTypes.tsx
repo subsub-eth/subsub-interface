@@ -1,5 +1,5 @@
 import {Web3Connection} from "./connection/Web3Connection";
-import {IERC20Service} from "./contract/IErc20Wrapper";
+import {ERC20Service, ERC20Token} from "./contract/Erc20Wrapper";
 import {Vault, VaultService} from "./contract/VaultWrapper";
 import {Address} from "./types";
 
@@ -23,8 +23,24 @@ export interface HasVaultValues {
   vault: Vault;
 }
 
+export interface HasTokenService {
+  tokenService: ERC20Service
+}
+
 export interface HasToken {
-  token: IERC20Service
+  token: ERC20Token
+}
+
+export interface HasAllowance {
+  allowance: BN;
+}
+
+export interface HasWalletBalance {
+  walletBalance: BN;
+}
+
+export interface HasCurrentDeposit {
+  currentDeposit: BN;
 }
 
 export interface HasClassName {

@@ -10,6 +10,7 @@ import {bn, maxUint, zero} from "../util";
 export interface Vault {
   readonly version: string;
   readonly address: Address;
+  readonly owner: Address;
   readonly token: Address;
   readonly activeSubs: BN;
 }
@@ -50,6 +51,17 @@ export interface VaultService {
     */
   deposit(amount: BN,
     onTransactionHash: (hash: string) => void): Promise<boolean>;
+
+  /**
+    * withdraw amount from vault
+    */
+  withdraw(amount: BN,
+    onTransactionHash: (hash: string) => void): Promise<boolean>;
+
+  /**
+    * withdraw amount from vault
+    */
+  withdrawAll(onTransactionHash: (hash: string) => void): Promise<boolean>;
 }
 
 export class Web3Vault implements VaultWrapper {
@@ -117,6 +129,27 @@ export class Web3Vault implements VaultWrapper {
           this.delegate, res);
         return true;
       });
+  }
 
+  public async withdraw(amount: BN,
+    onTransactionHash: (hash: string) => void): Promise<boolean> {
+    return this.delegate.methods.withdraw(amount).send()
+      .once("transactionHash", onTransactionHash)
+      .then(res => {
+        console.debug(`Withdrew ${amount.toString()} from contract`,
+          this.delegate, res);
+        return true;
+      });
+  }
+
+  public async withdrawAll(onTransactionHash: (hash: string) => void):
+    Promise<boolean> {
+    return this.delegate.methods.withdrawAll().send()
+      .once("transactionHash", onTransactionHash)
+      .then(res => {
+        console.debug(`Withdrew ${amount.toString()} from contract`,
+          this.delegate, res);
+        return true;
+      });
   }
 }

@@ -1,4 +1,5 @@
 import React, {FormEvent, useEffect, useState} from "react";
+import {useAsync} from "react-async";
 
 import {toast} from 'react-toastify';
 import {FileCopy, Link as LinkIcon, Warning, Report, ExpandLess, TrendingFlat}
@@ -7,105 +8,44 @@ import {FileCopy, Link as LinkIcon, Warning, Report, ExpandLess, TrendingFlat}
 import BN from "bn.js";
 import {bn, zero, fromWei, toWei} from "./util";
 
-import {HasVaultService, HasWeb3Connection, HasAddress, HasToken, HasVaultValues, HasAccount} from "./propTypes";
+import {
+  HasVaultService, HasWeb3Connection, HasAddress, HasCurrentDeposit,
+  HasToken, HasTokenService, HasVaultValues, HasAccount, HasAllowance, HasWalletBalance
+} from "./propTypes";
 import {Vault as VaultValues, VaultService} from "./contract/VaultWrapper";
-import {IERC20Wrapper} from "./contract/IErc20Wrapper";
+import {ERC20Token, ERC20Wrapper} from "./contract/Erc20Wrapper";
 import {Address} from "./types";
 import * as S from "./VaultStyle";
+import copyToClipboad from "./Clipboard";
 
 
+interface DoApprove {
+  approve: () => Promise<void>
+}
 
-const ActiveSubs = ({vault}: {} & HasVaultValues) => {
+interface DoDeposit {
+  deposit: (amount: BN) => Promise<void>
+}
 
-  return (
-    <div>active subs: {vault.activeSubs.toString()}</div>
-  );
-};
+interface DoWithdraw {
+  withdraw: (amount: BN) => Promise<void>
+}
 
-const CurrentDeposit = ({currentDeposit}: {currentDeposit: BN}) => {
+interface DoWithdrawAll {
+  withdrawAll: () => Promise<void>
+}
 
-  return (
-    <div>current deposit: {fromWei(currentDeposit)}</div>
-  );
-};
-
-const WalletBalance = ({walletBalance}: {walletBalance: BN}) => {
-
-  return (
-    <div>Available funds: {fromWei(walletBalance)}</div>
-  );
-};
-
-const DepositForm = ({vault, approve, allowance, currentDeposit,
-  deposit, account, walletBalance}: {}
-  & HasVaultValues & HasAccount &
-  {
-    approve: () => void, allowance: BN,
-    currentDeposit: BN, deposit: (amount: BN) => void,
-    walletBalance: BN
-  }) => {
-
-  const [amount, setAmount] = useState("");
-  const isApproved = !allowance.isZero();
-  const canDeposit = isApproved && !!amount && !walletBalance.isZero();
-
-  const doSubmit = (event: FormEvent) => {
-    // do not actually send the form with a page load
-    event.preventDefault();
-
-    console.log(`current allowance:`, allowance);
-    if (isApproved) {
-      const bnAmount = bn(toWei(amount));
-      console.debug(`Depositing funds of ${amount.toString()} into vault`,
-        vault);
-      deposit(bnAmount);
-      setAmount("");
-    } else {
-      // approve funds
-      console.debug(`Approving funds to vault`, vault);
-      approve();
-    }
+const Owner = ({address}: {} & HasAddress) => {
+  // TODO create link to etherscan
+  const doCopy = () => {
+    copyToClipboad(address);
   }
-
-  const handleDepositInput = (val: string) => {
-    const f = Number.parseFloat(val);
-    // allow empty string or some float
-    if (!val || !Number.isNaN(f)) {
-      setAmount(val);
-    }
-  };
-
-
-  return (
-    <>
-      <WalletBalance walletBalance={walletBalance} />
-      <CurrentDeposit currentDeposit={currentDeposit} />
-      <form onSubmit={doSubmit}>
-        <input type="number"
-          min="0"
-          max={fromWei(walletBalance)}
-          step="any"
-          value={amount}
-          placeholder="0"
-          inputMode="decimal"
-          disabled={!isApproved}
-          onChange={e => handleDepositInput(e.target.value)} />
-        <input type="submit"
-          disabled={!account || (isApproved && !canDeposit)}
-          value={isApproved ? "Deposit" : "Approve"} />
-      </form>
-    </>
-  );
-};
-
-
-const Owner = () => {
   return (
     <S.OwnerContainer>
       <S.OwnerAddress>
-        dherfjeidnekjdhndkpwijfreiuedwqoudbe
+        {address}
       </S.OwnerAddress>
-      <S.OwnerCopyButton>
+      <S.OwnerCopyButton onClick={doCopy}>
         <FileCopy />
       </S.OwnerCopyButton>
       <S.OwnerButton>
@@ -116,14 +56,17 @@ const Owner = () => {
 }
 
 const Token = ({token}: {} & HasToken) => {
+  // TODO create link to etherscan
+  // TODO find coin logo or show generic
   return (
-    <S.TokenLink href="TODO" title="TODO">
+    <S.TokenLink href="TODO" title={token.name}>
       <S.TokenImage src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" />
     </S.TokenLink>
   );
 };
 
 const VaultStatus = () => {
+  // TODO determine vault status from factory data
   return (
     <S.StatusContainer>
       <S.VaultWarning />
@@ -133,10 +76,13 @@ const VaultStatus = () => {
 }
 
 
-const VaultMetaActions = () => {
+const VaultMetaActions = ({address}: {} & HasAddress) => {
+  const doCopy = () => {
+    copyToClipboad(address);
+  }
   return (
     <S.MetaActionsContainer>
-      <S.VaultCopyButton>
+      <S.VaultCopyButton onClick={doCopy}>
         <FileCopy />
       </S.VaultCopyButton>
       <S.VaultMetaActionButton>
@@ -146,16 +92,16 @@ const VaultMetaActions = () => {
   );
 }
 
-const Head = ({token}: {} & HasToken) => {
+const Head = ({token, vault}: {} & HasToken & HasVaultValues) => {
   return (
     <S.Meta>
       <Token token={token} />
       <S.VaultTitle>
         Lorem ipsum dolor sit amet
       </S.VaultTitle>
-      <Owner />
+      <Owner address={vault.owner} />
       <VaultStatus />
-      <VaultMetaActions />
+      <VaultMetaActions address={vault.address} />
     </S.Meta>
   );
 };
@@ -207,7 +153,7 @@ const VaultProperties = () => {
       }
     }
   ]
-  .map((f: VaultProperty, i: number) => {
+    .map((f: VaultProperty, i: number) => {
       const values = isTransitioning(f) ?
         <>
           {f.values.user ?
@@ -250,85 +196,181 @@ const VaultProperties = () => {
 };
 
 
-const VaultStateField = () => {
+const VaultStateField = ({name, value}: {name: string, value: string}) => {
   return (
     <S.InfoField>
       <S.InfoFieldLabel>
-        Lorem
+        {name}
       </S.InfoFieldLabel>
       <S.StateInfoFieldValue>
-        Ipsum
+        {value}
       </S.StateInfoFieldValue>
     </S.InfoField>
   );
 }
 
-const VaultState = () => {
+const VaultState = ({vault}: {} & HasVaultValues) => {
   return (
     <S.VaultStateContainer>
-      <VaultStateField />
-      <VaultStateField />
-      <VaultStateField />
+      <VaultStateField name="Active Subs" value={vault.activeSubs.toString()} />
     </S.VaultStateContainer>
   );
 };
 
 
-const UserDetailsField = () => {
+const UserDetailsField = ({name, value}: {name: string, value: string}) => {
   return (
     <S.UserDetailsFieldContainer>
       <S.UserDetailsLabel>
-        Lorem
+        {name}
       </S.UserDetailsLabel>
       <S.UserDetailsValue>
-        Ipsum
+        {value}
       </S.UserDetailsValue>
     </S.UserDetailsFieldContainer>
   );
 };
 
-const VaultUserDetails = () => {
+const VaultUserDetails = ({walletBalance, currentDeposit}:
+  {} & HasWalletBalance & HasCurrentDeposit) => {
   return (
     <S.UserDetailsContainer>
-      <UserDetailsField />
-      <UserDetailsField />
-      <UserDetailsField />
-      <UserDetailsField />
+      <UserDetailsField name="Wallet Balance" value={fromWei(walletBalance)} />
+      <UserDetailsField name="Current Deposit" value={fromWei(currentDeposit)} />
     </S.UserDetailsContainer>
   );
 };
 
-const VaultInfo = () => {
+const VaultInfo = ({vault}: {} & HasVaultValues) => {
   return (
     <S.InfoContainter>
       <VaultProperties />
-      <VaultState />
+      <VaultState vault={vault} />
     </S.InfoContainter>
   );
 }
 
 
-const DepositAction = () => {
+const DepositAction = ({allowance, walletBalance, approve, deposit}:
+  {} & HasAllowance & HasWalletBalance & DoApprove & DoDeposit) => {
+  const [amount, setAmount] = useState<string>("");
+  const hasAllowance = zero.lt(allowance);
+  const hasBalance = zero.lt(walletBalance);
+  const appr = useAsync({deferFn: approve});
+  const dep = useAsync({
+    deferFn: async ([a]) => {
+      const res = await deposit(a);
+      setAmount("");
+      return res;
+    }
+  });
+
+
+  const submitApprove = (ev: FormEvent) => {
+    ev.preventDefault();
+    console.debug(`Approving funds`);
+    appr.run();
+  };
+
+  const submitDeposit = (ev: FormEvent) => {
+    ev.preventDefault();
+    const a = bn(toWei(amount));
+    console.debug(`Depositing ${a.toString()} amount`);
+    dep.run(a);
+  }
+
+  const submitDepositAll = (ev: FormEvent) => {
+    ev.preventDefault();
+    console.debug(`Depositing wallet balance ${walletBalance.toString()}`);
+    dep.run(walletBalance);
+  }
+
+
+  const handleDepositInput = (val: string) => {
+    const f = Number.parseFloat(val);
+    // allow empty string or some float
+    if (!val || !Number.isNaN(f)) {
+      setAmount(val);
+    }
+  };
+
+  const submit = !hasAllowance ? submitApprove : submitDeposit;
+
   return (
-    <S.ActionForm>
-      <S.AmountInput type="number" name="deposit" required placeholder="0" />
+    <S.ActionForm onSubmit={submit}>
+      <S.AmountInput type="number"
+        name="deposit"
+        min="0"
+        max={fromWei(walletBalance)}
+        step="any"
+        inputMode="decimal"
+        required={hasAllowance}
+        disabled={!hasAllowance || !hasBalance}
+        value={amount}
+        onChange={e => handleDepositInput(e.target.value)}
+        onWheel={e => false}
+        placeholder="0" />
       <S.InputLabel>Deposit</S.InputLabel>
       <S.ActionButtonContainer>
-        <S.GroupedButton type="submit" disabled={true}>Deposit</S.GroupedButton>
-        <S.GroupedButton type="submit">Deposit All</S.GroupedButton>
+        {!hasAllowance ?
+          <S.GroupedButton type="submit" disabled={appr.status !== "initial"}>Approve</S.GroupedButton> :
+          <S.GroupedButton type="submit" disabled={!hasBalance}>Deposit</S.GroupedButton>
+        }
+        <S.GroupedButton onClick={submitDepositAll} disabled={!hasAllowance || !hasBalance}>Deposit All</S.GroupedButton>
       </S.ActionButtonContainer>
     </S.ActionForm>
   );
 };
 
-const WithdrawAction = () => {
+const WithdrawAction = ({currentDeposit, withdraw}:
+  {} & HasCurrentDeposit & DoWithdraw) => {
+  const [amount, setAmount] = useState<string>("");
+  const hasDeposit = zero.lt(currentDeposit);
+  const withdr = useAsync({
+    deferFn: async ([a]) => {
+      const res = await withdraw(a);
+      setAmount("");
+      return res;
+    }
+  });
+
+  const handleWithdrawInput = (val: string) => {
+    const f = Number.parseFloat(val);
+    // allow empty string or some float
+    if (!val || !Number.isNaN(f)) {
+      setAmount(val);
+    }
+  };
+
+  const submit = (ev: FormEvent) => {
+    ev.preventDefault();
+
+    const a = bn(toWei(amount));
+    withdr.run(a);
+  };
+
+  const submitWithdrawAll = (ev: FormEvent) => {
+    ev.preventDefault();
+    // TODO
+  };
+
   return (
-    <S.ActionForm>
-      <S.AmountInput type="number" name="deposit" required placeholder="0" />
+    <S.ActionForm onSubmit={submit}>
+      <S.AmountInput type="number"
+        name="withdraw"
+        min="0"
+        max={fromWei(currentDeposit)}
+        step="any"
+        inputMode="decimal"
+        required={hasDeposit}
+        disabled={!hasDeposit}
+        value={amount}
+        onChange={e => handleWithdrawInput(e.target.value)}
+        placeholder="0" />
       <S.InputLabel>Withdraw</S.InputLabel>
       <S.ActionButtonContainer>
-        <S.GroupedButton type="submit" disabled={true}>Withdraw</S.GroupedButton>
-        <S.GroupedButton type="submit">Withdraw All</S.GroupedButton>
+        <S.GroupedButton type="submit" disabled={!hasDeposit}>Withdraw</S.GroupedButton>
+        <S.GroupedButton onClick={submitWithdrawAll} disabled={!hasDeposit}>Withdraw All</S.GroupedButton>
       </S.ActionButtonContainer>
     </S.ActionForm>
   );
@@ -346,11 +388,13 @@ const RewardsAction = () => {
   );
 };
 
-const VaultActions = () => {
+const VaultActions = ({allowance, walletBalance, currentDeposit, approve, deposit, withdraw}:
+  {} & HasAllowance & HasWalletBalance & HasCurrentDeposit & DoApprove & DoDeposit & DoWithdraw) => {
   return (
     <S.VaultActionsContainer>
-      <DepositAction />
-      <WithdrawAction />
+      <DepositAction allowance={allowance} approve={approve}
+        walletBalance={walletBalance} deposit={deposit} />
+      <WithdrawAction currentDeposit={currentDeposit} withdraw={withdraw} />
       <RewardsAction />
     </S.VaultActionsContainer>
   );
@@ -383,9 +427,9 @@ const VaultNotes = () => {
   );
 };
 
-const VaultHandler = ({vaultService, vault, token, account, updateVaultValues}:
+const VaultHandler = ({vaultService, vault, token, tokenService, account, updateVaultValues}:
   {updateVaultValues: () => void}
-  & HasVaultService & HasVaultValues & HasToken & HasAccount) => {
+  & HasVaultService & HasVaultValues & HasToken & HasTokenService & HasAccount) => {
   const [allowance, setAllowance] = useState<BN>(zero);
   const [currentDeposit, setCurrentDeposit] = useState<BN>(zero);
   const [walletBalance, setWalletBalance] = useState<BN>(zero);
@@ -393,7 +437,7 @@ const VaultHandler = ({vaultService, vault, token, account, updateVaultValues}:
 
   const getAllowance = () => {
     if (!!account) {
-      token.allowance(account, vault.address)
+      tokenService.allowance(account, vault.address)
         .then(setAllowance);
     }
   };
@@ -408,14 +452,14 @@ const VaultHandler = ({vaultService, vault, token, account, updateVaultValues}:
 
   const getWalletBalance = () => {
     if (!!account) {
-      console.debug(`Loading wallet balance of account`, account, token);
-      token.balanceOf(account)
+      console.debug(`Loading wallet balance of account`, account, tokenService);
+      tokenService.balanceOf(account)
         .then(setWalletBalance)
     }
   }
 
   const approve = () => {
-    token
+    return tokenService
       .approve(vault.address, (hash) => toast.info(`Approval tx: ${hash}`))
       .then(res => {
         console.debug(`Successfully updated allowance`, res);
@@ -427,7 +471,7 @@ const VaultHandler = ({vaultService, vault, token, account, updateVaultValues}:
 
   const deposit = (amount: BN) => {
     if (!allowance.isZero()) {
-      vaultService.deposit(amount, hash => toast.info(`tx hash: ${hash}`))
+      return vaultService.deposit(amount, hash => toast.info(`tx hash: ${hash}`))
         .then(res => {
           console.debug(`Deposited ${amount.toString()} into vault`,
             vaultService, res);
@@ -438,10 +482,28 @@ const VaultHandler = ({vaultService, vault, token, account, updateVaultValues}:
         });
     } else {
       // TODO error
+      return Promise.reject("deposit error");
     }
   }
 
-  const deps = [vaultService, vault, token, account];
+  const withdraw = (amount: BN) => {
+    if (!currentDeposit.isZero()) {
+      return vaultService.withdraw(amount, hash => toast.info(`tx hash: ${hash}`))
+        .then(res => {
+          console.debug(`Withdrew ${amount.toString()} from vault`,
+            vaultService, res);
+          toast.success(`Withdrew ${amount.toString()} from vault`);
+
+          getCurrentDeposit();
+          updateVaultValues();
+        });
+    } else {
+      // TODO
+      return Promise.reject("withdraw error");
+    }
+  };
+
+  const deps = [vaultService, vault, tokenService, account];
 
   useEffect(getAllowance, deps);
   useEffect(getCurrentDeposit, deps);
@@ -449,23 +511,13 @@ const VaultHandler = ({vaultService, vault, token, account, updateVaultValues}:
 
   return (
     <>
-      <Head token={token} />
-      <VaultInfo />
-      <VaultUserDetails />
-      <VaultActions />
+      <Head token={token} vault={vault} />
+      <VaultInfo vault={vault} />
+      <VaultUserDetails walletBalance={walletBalance} currentDeposit={currentDeposit} />
+      <VaultActions allowance={allowance} currentDeposit={currentDeposit}
+        approve={approve} walletBalance={walletBalance} deposit={deposit}
+        withdraw={withdraw} />
       <VaultNotes />
-      <div>
-        <h1>Vault: {vault.address}</h1>
-        <ActiveSubs vault={vault} />
-        <DepositForm vault={vault}
-          allowance={allowance}
-          approve={approve}
-          currentDeposit={currentDeposit}
-          deposit={deposit}
-          account={account}
-          walletBalance={walletBalance}
-        />
-      </div>
     </>
   );
 };
@@ -474,7 +526,8 @@ const VaultHandler = ({vaultService, vault, token, account, updateVaultValues}:
 export const Vault = ({address, web3Connection}: {address: string} & HasWeb3Connection) => {
   const [vaultService, setVaultService] =
     useState<VaultService | null>();
-  const [token, setToken] = useState<IERC20Wrapper | null>(null);
+  const [tokenService, setTokenService] = useState<ERC20Wrapper | null>(null);
+  const [token, setToken] = useState<ERC20Token | null>(null);
 
   const [vaultValues, setVaultValues] = useState<VaultValues | null>();
   const [account, setAccount] = useState<Address | null>(null);
@@ -515,7 +568,10 @@ export const Vault = ({address, web3Connection}: {address: string} & HasWeb3Conn
   useEffect(() => {
     if (!!vaultValues) {
       web3Connection.getToken(vaultValues.token)
-        .then(setToken);
+        .then(s => {
+          setTokenService(s)
+          s.getValues().then(setToken)
+        });
     }
   }, [address, web3Connection, vaultService, vaultValues]);
 
@@ -529,11 +585,12 @@ export const Vault = ({address, web3Connection}: {address: string} & HasWeb3Conn
     <S.VaultContainer>
       { vaultService === null || vaultValues === null ?
         <div>Unable to load vault</div> :
-        !!vaultService && !!vaultValues && !!token ?
+        !!vaultService && !!vaultValues && !!tokenService && !!token ?
           <VaultHandler
             vaultService={vaultService}
             vault={vaultValues}
             token={token}
+            tokenService={tokenService}
             account={account}
             updateVaultValues={getValues}
           /> : <div>Loading...</div>
