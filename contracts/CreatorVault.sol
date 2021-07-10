@@ -93,13 +93,15 @@ contract CreatorVault is Ownable, Blockaware, Versioned {
     address addr,
     address owner,
     IERC20 token,
-    uint activeSubscriptions
+    uint activeSubscriptions,
+    uint creatorClaimable
   ) {
     version = this.getVersion();
     addr = address(this);
     token = this.getToken();
     activeSubscriptions = this.getActiveSubscriptions();
     owner = this.owner();
+    creatorClaimable = this.creatorEarnings();
   }
 
   // updates state of contract

@@ -150,14 +150,12 @@ const WithdrawAction = ({currentDeposit, withdraw}:
   );
 };
 
-
-
 const RewardsAction = () => {
   return (
     <S.ActionForm>
       <S.RewardsLabel>Rewards</S.RewardsLabel>
       <S.RewardsAmount>$ 200</S.RewardsAmount>
-      <S.ActionButton type="submit" >Withdraw</S.ActionButton>
+      <S.ActionButton type="submit" >Claim</S.ActionButton>
     </S.ActionForm>
   );
 };

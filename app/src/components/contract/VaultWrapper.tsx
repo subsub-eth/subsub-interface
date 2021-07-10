@@ -13,6 +13,7 @@ export interface Vault {
   readonly owner: Address;
   readonly token: Address;
   readonly activeSubs: BN;
+  readonly creatorClaimable: BN;
 }
 /**
   * Provides abstraction on top of a CreatorVault
@@ -82,7 +83,8 @@ export class Web3Vault implements VaultWrapper {
     return {
       ...values,
       address: values.addr,
-      activeSubs: bn(values.activeSubscriptions)
+      activeSubs: bn(values.activeSubscriptions),
+      creatorClaimable: bn(values.creatorClaimable)
     };
   }
 
