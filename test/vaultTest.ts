@@ -29,8 +29,8 @@ const assertUserDeposited = (deposited: UserDeposited, v: {
 
 contract("CreatorVault", async accounts => {
 
-  const creator = accounts[1];
-  const user = accounts[0];
+  const creator = accounts[1] + "";
+  const user = accounts[0] + "";
 
   const deploy: () => Promise<[CreatezInstance,
     BlockdeterminedCreatorVaultInstance]> = async () => {
