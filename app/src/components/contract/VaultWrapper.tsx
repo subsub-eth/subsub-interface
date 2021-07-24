@@ -67,17 +67,17 @@ export interface VaultService {
 
 export class Web3Vault implements VaultWrapper {
 
-  private delegate: CreatorVault;
+  private delegate: () => CreatorVault;
 
   public readonly address: Address;
 
-  constructor(delegate: CreatorVault) {
+  constructor(delegate: () => CreatorVault) {
     this.delegate = delegate;
-    this.address = delegate.options.address;
+    this.address = delegate().options.address;
   }
 
   async getValues(): Promise<Vault> {
-    const values = await this.delegate.methods.getValues().call();
+    const values = await this.delegate().methods.getValues().call();
 
     console.debug(`Vault ${this.address} values loaded`, values, this.delegate);
     return {
@@ -89,14 +89,14 @@ export class Web3Vault implements VaultWrapper {
   }
 
   public async version(): Promise<string> {
-    const version = await this.delegate.methods.getVersion().call();
+    const version = await this.delegate().methods.getVersion().call();
 
     console.debug(`Vault is version ${version}`, this.delegate);
     return version;
   }
 
   public async token(): Promise<Address> {
-    const tokenAddress = await this.delegate.methods.getToken().call();
+    const tokenAddress = await this.delegate().methods.getToken().call();
 
     console.debug(`Vault uses ${tokenAddress} token`, this.delegate);
     return tokenAddress;
@@ -104,7 +104,7 @@ export class Web3Vault implements VaultWrapper {
 
   public async activeSubscriptions(): Promise<BN> {
     const subs =
-      await this.delegate.methods.getActiveSubscriptions().call()
+      await this.delegate().methods.getActiveSubscriptions().call()
         .then(bn);
 
     console.debug(`Vault has ${subs.toString()} subs`, this.delegate);
@@ -114,7 +114,7 @@ export class Web3Vault implements VaultWrapper {
   public async depositOf(address: Address): Promise<BN> {
     console.log(`despositOf `, address);
     const deposit =
-      await this.delegate.methods.depositOf(address).call()
+      await this.delegate().methods.depositOf(address).call()
         .then(bn);
 
     console.debug(`Deposit of address ${address} in vault is ${deposit.toString()}`,
@@ -124,7 +124,7 @@ export class Web3Vault implements VaultWrapper {
 
   public async deposit(amount: BN,
     onTransactionHash: (hash: string) => void): Promise<boolean> {
-    return this.delegate.methods.deposit(amount).send()
+    return this.delegate().methods.deposit(amount).send()
       .once("transactionHash", onTransactionHash)
       .then(res => {
         console.debug(`Deposited ${amount.toString()} to contract`,
@@ -135,7 +135,7 @@ export class Web3Vault implements VaultWrapper {
 
   public async withdraw(amount: BN,
     onTransactionHash: (hash: string) => void): Promise<boolean> {
-    return this.delegate.methods.withdraw(amount).send()
+    return this.delegate().methods.withdraw(amount).send()
       .once("transactionHash", onTransactionHash)
       .then(res => {
         console.debug(`Withdrew ${amount.toString()} from contract`,
@@ -146,7 +146,7 @@ export class Web3Vault implements VaultWrapper {
 
   public async withdrawAll(onTransactionHash: (hash: string) => void):
     Promise<boolean> {
-    return this.delegate.methods.withdrawAll().send()
+    return this.delegate().methods.withdrawAll().send()
       .once("transactionHash", onTransactionHash)
       .then(res => {
         console.debug(`Withdrew ${amount.toString()} from contract`,

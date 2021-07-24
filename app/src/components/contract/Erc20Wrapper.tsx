@@ -40,20 +40,21 @@ export interface ERC20Service {
 
 export class Web3ERC20 implements ERC20Wrapper {
 
-  private delegate: ERC20;
+  private delegate: () => ERC20;
 
-  constructor(delegate: ERC20) {
+  constructor(delegate: () => ERC20) {
     this.delegate = delegate;
   }
 
   async getValues(): Promise<ERC20Token> {
-    const name = await this.delegate.methods.name().call();
-    const symbol = await this.delegate.methods.symbol().call();
-    const dec = await this.delegate.methods.decimals().call();
+    const d = this.delegate()
+    const name = await d.methods.name().call();
+    const symbol = await d.methods.symbol().call();
+    const dec = await d.methods.decimals().call();
     const decBn = bn(dec);
 
     const res = {
-      address: this.delegate.options.address,
+      address: d.options.address,
       name: name,
       symbol: symbol,
       decimals: decBn.toNumber()
@@ -68,7 +69,7 @@ export class Web3ERC20 implements ERC20Wrapper {
 
     console.debug(`Approving token amount`, amount, amount.toString());
 
-    return this.delegate.methods.approve(spender, amount).send()
+    return this.delegate().methods.approve(spender, amount).send()
       .once('transactionHash', onTransactionHash)
       .then(res => {
         // TODO error handling
@@ -79,7 +80,7 @@ export class Web3ERC20 implements ERC20Wrapper {
 
   async allowance(owner: Address, spender: Address): Promise<BN> {
     const allowance =
-      await this.delegate.methods.allowance(owner, spender).call()
+      await this.delegate().methods.allowance(owner, spender).call()
         .then(bn);
 
     console.debug(`Spender ${spender}'s allowance of user ${owner}'s tokens is ${allowance.toString()}`,
@@ -89,7 +90,7 @@ export class Web3ERC20 implements ERC20Wrapper {
 
   async balanceOf(account: string): Promise<BN> {
     const balance =
-      await this.delegate.methods.balanceOf(account).call()
+      await this.delegate().methods.balanceOf(account).call()
         .then(bn);
 
     console.debug(`Balance of user ${account} is ${balance.toString()}`,

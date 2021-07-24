@@ -7,6 +7,8 @@ import { Edit, ShoppingCart, LibraryBooks, Wc } from '@material-ui/icons';
 
 import {HasWeb3Connection} from "./propTypes";
 import {WalletButton, ConnectButton} from "./Wallet";
+import { useRecoilValue } from "recoil";
+import { isConnectedQuery } from "./web3State";
 
 const navItems: Array<[string, JSX.Element, string]> = [
   ["/create", <Edit/>, "Create"],
@@ -181,16 +183,8 @@ const BurgerButton = styled(BBurgerButton)`
 /**
   * Header function
   */
-export function Header({web3Connection}: {} & HasWeb3Connection) {
-  const [connected, setConnected] = useState(false);
-
-  useEffect(() => {
-    web3Connection.isConnected()
-      .then(b => {
-        console.debug(`connected to wallet account: ${b}`);
-        return setConnected(b);
-      })
-  }, [web3Connection]);
+export function Header() {
+  const connected = useRecoilValue(isConnectedQuery);
 
   return (
     <HeaderStyle>
@@ -199,8 +193,8 @@ export function Header({web3Connection}: {} & HasWeb3Connection) {
       <Navigation/>
       <WalletBalance>$ 100</WalletBalance>
       {connected
-        ? <WalletButton web3Connection={web3Connection} />
-        : <ConnectButton web3Connection={web3Connection} />}
+        ? <WalletButton />
+        : <ConnectButton />}
     </HeaderStyle>
   );
 }

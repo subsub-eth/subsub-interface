@@ -19,6 +19,8 @@ export function web3Factory(conn: ConnectionConfig,
   return new DefaultWeb3Factory(conn, contracts);
 }
 
+type ProviderType = "injected" | "default";
+
 /**
   * Creates a Web3 Connection and manages connection changes at runtime
   **/
@@ -27,14 +29,23 @@ export interface Web3Factory {
     * Returns a new instance that either uses a configured default or uses the
     * given provider
     *
-    * @param changeCallback is called with an updated instance if a runtime
-    * config change occurs
     * @param ethereum given/injected provider
     * @returns a web3Connection
     **/
-  getInstance(changeCallback: (connection: Web3Connection) => void,
-    ethereum: any | null):
+  getInstance(ethereum: () => any | null):
     Promise<Web3Connection>;
+
+  /**
+    * Creates a new instance that either uses a configured default or uses the
+    * given provider
+    *
+    * @param changeCallback is called with an updated instance if a runtime
+    * config change occurs
+    * @param ethereum given/injected provider
+    **/
+  createInstanceOnChange(changeCallback: (connection: Web3Connection) => void,
+    ethereum: any | null):
+    Promise<void>;
 }
 
 /**
@@ -43,9 +54,6 @@ export interface Web3Factory {
 class DefaultWeb3Factory implements Web3Factory {
   private connection: ConnectionConfig;
   private contracts: ContractAddresses;
-
-  // only viable for metamask?
-  private callbacksRegistered: boolean = false;
 
   constructor(connection: ConnectionConfig,
     contracts: ContractAddresses) {
@@ -57,63 +65,77 @@ class DefaultWeb3Factory implements Web3Factory {
     * Returns a new instance that either uses a configured default or uses the
     * given provider
     *
-    * @param changeCallback is called with an updated instance if a runtime
-    * config change occurs
     * @param ethereum given/injected provider
     * @returns a web3Connection
     **/
-  async getInstance(changeCallback: (connection: Web3Connection) => void,
-    ethereum: any | null):
+  async getInstance(ethereum: () => any | null):
     Promise<Web3Connection> {
 
     const instance = await this.createInstance(ethereum);
-    if (ethereum && !this.callbacksRegistered) {
+
+    return instance;
+  }
+
+  /**
+    * Creates a new instance that either uses a configured default or uses the
+    * given provider
+    *
+    * @param changeCallback is called with an updated instance if a runtime
+    * config change occurs
+    * @param ethereum given/injected provider
+    **/
+  async createInstanceOnChange(changeCallback: (connection: Web3Connection) => void,
+    ethereum: () => any | null):
+    Promise<void> {
+
+    if (ethereum()) {
       // register change callbacks on injected provider even if it is on wrong
       // network.
       console.log(`registering change callbacks`);
       this.registerChangeCallbacks(ethereum, changeCallback);
     }
-
-    return instance;
   }
 
-  private registerChangeCallbacks(ethereum: any, changeCallback:
+  private registerChangeCallbacks(ethereum: () => any, changeCallback:
     (connection: Web3Connection) => void) {
     const recreate = () => {
+      // TODO error logging
       this.createInstance(ethereum).then(changeCallback);
     }
+    const eth = ethereum();
     // TODO is there a way to trigger on metamask unlock?
-    ethereum.on('connect', (connectionInfo: any) => {
+    eth.on('connect', (connectionInfo: any) => {
       // TODO do we actually need this and a disconnect event?
       console.log(`Connected event`, connectionInfo);
     });
 
-    ethereum.on('disconnect', (providerRpcError: any) => {
+    eth.on('disconnect', (providerRpcError: any) => {
       // TODO do we actually need this and a disconnect event?
       console.log(`Disconnect event`, providerRpcError);
     });
 
-    ethereum.on('chainChanged', (chainId: any) => {
+    eth.on('chainChanged', (chainId: any) => {
       console.log(`Creating new web3 connection after chainId change`);
       recreate();
     });
 
-    ethereum.on('accountsChanged', (accounts: any) => {
+    eth.on('accountsChanged', (accounts: any) => {
       console.log(`Creating new web3 connection after accounts change`);
       recreate();
     });
   }
 
-  private async createInstance(ethereum: any): Promise<Web3Connection> {
-    const [web3, defaultConnection] = await this.getProvider(ethereum);
+  private async createInstance(ethereum: () => any): Promise<Web3Connection> {
+    const eth = ethereum();
+    const provider = await this.getProvider(eth);
 
     console.log(`creating new web3 connection`);
-    return defaultConnection ?
-      new DefaultWeb3Connection(web3, this.contracts) :
-      new InjectedWeb3Connection(web3, this.contracts)
+    return provider === "default" ?
+      new DefaultWeb3Connection(() => new Web3(this.connection.rpcUrl), this.contracts) :
+      new InjectedWeb3Connection(() => new Web3(ethereum()), this.contracts)
   }
 
-  private async getProvider(ethereum: any): Promise<[Web3, boolean]> {
+  private async getProvider(ethereum: any): Promise<ProviderType> {
     const checkChainId = async (id: number) => {
       const res = await ethereum.request({method: "eth_chainId"});
       console.log(`Current chainId is ${res}`);
@@ -125,14 +147,14 @@ class DefaultWeb3Factory implements Web3Factory {
       if (await checkChainId(this.connection.chainId)) {
         // provider is injected and chain id matches
         console.log(`Using injected web3 provider`);
-        return [new Web3(ethereum), false];
+        return "injected";
       }
 
     }
 
     console.log(`No matching injected provider found, using default connection`);
 
-    return [new Web3(this.connection.rpcUrl), true];
+    return "default";
   }
 }
 
@@ -156,11 +178,11 @@ export interface Web3Connection {
   getVault(address: Address): Promise<VaultWrapper>
 }
 
-function getContract<T>(web3: Web3, abi: any,
+function getContract<T>(web3: () => Web3, abi: any,
   address: Address, account?: Address | null) {
   const opt = !!account ? {from: account} : {};
-  const web3Contract =
-    (new web3.eth.Contract(abi,
+  const web3Contract = () =>
+    (new (web3()).eth.Contract(abi,
       address,
       opt) as any) as T;
 
@@ -168,11 +190,10 @@ function getContract<T>(web3: Web3, abi: any,
 }
 
 class InjectedWeb3Connection implements Web3Connection {
-  private readonly web3: Web3;
+  private readonly web3: () => Web3;
   private readonly contracts: ContractAddresses;
-  private _account?: Address | null;
 
-  constructor(web3: Web3, contracts: ContractAddresses) {
+  constructor(web3: () => Web3, contracts: ContractAddresses) {
     this.web3 = web3;
     this.contracts = contracts;
   }
@@ -182,8 +203,12 @@ class InjectedWeb3Connection implements Web3Connection {
   }
 
   async connect(): Promise<string> {
-    const accounts = await this.web3.eth.requestAccounts();
-    return accounts[0];
+    const accounts = await this.web3().eth.requestAccounts();
+    const a = accounts[0];
+    if (a === undefined) {
+      throw new Error('Connect did not return account');
+    }
+    return a;
   }
 
   async isConnected(): Promise<boolean> {
@@ -191,14 +216,10 @@ class InjectedWeb3Connection implements Web3Connection {
     return !!acc;
   }
 
-  private async _getAccount(): Promise<Address | null> {
-    const accounts = await this.web3.eth.getAccounts();
-    console.log(`returning accounts: ${accounts}`);
-    return accounts[0];
-  }
-
   async getAccount(): Promise<Address | null> {
-    return this._account ??= await this._getAccount();
+    const accounts = await this.web3().eth.getAccounts();
+    console.log(`returning accounts: ${accounts}`);
+    return accounts[0] === undefined ? null : accounts[0];
   }
 
   async getVaultFactory(): Promise<VaultFactoryWrapper> {
@@ -236,10 +257,10 @@ class InjectedWeb3Connection implements Web3Connection {
 }
 
 class DefaultWeb3Connection implements Web3Connection {
-  private web3: Web3;
+  private web3: () => Web3;
   private readonly contracts: ContractAddresses;
 
-  constructor(web3: Web3, contracts: ContractAddresses) {
+  constructor(web3: () => Web3, contracts: ContractAddresses) {
     this.web3 = web3;
     this.contracts = contracts;
   }

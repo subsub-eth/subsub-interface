@@ -1,13 +1,15 @@
-import React, {useEffect, useState} from "react";
+import React, { useState } from "react";
 
 import styled from "styled-components";
-import {AccountBalanceWallet} from '@material-ui/icons';
+import { AccountBalanceWallet } from '@material-ui/icons';
 
-import {HasWeb3Connection, HasClassName} from "./propTypes";
+import { HasClassName } from "./propTypes";
+import { useRecoilValue } from "recoil";
+import { getAccountQuery, web3State } from "./web3State";
 
-function Web3ConnectButton({web3Connection, className}: {}
-                           & HasWeb3Connection
-                           & HasClassName) {
+function Web3ConnectButton({ className }: {}
+  & HasClassName) {
+  const web3Connection = useRecoilValue(web3State);
   const [disabled, setDisabled] = useState(false);
 
   const connect = () => {
@@ -27,20 +29,14 @@ function Web3ConnectButton({web3Connection, className}: {}
   return (
     <button onClick={connect} disabled={disabled} className={className}>
       <AccountBalanceWallet />
-    connect
+      connect
     </button>
   );
 }
 
-function Web3WalletButton({web3Connection, className}: {}
-                          & HasWeb3Connection
-                          & HasClassName) {
-  const [acc, setAccount] = useState<string | null>(null);
-
-  useEffect(() => {
-    web3Connection.getAccount()
-      .then(s => setAccount(s));
-  });
+function Web3WalletButton({ className }: {}
+  & HasClassName) {
+  const acc = useRecoilValue(getAccountQuery);
 
   return (
     <button className={className}>

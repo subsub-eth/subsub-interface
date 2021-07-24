@@ -4,20 +4,18 @@ import styled from "styled-components";
 
 import { toast } from 'react-toastify';
 
-import {HasWeb3Connection} from "./propTypes";
-
 import {VaultFactoryWrapper} from "./contract/VaultFactoryWrapper";
+import { useRecoilValue } from "recoil";
+import { getAccountQuery, isConnectedQuery, web3State } from "./web3State";
 
-const VaultCreate = ({web3Connection}: {} & HasWeb3Connection) => {
+const VaultCreate = () => {
 
   const history = useHistory();
+  const web3Connection = useRecoilValue(web3State);
+  const connected = useRecoilValue(isConnectedQuery);
+  const acc = useRecoilValue(getAccountQuery);
   const [factory, setFactory] = useState<VaultFactoryWrapper | null>(null);
-  const [connected, setConnected] = useState(false);
 
-  useEffect(() => {
-    web3Connection.isConnected()
-      .then(setConnected);
-  }, [web3Connection]);
 
   useEffect(() => {
     web3Connection.getVaultFactory()
@@ -31,8 +29,7 @@ const VaultCreate = ({web3Connection}: {} & HasWeb3Connection) => {
     console.log(`creating new contract`);
     event.preventDefault();
     if (!!factory) {
-      web3Connection.getAccount()
-      .then(acc => factory.create("" + acc, hash => toast.info(`hash: ${hash}`)))
+      factory.create("" + acc, hash => toast.info(`hash: ${hash}`))
       .then(res => {
         toast.success(`success! ${res}`);
         history.push(`/vault/${res}`);
@@ -47,11 +44,11 @@ const VaultCreate = ({web3Connection}: {} & HasWeb3Connection) => {
   );
 }
 
-export const Create = ({web3Connection}: {} & HasWeb3Connection) => {
+export const Create = () => {
   return (
     <>
       <h1>Create new Vault</h1>
-      <VaultCreate web3Connection={web3Connection}/>
+      <VaultCreate />
     </>
   );
 };

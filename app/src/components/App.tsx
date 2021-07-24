@@ -1,33 +1,32 @@
-import React, {useEffect, useState} from "react";
-import styled, {ThemeProvider} from "styled-components";
+import React, { Suspense, useEffect, useState } from "react";
+import styled, { ThemeProvider } from "styled-components";
 import {
   HashRouter as Router,
   Switch,
   Route,
 } from "react-router-dom";
-import {hot} from "react-hot-loader";
-import {Reset} from "styled-reset";
+import { RecoilRoot, useRecoilState, useRecoilValue } from "recoil";
+import { hot } from "react-hot-loader";
+import { Reset } from "styled-reset";
 import {
   defaultTheme,
   Stars,
   GlobalStyle
 } from "./Theme";
 
-import {ToastContainer, toast} from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-import {HasWeb3Connection} from "./propTypes";
-import {local} from "./Config";
-import {Web3Connection, web3Factory as w3f} from "./connection/Web3Connection";
-import {VaultFactoryWrapper} from "./contract/VaultFactoryWrapper";
+import { HasWeb3Connection } from "./propTypes";
+import { web3Factory, web3State } from "./web3State";
+import { VaultFactoryWrapper } from "./contract/VaultFactoryWrapper";
 
-import {Header} from "./Header";
-import {Create} from "./Create";
-import {Vault} from "./vault/Vault";
-import {Announcements} from "./Announcement";
-
-const web3Factory = w3f(local.connection, local.contracts);
+import { Header } from "./Header";
+import { Create } from "./Create";
+import { Vault } from "./vault/Vault";
+import { Announcements } from "./Announcement";
+import { vaultAddressState } from "./vault/vaultState";
 
 const red = "red";
 export const AppDiv = styled.div`
@@ -69,45 +68,51 @@ export function AppContent() {
   *
   **/
 export function App() {
-  const [web3Connection, setWeb3Connection] = useState<Web3Connection | null>(null);
-
-  useEffect(() => {
-    if (!web3Connection) {
-      console.log(`creating new web3 connection, exisiting: ${web3Connection}`);
-      web3Factory.getInstance(setWeb3Connection, window.ethereum)
-        .then(setWeb3Connection);
-    }
-  }, [web3Connection]);
-
   return (
     <Router>
-      <ThemeProvider theme={defaultTheme}>
-        <Reset />
-        <GlobalStyle />
-        {web3Connection ? <AppContainer web3Connection={web3Connection} /> : ""}
-        <Stars />
-        <ToastContainer />
-      </ThemeProvider>
+      <RecoilRoot>
+        <ThemeProvider theme={defaultTheme}>
+          <Reset />
+          <GlobalStyle />
+          <Suspense fallback={<></>}>
+            <AppContainer />
+          </Suspense>
+          <Stars />
+          <ToastContainer />
+        </ThemeProvider>
+      </RecoilRoot>
     </Router>
   );
 }
 
-function AppContainer({web3Connection}: {} & HasWeb3Connection) {
+function AppContainer() {
+  const [changeCallbackRegistered, setChangeCallBackRegistered] = useState(false);
+  const web3Connection = useRecoilValue(web3State)
+
+  // register change handling
+  const [, setWeb3Connection] = useRecoilState(web3State);
+  if (!changeCallbackRegistered) {
+    web3Factory.createInstanceOnChange(setWeb3Connection, () => window.ethereum);
+    setChangeCallBackRegistered(true);
+  }
 
   return (
     <>
-      <Header web3Connection={web3Connection} />
+      <Header />
       <main>
         <MainContainer>
           <Announcements />
           <Switch>
             <Route path="/create">
-              <Create web3Connection={web3Connection} />
+              <Create />
             </Route>
             <Route path="/vault/:address"
               render={(props) =>
-                <Vault address={props.match.params.address}
-                  web3Connection={web3Connection} />} />
+                <RecoilRoot initializeState={({ set }) =>
+                  set(vaultAddressState, props.match.params.address)}>
+                  <Vault />
+                </RecoilRoot>
+              } />
             <Route path="/">
               <AppContent />
             </Route>

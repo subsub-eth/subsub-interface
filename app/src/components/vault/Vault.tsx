@@ -1,58 +1,46 @@
-import React, {FormEvent, useEffect, useState} from "react";
-import {useAsync} from "react-async";
+import React, { FormEvent, useEffect, useState } from "react";
+import { useAsync } from "react-async";
 
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
 
 import BN from "bn.js";
-import {bn, zero, fromWei, toWei} from "../util";
+import { bn, zero, fromWei, toWei } from "../util";
 
 import {
   HasVaultService, HasWeb3Connection, HasAddress, HasCurrentDeposit,
   HasToken, HasTokenService, HasVaultValues, HasAccount, HasAllowance, HasWalletBalance
 } from "../propTypes";
-import {Vault as VaultValues, VaultService} from "../contract/VaultWrapper";
-import {ERC20Token, ERC20Wrapper} from "../contract/Erc20Wrapper";
+import { Vault as VaultValues, VaultService } from "../contract/VaultWrapper";
+import { ERC20Token, ERC20Wrapper } from "../contract/Erc20Wrapper";
 
-import {Address} from "../types";
-import {Head} from "./Head";
-import {VaultUserDetails} from "./UserDetails"
-import {VaultInfo} from "./Info"
-import {VaultActions} from "./Actions"
-import {VaultNotes} from "./Notes"
+import { Address } from "../types";
+import { Head } from "./Head";
+import { VaultUserDetails } from "./UserDetails"
+import { VaultInfo } from "./Info"
+import { VaultActions } from "./Actions"
+import { VaultNotes } from "./Notes"
 
 import * as S from "./VaultStyle";
+import { useRecoilValue } from "recoil";
+import { useRefreshVaultDeposit, useRefreshVaultValues, vaultAddressState, vaultDepositState, vaultServiceState, vaultValuesState } from "./vaultState";
+import { web3State } from "../web3State";
+import { tokenAllowanceState, tokenBalanceState, useRefreshTokenAllowance, useRefreshTokenBalance } from "../erc20TokenState";
 
 
-const VaultHandler = ({vaultService, vault, token, tokenService, account, updateVaultValues}:
-  {updateVaultValues: () => void}
+const VaultHandler = ({ vaultService, vault, token, tokenService, account, updateVaultValues }:
+  { updateVaultValues: () => void }
   & HasVaultService & HasVaultValues & HasToken & HasTokenService & HasAccount) => {
-  const [allowance, setAllowance] = useState<BN>(zero);
-  const [currentDeposit, setCurrentDeposit] = useState<BN>(zero);
-  const [walletBalance, setWalletBalance] = useState<BN>(zero);
+  const allowance = useRecoilValue(tokenAllowanceState({
+    address: token.address,
+    spender: vault.address
+  }));
+  const refreshAllowance = useRefreshTokenAllowance(token.address);
 
+  const currentDeposit = useRecoilValue(vaultDepositState);
+  const refreshDeposit = useRefreshVaultDeposit(vault.address);
 
-  const getAllowance = () => {
-    if (!!account) {
-      tokenService.allowance(account, vault.address)
-        .then(setAllowance);
-    }
-  };
-
-  const getCurrentDeposit = () => {
-    if (!!account) {
-      console.debug(`Loading current deposit of account`, account);
-      vaultService.depositOf(account)
-        .then(setCurrentDeposit);
-    }
-  };
-
-  const getWalletBalance = () => {
-    if (!!account) {
-      console.debug(`Loading wallet balance of account`, account, tokenService);
-      tokenService.balanceOf(account)
-        .then(setWalletBalance)
-    }
-  }
+  const walletBalance = useRecoilValue(tokenBalanceState(token.address))
+  const refreshWalletBalance = useRefreshTokenBalance(token.address)
 
   const approve = () => {
     return tokenService
@@ -61,7 +49,7 @@ const VaultHandler = ({vaultService, vault, token, tokenService, account, update
         console.debug(`Successfully updated allowance`, res);
         toast.success(`Funds approved to vault`);
         // reload allowance
-        getAllowance();
+        refreshAllowance();
       });
   };
 
@@ -73,7 +61,8 @@ const VaultHandler = ({vaultService, vault, token, tokenService, account, update
             vaultService, res);
           toast.success(`Deposited ${amount.toString()} into vault`);
 
-          getCurrentDeposit();
+          refreshDeposit();
+          refreshWalletBalance();
           updateVaultValues();
         });
     } else {
@@ -90,7 +79,8 @@ const VaultHandler = ({vaultService, vault, token, tokenService, account, update
             vaultService, res);
           toast.success(`Withdrew ${amount.toString()} from vault`);
 
-          getCurrentDeposit();
+          refreshDeposit();
+          refreshWalletBalance();
           updateVaultValues();
         });
     } else {
@@ -98,12 +88,6 @@ const VaultHandler = ({vaultService, vault, token, tokenService, account, update
       return Promise.reject("withdraw error");
     }
   };
-
-  const deps = [vaultService, vault, tokenService, account];
-
-  useEffect(getAllowance, deps);
-  useEffect(getCurrentDeposit, deps);
-  useEffect(getWalletBalance, deps);
 
   return (
     <>
@@ -119,46 +103,22 @@ const VaultHandler = ({vaultService, vault, token, tokenService, account, update
 };
 
 
-export const Vault = ({address, web3Connection}: {address: string} & HasWeb3Connection) => {
-  const [vaultService, setVaultService] =
-    useState<VaultService | null>();
+export const Vault = () => {
+  const web3Connection = useRecoilValue(web3State)
+  const address = useRecoilValue(vaultAddressState);
+  const vaultService = useRecoilValue(vaultServiceState);
+  const vaultValues = useRecoilValue(vaultValuesState);
+
+  const refreshVaultValues = () => {
+    console.debug(`Refreshing values of vault`, address);
+    useRefreshVaultValues(address);
+  }
+
+
   const [tokenService, setTokenService] = useState<ERC20Wrapper | null>(null);
   const [token, setToken] = useState<ERC20Token | null>(null);
 
-  const [vaultValues, setVaultValues] = useState<VaultValues | null>();
   const [account, setAccount] = useState<Address | null>(null);
-
-  const getService = async () => {
-    try {
-      const service = await web3Connection.getVault(address)
-      setVaultService(service);
-    } catch (error) {
-      console.error(`Unable to load vault from address ${address}`, error);
-      setVaultService(null);
-    }
-  };
-
-  const getValues = async () => {
-    if (!!vaultService) {
-      try {
-        const values = await vaultService.getValues();
-        setVaultValues(values);
-      } catch (error) {
-        console.error(`Unable to load vault data from address ${address}`,
-          error);
-        setVaultValues(null);
-      }
-    }
-  }
-
-  // set vault
-  useEffect(() => {
-    getService();
-  }, [address, web3Connection]);
-
-  useEffect(() => {
-    getValues();
-  }, [web3Connection, vaultService]);
 
   // set token
   useEffect(() => {
@@ -179,7 +139,7 @@ export const Vault = ({address, web3Connection}: {address: string} & HasWeb3Conn
 
   return (
     <S.VaultContainer>
-      { vaultService === null || vaultValues === null ?
+      {vaultService === null || vaultValues === null ?
         <div>Unable to load vault</div> :
         !!vaultService && !!vaultValues && !!tokenService && !!token ?
           <VaultHandler
@@ -188,7 +148,7 @@ export const Vault = ({address, web3Connection}: {address: string} & HasWeb3Conn
             token={token}
             tokenService={tokenService}
             account={account}
-            updateVaultValues={getValues}
+            updateVaultValues={refreshVaultValues}
           /> : <div>Loading...</div>
       }
     </S.VaultContainer>

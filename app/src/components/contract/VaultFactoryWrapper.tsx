@@ -18,14 +18,14 @@ export interface VaultFactoryWrapper {
 
 export class Web3VaultFactory implements VaultFactoryWrapper {
 
-  private delegate: CreatorVaultFactory;
+  private delegate: () => CreatorVaultFactory;
 
-  constructor(delegate: CreatorVaultFactory) {
+  constructor(delegate: () => CreatorVaultFactory) {
     this.delegate = delegate;
   }
 
   public async create(address: string, onTransactionHash: (hash: string) => void): Promise<string> {
-    return this.delegate.methods.create(address)
+    return this.delegate().methods.create(address)
     .send()
     .once('sending', () => console.debug("sending"))
     .once('sent', () => console.debug("sent"))
