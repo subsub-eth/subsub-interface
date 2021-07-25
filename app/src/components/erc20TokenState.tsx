@@ -51,7 +51,7 @@ export const tokenBalanceState = selectorFamily<BN, Address>({
     const tokenService = get(tokenServiceState(address));
     const balance = await tokenService.balanceOf(account);
 
-    console.debug(`Balance of account ${account}: ${balance.toString}`,
+    console.debug(`Balance of account ${account}: ${balance.toString()}`,
       tokenService);
 
     return balance;
@@ -87,7 +87,7 @@ export const tokenAllowanceState = selectorFamily<BN, {
     const allowance = await tokenService.allowance(owner, spender);
 
     console.debug(
-      `Allowance on contract ${spender} by owner ${owner}: ${allowance.toString}`,
+      `Allowance on contract ${spender} by owner ${owner}: ${allowance.toString()}`,
       tokenService);
 
     return allowance;
