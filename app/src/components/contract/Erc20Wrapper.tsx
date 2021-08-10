@@ -1,6 +1,6 @@
 import {
   ERC20
-} from '../../../../types/web3-v1-contracts/ERC20';
+} from '@createz/contracts/types/web3-v1-contracts/ERC20';
 
 import {Address} from "../types";
 

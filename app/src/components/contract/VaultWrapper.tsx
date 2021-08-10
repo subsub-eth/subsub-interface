@@ -1,6 +1,6 @@
 import {
   CreatorVault
-} from '../../../../types/web3-v1-contracts/CreatorVault';
+} from '@createz/contracts/types/web3-v1-contracts/CreatorVault';
 
 import {Address} from "../types";
 

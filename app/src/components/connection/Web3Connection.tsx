@@ -4,13 +4,13 @@ import {VaultFactoryWrapper, Web3VaultFactory} from "../contract/VaultFactoryWra
 import {VaultWrapper, Web3Vault} from "../contract/VaultWrapper";
 import {ERC20Wrapper, Web3ERC20} from "../contract/Erc20Wrapper";
 
-import {CreatorVaultFactory} from "../../../../types/web3-v1-contracts/CreatorVaultFactory";
-import {CreatorVault} from "../../../../types/web3-v1-contracts/CreatorVault";
-import {ERC20} from "../../../../types/web3-v1-contracts/ERC20";
+import {CreatorVaultFactory} from "@createz/contracts/types/web3-v1-contracts/CreatorVaultFactory";
+import {CreatorVault} from "@createz/contracts/types/web3-v1-contracts/CreatorVault";
+import {ERC20} from "@createz/contracts/types/web3-v1-contracts/ERC20";
 
-import CreatorVaultFactoryAbi from "../../../../build/contracts/CreatorVaultFactory.json";
-import CreatorVaultAbi from "../../../../build/contracts/CreatorVault.json";
-import ERC20VaultAbi from "../../../../build/contracts/ERC20.json";
+import CreatorVaultFactoryAbi from "@createz/contracts/build/contracts/CreatorVaultFactory.json";
+import CreatorVaultAbi from "@createz/contracts/build/contracts/CreatorVault.json";
+import ERC20VaultAbi from "@createz/contracts/build/contracts/ERC20.json";
 
 import {Address} from "../types";
 

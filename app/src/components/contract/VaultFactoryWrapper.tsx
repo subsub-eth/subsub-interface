@@ -1,6 +1,6 @@
 import {
   CreatorVaultFactory, VaultCreation
-} from '../../../../types/web3-v1-contracts/CreatorVaultFactory';
+} from '@createz/contracts/types/web3-v1-contracts/CreatorVaultFactory';
 
 /**
   * Provides abstraction on top of VaultFactory

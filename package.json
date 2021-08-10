@@ -8,9 +8,7 @@
     "typescript",
     "babel",
     "sass",
-    "hmr",
-    "solidty",
-    "truffle"
+    "hmr"
   ],
   "author": "suiiii",
   "license": "MIT",
@@ -24,17 +22,13 @@
   "homepage": "https://createz.xyz",
   "scripts": {
     "build": "NODE_ENV=production npm run clean-dist && webpack --config=app/configs/webpack/prod.js",
-    "generate-types": "typechain --target=truffle-v5 'build/contracts/**.json'",
-    "generate-frontend-types": "typechain --target=web3-v1 'build/contracts/**.json'",
-    "truffle-compile": "truffle compile && npm run generate-types && npm run generate-frontend-types",
     "clean-dist": "rimraf dist/*",
     "lint": "eslint './app/src/**/*.{js,ts,tsx}' --quiet",
     "start": "NODE_ENV=development npm run start-dev",
     "start-dev": "webpack serve --config=app/configs/webpack/dev.js",
     "start-prod": "NODE_ENV=production npm run build && node express.js",
     "test": "NODE_ENV=test nyc --reporter=text ts-mocha --require ./app/tests/setup.js --require ignore-styles ./app/tests/**/*.test.{js,jsx,ts,tsx} --exit",
-    "test-watch": "NODE_ENV=test nyc --reporter=text ts-mocha --require ./app/tests/setup.js --require ignore-styles ./app/tests/**/*.test.{js,jsx,ts,tsx} --exit --watch --watch-files ./app/tests/**",
-    "truffle-test": "truffle test"
+    "test-watch": "NODE_ENV=test nyc --reporter=text ts-mocha --require ./app/tests/setup.js --require ignore-styles ./app/tests/**/*.test.{js,jsx,ts,tsx} --exit --watch --watch-files ./app/tests/**"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.8",
@@ -44,9 +38,6 @@
     "@babel/preset-react": "^7.14.5",
     "@babel/preset-typescript": "^7.15.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
-    "@openzeppelin/contracts": "^4.2.0",
-    "@typechain/truffle-v5": "^5.0.0",
-    "@typechain/web3-v1": "^3.0.0",
     "@types/bn.js": "^5.1.0",
     "@types/chai": "^4.2.21",
     "@types/enzyme": "^3.10.9",
@@ -86,7 +77,6 @@
     "sass-loader": "^12.1.0",
     "solidity-linked-list": "^5.0.0",
     "style-loader": "^3.2.1",
-    "truffle": "^5.4.5",
     "ts-mocha": "^8.0.0",
     "ts-node": "^10.1.0",
     "typechain": "^5.1.2",
@@ -97,6 +87,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@createz/contracts": "^0.0.1",
     "@fontsource/noto-sans": "^4.5.0",
     "@material-ui/icons": "^4.11.2",
     "react": "^17.0.2",
