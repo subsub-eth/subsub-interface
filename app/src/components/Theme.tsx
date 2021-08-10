@@ -5,7 +5,7 @@ import styled,
     createGlobalStyle,
     ThemeProvider
   } from "styled-components";
-import "@fontsource/noto-sans";
+import "@fontsource/noto-sans/index.css";
 
 export interface CreatezTheme {
 
