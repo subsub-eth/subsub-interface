@@ -3,7 +3,7 @@ import {
   NavLink
 } from "react-router-dom";
 import styled from "styled-components";
-import { Edit, ShoppingCart, LibraryBooks, Wc } from '@material-ui/icons';
+import { Edit, ShoppingCart, LibraryBooks, Wc } from '@mui/icons-material';
 
 import {HasWeb3Connection} from "./propTypes";
 import {WalletButton, ConnectButton} from "./Wallet";

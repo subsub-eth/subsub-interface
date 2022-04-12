@@ -1,6 +1,6 @@
 import React from "react";
 import {FileCopy, Link as LinkIcon, Warning, Report, ExpandLess, TrendingFlat}
-  from '@material-ui/icons';
+  from '@mui/icons-material';
 import {
   HasAddress, HasToken, HasVaultValues,
 } from "../propTypes";

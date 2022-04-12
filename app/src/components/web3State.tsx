@@ -4,7 +4,8 @@ import { Web3Connection, web3Factory as w3f } from "./connection/Web3Connection"
 
 export const web3Factory = w3f(local.connection, local.contracts);
 
-const initialConnection = web3Factory.getInstance(() => window.ethereum);
+// TODO is it cool init with null?
+const initialConnection = web3Factory.getInstance(() => null);
 
 export const web3State: RecoilState<Web3Connection> = atom({
   key: 'web3State',

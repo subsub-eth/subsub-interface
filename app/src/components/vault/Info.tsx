@@ -1,7 +1,7 @@
 import React from "react";
 
 import {Warning}
-  from '@material-ui/icons';
+  from '@mui/icons-material';
 import * as S from "./VaultStyle";
 
 import {

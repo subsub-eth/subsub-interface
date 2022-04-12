@@ -2,11 +2,12 @@ import React, { Suspense, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import {
   HashRouter as Router,
-  Switch,
   Route,
+  Routes,
+  useParams,
 } from "react-router-dom";
 import { RecoilRoot, useRecoilState, useRecoilValue } from "recoil";
-import { hot } from "react-hot-loader";
+// import { hot } from "react-hot-loader";
 import { Reset } from "styled-reset";
 import {
   defaultTheme,
@@ -85,6 +86,20 @@ export function App() {
   );
 }
 
+function VaultContainer() {
+
+  const { address } = useParams();
+
+  return (
+    <RecoilRoot initializeState={({ set }) =>
+      set(vaultAddressState, address ? address : "")}>
+      <Suspense fallback={<div>Loading Vault...</div>}>
+        <Vault />
+      </Suspense>
+    </RecoilRoot>
+  );
+}
+
 function AppContainer() {
   const [changeCallbackRegistered, setChangeCallBackRegistered] = useState(false);
   const web3Connection = useRecoilValue(web3State)
@@ -102,25 +117,15 @@ function AppContainer() {
       <main>
         <MainContainer>
           <Announcements />
-          <Switch>
-            <Route path="/create">
-              <Create />
-            </Route>
-            <Route path="/vault/:address"
-              render={(props) =>
-                <RecoilRoot initializeState={({ set }) =>
-                  set(vaultAddressState, props.match.params.address)}>
-                  <Vault />
-                </RecoilRoot>
-              } />
-            <Route path="/">
-              <AppContent />
-            </Route>
-          </Switch>
+          <Routes>
+            <Route path="/create" element={<Create />} />
+            <Route path="/vault/:address" element={<VaultContainer />} />
+            <Route path="/" element={<AppContent />} />
+          </Routes>
         </MainContainer>
       </main>
     </>
   );
 }
 
-export default hot(module)(App);
+export default App;

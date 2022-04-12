@@ -1,5 +1,5 @@
 import React, {useEffect, useState, FormEvent} from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import { toast } from 'react-toastify';
@@ -10,7 +10,7 @@ import { getAccountQuery, isConnectedQuery, web3State } from "./web3State";
 
 const VaultCreate = () => {
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const web3Connection = useRecoilValue(web3State);
   const connected = useRecoilValue(isConnectedQuery);
   const acc = useRecoilValue(getAccountQuery);
@@ -32,7 +32,7 @@ const VaultCreate = () => {
       factory.create("" + acc, hash => toast.info(`hash: ${hash}`))
       .then(res => {
         toast.success(`success! ${res}`);
-        history.push(`/vault/${res}`);
+        navigate(`/vault/${res}`);
       }, err => toast.error(`Error! ${err}`));
     }
   };

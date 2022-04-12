@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import {FileCopy, Link as LinkIcon, Warning, Report, ExpandLess, TrendingFlat}
-  from '@material-ui/icons';
+  from '@mui/icons-material';
 
 import {fontHeadlineH1, resetButton, textEllipsis, fontLabel, fontValue}
   from "../Theme";

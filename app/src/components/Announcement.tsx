@@ -1,6 +1,6 @@
 import React, {} from "react";
 import styled from "styled-components";
-import {Info, Warning} from '@material-ui/icons';
+import {Info, Warning} from '@mui/icons-material';
 
 interface HasIcon {
   readonly icon: React.ReactNode

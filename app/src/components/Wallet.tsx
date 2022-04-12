@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import styled from "styled-components";
-import { AccountBalanceWallet } from '@material-ui/icons';
+import { AccountBalanceWallet } from '@mui/icons-material';
 
 import { HasClassName } from "./propTypes";
 import { useRecoilValue } from "recoil";
