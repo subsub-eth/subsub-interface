@@ -1,6 +1,6 @@
-import {Web3Connection} from "./connection/Web3Connection";
-import {ERC20Service, ERC20Token} from "./contract/Erc20Wrapper";
-import {Vault, VaultService} from "./contract/VaultWrapper";
+import {Web3Connection} from "../service/connection/Web3Connection";
+import {ERC20Service, ERC20Token} from "../contract/Erc20Wrapper";
+import {Vault, VaultService} from "../contract/VaultWrapper";
 import {Address} from "./types";
 
 export interface HasWeb3Connection {

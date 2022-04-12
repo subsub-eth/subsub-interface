@@ -1,8 +1,8 @@
-import {AppConfig, ConnectionConfig, ContractAddresses} from "../Config";
+import {AppConfig, ConnectionConfig, ContractAddresses} from "../../config/Config";
 import Web3 from "web3";
-import {VaultFactoryWrapper, Web3VaultFactory} from "../contract/VaultFactoryWrapper";
-import {VaultWrapper, Web3Vault} from "../contract/VaultWrapper";
-import {ERC20Wrapper, Web3ERC20} from "../contract/Erc20Wrapper";
+import {VaultFactoryWrapper, Web3VaultFactory} from "../../contract/VaultFactoryWrapper";
+import {VaultWrapper, Web3Vault} from "../../contract/VaultWrapper";
+import {ERC20Wrapper, Web3ERC20} from "../../contract/Erc20Wrapper";
 
 import {CreatorVaultFactory} from "@createz/contracts/types/web3-v1-contracts/CreatorVaultFactory";
 import {CreatorVault} from "@createz/contracts/types/web3-v1-contracts/CreatorVault";
@@ -12,7 +12,7 @@ import CreatorVaultFactoryAbi from "@createz/contracts/build/contracts/CreatorVa
 import CreatorVaultAbi from "@createz/contracts/build/contracts/CreatorVault.json";
 import ERC20VaultAbi from "@createz/contracts/build/contracts/ERC20.json";
 
-import {Address} from "../types";
+import {Address} from "../../helper/types";
 
 export function web3Factory(conn: ConnectionConfig,
   contracts: ContractAddresses): Web3Factory {

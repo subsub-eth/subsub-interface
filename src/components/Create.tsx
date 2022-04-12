@@ -4,9 +4,9 @@ import styled from "styled-components";
 
 import { toast } from 'react-toastify';
 
-import {VaultFactoryWrapper} from "./contract/VaultFactoryWrapper";
+import {VaultFactoryWrapper} from "../contract/VaultFactoryWrapper";
 import { useRecoilValue } from "recoil";
-import { getAccountQuery, isConnectedQuery, web3State } from "./web3State";
+import { getAccountQuery, isConnectedQuery, web3State } from "../state/web3State";
 
 const VaultCreate = () => {
 

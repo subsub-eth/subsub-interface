@@ -3,9 +3,9 @@ import {FileCopy, Link as LinkIcon, Warning, Report, ExpandLess, TrendingFlat}
   from '@mui/icons-material';
 import {
   HasAddress, HasToken, HasVaultValues,
-} from "../propTypes";
+} from "../../helper/propTypes";
 import * as S from "./VaultStyle";
-import copyToClipboad from "../Clipboard";
+import copyToClipboad from "../../helper/Clipboard";
 
 const Owner = ({address}: {} & HasAddress) => {
   // TODO create link to etherscan

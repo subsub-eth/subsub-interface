@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { AccountBalanceWallet } from '@mui/icons-material';
 
-import { HasClassName } from "./propTypes";
+import { HasClassName } from "../helper/propTypes";
 import { useRecoilValue } from "recoil";
-import { getAccountQuery, web3State } from "./web3State";
+import { getAccountQuery, web3State } from "../state/web3State";
 
 function Web3ConnectButton({ className }: {}
   & HasClassName) {

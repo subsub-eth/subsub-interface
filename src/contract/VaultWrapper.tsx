@@ -2,10 +2,10 @@ import {
   CreatorVault
 } from '@createz/contracts/types/web3-v1-contracts/CreatorVault';
 
-import {Address} from "../types";
+import {Address} from "../helper/types";
 
 import BN from "bn.js";
-import {bn, maxUint, zero} from "../util";
+import {bn, maxUint, zero} from "../helper/util";
 
 export interface Vault {
   readonly version: string;

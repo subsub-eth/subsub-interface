@@ -1,7 +1,7 @@
 import { atom, atomFamily, RecoilState, selector, useSetRecoilState } from "recoil";
-import { Address } from "../types";
-import { zero } from "../util";
-import { getAccountQuery, web3State } from "../web3State";
+import { Address } from "../helper/types";
+import { zero } from "../helper/util";
+import { getAccountQuery, web3State } from "./web3State";
 
 /**
  * stores address of vault in detail view

@@ -4,16 +4,16 @@ import { useAsync } from "react-async";
 import { toast } from 'react-toastify';
 
 import BN from "bn.js";
-import { bn, zero, fromWei, toWei } from "../util";
+import { bn, zero, fromWei, toWei } from "../../helper/util";
 
 import {
   HasVaultService, HasWeb3Connection, HasAddress, HasCurrentDeposit,
   HasToken, HasTokenService, HasVaultValues, HasAccount, HasAllowance, HasWalletBalance
-} from "../propTypes";
-import { Vault as VaultValues, VaultService } from "../contract/VaultWrapper";
-import { ERC20Token, ERC20Wrapper } from "../contract/Erc20Wrapper";
+} from "../../helper/propTypes";
+import { Vault as VaultValues, VaultService } from "../../contract/VaultWrapper";
+import { ERC20Token, ERC20Wrapper } from "../../contract/Erc20Wrapper";
 
-import { Address } from "../types";
+import { Address } from "../../helper/types";
 import { Head } from "./Head";
 import { VaultUserDetails } from "./UserDetails"
 import { VaultInfo } from "./Info"
@@ -22,9 +22,9 @@ import { VaultNotes } from "./Notes"
 
 import * as S from "./VaultStyle";
 import { useRecoilValue } from "recoil";
-import { useRefreshVaultDeposit, useRefreshVaultValues, vaultAddressState, vaultDepositState, vaultServiceState, vaultValuesState } from "./vaultState";
-import { web3State } from "../web3State";
-import { tokenAllowanceState, tokenBalanceState, useRefreshTokenAllowance, useRefreshTokenBalance } from "../erc20TokenState";
+import { useRefreshVaultDeposit, useRefreshVaultValues, vaultAddressState, vaultDepositState, vaultServiceState, vaultValuesState } from "../../state/vaultState";
+import { web3State } from "../../state/web3State";
+import { tokenAllowanceState, tokenBalanceState, useRefreshTokenAllowance, useRefreshTokenBalance } from "../../state/erc20TokenState";
 
 
 const VaultHandler = ({ vaultService, vault, token, tokenService, account, updateVaultValues }:

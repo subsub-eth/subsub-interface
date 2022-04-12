@@ -1,10 +1,10 @@
 import React from "react";
 import {
   HasCurrentDeposit,  HasWalletBalance
-} from "../propTypes";
+} from "../../helper/propTypes";
 import * as S from "./VaultStyle";
 
-import {fromWei} from "../util";
+import {fromWei} from "../../helper/util";
 
 const UserDetailsField = ({name, value}: {name: string, value: string}) => {
   return (

@@ -6,7 +6,7 @@ import * as S from "./VaultStyle";
 
 import {
   HasVaultValues
-} from "../propTypes";
+} from "../../helper/propTypes";
 
 interface VaultPropertyValue {
   value: string;

@@ -5,10 +5,10 @@ import {
 import styled from "styled-components";
 import { Edit, ShoppingCart, LibraryBooks, Wc } from '@mui/icons-material';
 
-import {HasWeb3Connection} from "./propTypes";
+import {HasWeb3Connection} from "../helper/propTypes";
 import {WalletButton, ConnectButton} from "./Wallet";
 import { useRecoilValue } from "recoil";
-import { isConnectedQuery } from "./web3State";
+import { isConnectedQuery } from "../state/web3State";
 
 const navItems: Array<[string, JSX.Element, string]> = [
   ["/create", <Edit/>, "Create"],

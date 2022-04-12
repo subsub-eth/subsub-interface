@@ -3,11 +3,11 @@ import {useAsync} from "react-async";
 
 import {
   HasCurrentDeposit, HasAllowance, HasWalletBalance
-} from "../propTypes";
+} from "../../helper/propTypes";
 
 import * as S from "./VaultStyle";
 
-import {bn, zero, fromWei, toWei} from "../util";
+import {bn, zero, fromWei, toWei} from "../../helper/util";
 
 interface DoApprove {
   approve: () => Promise<void>

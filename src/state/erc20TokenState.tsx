@@ -1,7 +1,7 @@
 import { atomFamily, selectorFamily, useSetRecoilState } from "recoil";
-import { ERC20Service, ERC20Token } from "./contract/Erc20Wrapper";
-import { Address } from "./types";
-import { zero } from "./util";
+import { ERC20Service, ERC20Token } from "../contract/Erc20Wrapper";
+import { Address } from "../helper/types";
+import { zero } from "../helper/util";
 import { getAccountQuery, web3State } from "./web3State";
 
 

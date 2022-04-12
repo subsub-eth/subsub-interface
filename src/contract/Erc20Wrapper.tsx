@@ -2,10 +2,10 @@ import {
   ERC20
 } from '@createz/contracts/types/web3-v1-contracts/ERC20';
 
-import {Address} from "../types";
+import {Address} from "../helper/types";
 
 import BN from "bn.js";
-import {bn, maxUint} from "../util";
+import {bn, maxUint} from "../helper/util";
 
 export interface ERC20Token {
   readonly address: Address;

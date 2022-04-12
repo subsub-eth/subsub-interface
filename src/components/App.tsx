@@ -19,15 +19,15 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-import { HasWeb3Connection } from "./propTypes";
-import { web3Factory, web3State } from "./web3State";
-import { VaultFactoryWrapper } from "./contract/VaultFactoryWrapper";
+import { HasWeb3Connection } from "../helper/propTypes";
+import { web3Factory, web3State } from "../state/web3State";
+import { VaultFactoryWrapper } from "../contract/VaultFactoryWrapper";
 
 import { Header } from "./Header";
 import { Create } from "./Create";
 import { Vault } from "./vault/Vault";
 import { Announcements } from "./Announcement";
-import { vaultAddressState } from "./vault/vaultState";
+import { vaultAddressState } from "../state/vaultState";
 
 const red = "red";
 export const AppDiv = styled.div`

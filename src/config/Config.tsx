@@ -1,4 +1,4 @@
-import {Address} from "./types";
+import {Address} from "../helper/types";
 
 export interface AppConfig {
   connection: ConnectionConfig;

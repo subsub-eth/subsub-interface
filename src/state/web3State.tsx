@@ -1,6 +1,6 @@
 import { atom, RecoilState, selector, useRecoilState } from 'recoil'
-import { local } from "./Config";
-import { Web3Connection, web3Factory as w3f } from "./connection/Web3Connection";
+import { local } from "../config/Config";
+import { Web3Connection, web3Factory as w3f } from "../service/connection/Web3Connection";
 
 export const web3Factory = w3f(local.connection, local.contracts);
 
