@@ -175,7 +175,7 @@ tags
 # End of https://www.toptal.com/developers/gitignore/api/vim,node,soliditytruffle
 
 # coverage
-app/tests/__coverage__/
+tests/__coverage__/
 
 # generated contract types
 types/

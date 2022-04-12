@@ -21,14 +21,14 @@
   },
   "homepage": "https://createz.xyz",
   "scripts": {
-    "build": "NODE_ENV=production npm run clean-dist && webpack --config=app/configs/webpack/prod.js",
+    "build": "NODE_ENV=production npm run clean-dist && webpack --config=configs/webpack/prod.js",
     "clean-dist": "rimraf dist/*",
-    "lint": "eslint './app/src/**/*.{js,ts,tsx}' --quiet",
+    "lint": "eslint './src/**/*.{js,ts,tsx}' --quiet",
     "start": "NODE_ENV=development npm run start-dev",
-    "start-dev": "webpack serve --config=app/configs/webpack/dev.js",
+    "start-dev": "webpack serve --config=configs/webpack/dev.js",
     "start-prod": "npm run build && node express.js",
-    "test": "jest --coverage --config=app/configs/jest.json",
-    "test-watch": "jest --coverage --watchAll --config=app/configs/jest.json"
+    "test": "jest --coverage --config=configs/jest.json",
+    "test-watch": "jest --coverage --watchAll --config=configs/jest.json"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",
