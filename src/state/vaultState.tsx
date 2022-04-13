@@ -1,4 +1,4 @@
-import { atom, atomFamily, RecoilState, selector, useSetRecoilState } from "recoil";
+import { atom, atomFamily, RecoilState, selector, selectorFamily, useSetRecoilState } from "recoil";
 import { Address } from "../helper/types";
 import { zero } from "../helper/util";
 import { getAccountQuery, web3State } from "./web3State";
@@ -6,10 +6,10 @@ import { getAccountQuery, web3State } from "./web3State";
 /**
  * stores address of vault in detail view
  */
-export const vaultAddressState: RecoilState<Address | ""> = atom({
-  key: 'vaultDetailAddress',
-  default: ""
-});
+// export const vaultAddressState: RecoilState<Address | ""> = atom({
+//   key: 'vaultDetailAddress',
+//   default: ""
+// });
 
 /**
  * request id tied to vault address to trigger reloads
@@ -43,11 +43,10 @@ export const useRefreshVaultValues = (address: Address) => {
 /**
  * constructs vault service from vault address and web3Connection
  */
-export const vaultServiceState = selector({
+export const vaultServiceState = selectorFamily({
   key: 'vaultService',
-  get: async ({ get }) => {
+  get: (address: Address) => async ({ get }) => {
     const web3Connection = get(web3State);
-    const address = get(vaultAddressState);
 
     return web3Connection.getVault(address);
   }
@@ -56,10 +55,10 @@ export const vaultServiceState = selector({
 /**
  * vault values loaded from vault backend
  */
-export const vaultValuesState = selector({
+export const vaultValuesState = selectorFamily({
   key: 'vaultValues',
-  get: async ({ get }) => {
-    const vaultService = get(vaultServiceState);
+  get: (address: Address) => async ({ get }) => {
+    const vaultService = get(vaultServiceState(address));
     // register dependency on requestId
     get(vaultValuesRequestIdState(vaultService.address));
 
@@ -75,12 +74,12 @@ export const vaultValuesState = selector({
   }
 });
 
-export const vaultDepositState = selector({
+export const vaultDepositState = selectorFamily({
   key: 'vaultDeposit',
-  get: async ({ get }) => {
+  get: (address: Address) => async ({ get }) => {
 
     const account = get(getAccountQuery)
-    const vaultService = get(vaultServiceState);
+    const vaultService = get(vaultServiceState(address));
     // create dep on request counter for reloads if account is set
     if (account !== null) {
       get(vaultDepositRequestIdState(vaultService.address))

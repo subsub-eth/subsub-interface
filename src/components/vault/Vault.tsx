@@ -36,13 +36,13 @@ const VaultHandler = ({ vaultService, vault, token, tokenService, account, updat
   }));
   const refreshAllowance = useRefreshTokenAllowance(token.address);
 
-  const currentDeposit = useRecoilValue(vaultDepositState);
+  const currentDeposit = useRecoilValue(vaultDepositState(vault.address));
   const refreshDeposit = useRefreshVaultDeposit(vault.address);
 
   const walletBalance = useRecoilValue(tokenBalanceState(token.address))
   const refreshWalletBalance = useRefreshTokenBalance(token.address)
 
-  const approve = () => {
+  const approve = async () => {
     return tokenService
       .approve(vault.address, (hash) => toast.info(`Approval tx: ${hash}`))
       .then(res => {
@@ -53,7 +53,7 @@ const VaultHandler = ({ vaultService, vault, token, tokenService, account, updat
       });
   };
 
-  const deposit = (amount: BN) => {
+  const deposit = async (amount: BN) => {
     if (!allowance.isZero()) {
       return vaultService.deposit(amount, hash => toast.info(`tx hash: ${hash}`))
         .then(res => {
@@ -71,7 +71,7 @@ const VaultHandler = ({ vaultService, vault, token, tokenService, account, updat
     }
   }
 
-  const withdraw = (amount: BN) => {
+  const withdraw = async (amount: BN) => {
     if (!currentDeposit.isZero()) {
       return vaultService.withdraw(amount, hash => toast.info(`tx hash: ${hash}`))
         .then(res => {
@@ -103,11 +103,10 @@ const VaultHandler = ({ vaultService, vault, token, tokenService, account, updat
 };
 
 
-export const Vault = () => {
+export const Vault = ({address}: HasAddress) => {
   const web3Connection = useRecoilValue(web3State)
-  const address = useRecoilValue(vaultAddressState);
-  const vaultService = useRecoilValue(vaultServiceState);
-  const vaultValues = useRecoilValue(vaultValuesState);
+  const vaultService = useRecoilValue(vaultServiceState(address));
+  const vaultValues = useRecoilValue(vaultValuesState(address));
 
   const refreshVaultValues = () => {
     console.debug(`Refreshing values of vault`, address);

@@ -90,13 +90,13 @@ function VaultContainer() {
 
   const { address } = useParams();
 
+  // TODO proper function
+  const validAddress = "" + address;
+
   return (
-    <RecoilRoot initializeState={({ set }) =>
-      set(vaultAddressState, address ? address : "")}>
-      <Suspense fallback={<div>Loading Vault...</div>}>
-        <Vault />
-      </Suspense>
-    </RecoilRoot>
+    <Suspense fallback={<div>Loading Vault...</div>}>
+      <Vault address={validAddress}/>
+    </Suspense>
   );
 }
 
