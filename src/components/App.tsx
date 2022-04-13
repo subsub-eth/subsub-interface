@@ -100,15 +100,6 @@ function VaultContainer() {
 }
 
 function AppContainer() {
-  const [changeCallbackRegistered, setChangeCallBackRegistered] = useState(false);
-  const web3Connection = useRecoilValue(web3State)
-
-  // register change handling
-  const [, setWeb3Connection] = useRecoilState(web3State);
-  if (!changeCallbackRegistered) {
-    web3Factory.createInstanceOnChange(setWeb3Connection, () => window.ethereum);
-    setChangeCallBackRegistered(true);
-  }
 
   return (
     <>

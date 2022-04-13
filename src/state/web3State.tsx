@@ -1,16 +1,30 @@
-import { atom, RecoilState, selector, useRecoilState } from 'recoil'
+import { atom, AtomEffect, RecoilState, selector, useRecoilState } from 'recoil'
 import { local } from "../config/Config";
 import { Web3Connection, web3Factory as w3f } from "../service/connection/Web3Connection";
 
 export const web3Factory = w3f(local.connection, local.contracts);
 
-// TODO is it cool init with null?
-const initialConnection = web3Factory.getInstance(() => window.ethereum);
+const eth = () => window.ethereum;
+
+const initialConnection = web3Factory.getInstance(eth);
+const web3ConnectionChangeEffect: AtomEffect<Web3Connection> =
+  ({ setSelf, trigger }) => {
+    console.debug("Initializing web3 connection atom")
+    if (trigger === 'get') {
+      console.debug("Setting initial web3 connection instance");
+      setSelf(initialConnection);
+    }
+
+    console.debug("Registering change callback on connection")
+    web3Factory.createInstanceOnChange(setSelf, eth);
+  }
 
 export const web3State: RecoilState<Web3Connection> = atom({
   key: 'web3State',
   default: initialConnection,
-  // dangerouslyAllowMutability: true
+  effects: [
+    web3ConnectionChangeEffect
+  ]
 })
 
 export const isConnectedQuery = selector({
