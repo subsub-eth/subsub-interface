@@ -3,6 +3,10 @@ const { resolve } = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 module.exports = {
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
@@ -12,8 +16,16 @@ module.exports = {
     rules: [
       {
         test: [/\.jsx?$/, /\.tsx?$/],
-        use: ["babel-loader"],
         exclude: /node_modules/,
+        use: [
+          {
+            loader: require.resolve('babel-loader'),
+            options: {
+              plugins: [isDevelopment && require.resolve('react-refresh/babel')]
+                .filter(Boolean),
+            },
+          },
+        ],
       },
       {
         test: /\.css$/,
@@ -41,8 +53,9 @@ module.exports = {
   },
   plugins: [
     new NodePolyfillPlugin(),
-    new HtmlWebpackPlugin({ template: "index.html.ejs" })
-  ],
+    new HtmlWebpackPlugin({ template: "index.html.ejs" }),
+    isDevelopment && new ReactRefreshWebpackPlugin()
+  ].filter(Boolean),
   externals: {
   },
   performance: {

@@ -27,7 +27,6 @@ import { Header } from "./Header";
 import { Create } from "./Create";
 import { Vault } from "./vault/Vault";
 import { Announcements } from "./Announcement";
-import { vaultAddressState } from "../state/vaultState";
 
 const red = "red";
 export const AppDiv = styled.div`
