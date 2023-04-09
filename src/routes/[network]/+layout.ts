@@ -1,14 +1,16 @@
-import { error } from "@sveltejs/kit";
+import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
-export const load = (({ params }) => {
-  let network = params.network;
+import { chainNames } from '$lib/web3/chains';
 
-  if ('polygon' != network) {
-    throw error(404, "Unknown network");
+export const load = (({ params }) => {
+  const network = params.network;
+
+  if (!chainNames.includes(network)) {
+    throw error(404, `Unknown network '${network}'`);
   }
 
   return {
-    network: network,
+    network: network
   };
 }) satisfies PageLoad;

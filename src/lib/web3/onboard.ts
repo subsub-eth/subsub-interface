@@ -1,9 +1,10 @@
-import Onboard from '@web3-onboard/core';
+import Onboard, { type WalletState } from '@web3-onboard/core';
 import type { OnboardAPI } from '@web3-onboard/core';
 import injectedWalletsModule from '@web3-onboard/injected-wallets';
 
-import { chains } from './chains';
-import { filter, map } from 'rxjs';
+import { onBoardChains as chains } from './chains';
+import { map } from 'rxjs';
+import { readonly, writable } from 'svelte/store';
 
 const injected = injectedWalletsModule();
 
@@ -46,14 +47,41 @@ export default onboard as OnboardAPI;
 
 export const wallets$ = onboard.state.select('wallets');
 
-export const primaryWallet$ = wallets$.pipe(
-  // TODO
-  map(wallets => wallets?.[0])
-);
+// Wallet
+const primaryWalletStore = writable<null | WalletState>();
 
+export const primaryWallet$ = wallets$.pipe(map((wallets) => wallets?.[0]));
+
+primaryWallet$.subscribe((wallet) => {
+  console.debug(`Setting primary wallet to store`, wallet);
+  primaryWalletStore.set(wallet);
+});
+
+export const primaryWallet = readonly(primaryWalletStore);
+
+// is connected
 export const isAccountConnected$ = wallets$.pipe(
-  map(wallets => {
+  map((wallets) => {
     console.debug(`checking connected account`, wallets);
-    return !!wallets?.[0]?.accounts?.[0];
+    const value = !!wallets?.[0]?.accounts?.[0];
+
+    console.debug(`onboard: isAccountConnected`, value);
+    return value;
   })
 );
+
+const accountConnected = writable<boolean>(false);
+
+export const accountConnected$ = wallets$.pipe(
+  map((wallets) => {
+    const value = !!wallets?.[0]?.accounts?.[0];
+    return value;
+  })
+);
+
+accountConnected$.subscribe((isConnected) => {
+  console.debug(`Setting connected wallet to store`);
+  accountConnected.set(isConnected);
+});
+
+export const isAccountConnected = readonly(accountConnected);

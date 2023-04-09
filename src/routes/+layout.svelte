@@ -2,11 +2,15 @@
   import "../app.css";
   import Wallet from "./Wallet.svelte";
 
+  import { chains } from "$lib/web3/chains";
+
 </script>
 
 <nav>
   <a href="/" >Home</a>
-  <a href="/polygon">polygon</a>
+  {#each chains as chain}
+    <a href="/{chain.name}">{chain.label}</a>
+  {/each}
 </nav>
 
 Wallet: <Wallet />
@@ -14,5 +18,5 @@ Wallet: <Wallet />
 <slot></slot>
 
 <footer>
-  <a href="https://github.com/suiiii-rip" target="_blank">GitHub</a>
+  <a href="https://github.com/createz-eth" target="_blank">GitHub</a>
 </footer>
