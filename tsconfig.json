@@ -8,7 +8,18 @@
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"sourceMap": true,
-		"strict": true
+		"strict": true,
+    "importsNotUsedAsValues": "remove", // we need some types
+    // workaround for npm link of contracts package, causes confusion about ethers packages
+		"paths": {
+			"$lib": [
+				"./src/lib"
+			],
+			"$lib/*": [
+				"./src/lib/*"
+			],
+      "ethers": ["./node_modules/ethers"]
+		}
 	}
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	//

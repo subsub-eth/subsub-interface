@@ -2,7 +2,6 @@
   import onboard, {wallets$, isAccountConnected$} from '$lib/web3/onboard';
 
   $: accountConnected = $isAccountConnected$;
-  $: connectedAccount = $wallets$?.[0]?.accounts?.[0];
   const connect = async () => {
     await onboard.connectWallet();
   };
