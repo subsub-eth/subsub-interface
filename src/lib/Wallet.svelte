@@ -1,5 +1,5 @@
 <script lang="ts">
-  import onboard, { isAccountConnected, primaryWallet } from '$lib/web3/onboard';
+  import onboard, { currentAccount, isAccountConnected, primaryWallet } from '$lib/web3/onboard';
   import { truncateAddress } from './helpers';
 
   const connect = async () => {
@@ -13,7 +13,7 @@
 
 {#if $isAccountConnected}
   <button on:click={disconnect}>
-    {truncateAddress($primaryWallet?.accounts[0].address + '')}
+    {truncateAddress($currentAccount + '')}
   </button>
 {:else}
   <button on:click={connect}>Connect Wallet</button>

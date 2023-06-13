@@ -3,7 +3,7 @@ import type { OnboardAPI } from '@web3-onboard/core';
 import injectedWalletsModule from '@web3-onboard/injected-wallets';
 
 import { onBoardChains as chains } from './chains';
-import { map } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { readonly, writable } from 'svelte/store';
 
 const injected = injectedWalletsModule();
@@ -50,7 +50,9 @@ export const wallets$ = onboard.state.select('wallets');
 // Wallet
 const primaryWalletStore = writable<null | WalletState>();
 
-export const primaryWallet$ = wallets$.pipe(map((wallets) => wallets?.[0]));
+export const primaryWallet$: Observable<WalletState | null> = wallets$.pipe(
+  map((wallets) => wallets?.[0] ?? null)
+);
 
 primaryWallet$.subscribe((wallet) => {
   console.debug(`Setting primary wallet to store`, wallet);
@@ -86,6 +88,25 @@ accountConnected$.subscribe((isConnected) => {
 
 export const isAccountConnected = readonly(accountConnected);
 
+// current account
+const currentAccountStore = writable<string | null>();
+
+export const currentAccount$ = primaryWallet$.pipe(
+  map((wallet) => {
+    const account = wallet?.accounts[0]?.address;
+    console.debug(`current account from primary wallet`, account);
+    return account;
+  })
+);
+
+currentAccount$.subscribe((acc) => {
+  console.debug('setting current account to store', acc);
+  currentAccountStore.set(acc);
+});
+
+export const currentAccount = readonly(currentAccountStore);
+
+// current chain
 const currentChainIdStore = writable<null | number>();
 
 export const currentChainId$ = primaryWallet$.pipe(

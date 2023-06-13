@@ -4251,7 +4251,7 @@ packages:
     dev: true
 
   file:../contracts/createz-contracts-0.0.2.tgz:
-    resolution: {integrity: sha512-ali97lAmoxD/dO2L+dGboPK/NWbEfcTf9F76YJ0GtYHI8g1Oc40OLwsc9aNoMTiqw671yP5ND5UwZ9k7512pjw==, tarball: file:../contracts/createz-contracts-0.0.2.tgz}
+    resolution: {integrity: sha512-WEmf2xJLnBWMkxTfPl45FmT4vVvkOPFFLPgLYqM+SgJHOhUGYawMhCkpogw3WQfjMYnh6fhBv17V+9NP1BiDcw==, tarball: file:../contracts/createz-contracts-0.0.2.tgz}
     name: '@createz/contracts'
     version: 0.0.2
     dev: false
