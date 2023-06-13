@@ -2,7 +2,7 @@
   import { Creator__factory } from '@createz/contracts/types/ethers-contracts/factories/Creator__factory';
 
   import { ethersProvider} from '$lib/web3/ethers';
-  import { creatorContractAddr } from '$lib/contractCoordinates';
+  import { creatorContractAddr } from '$lib/chain-config';
     import { primaryWallet } from '$lib/web3/onboard';
 
   $: creator = Creator__factory.connect(

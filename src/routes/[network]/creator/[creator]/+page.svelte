@@ -5,7 +5,7 @@
 
   import { ethersProvider$ } from '$lib/web3/ethers';
   import { map } from 'rxjs';
-  import { creatorContractAddr } from '$lib/contractCoordinates';
+  import { creatorContractAddr } from '$lib/chain-config';
 
   export let data: PageData;
 

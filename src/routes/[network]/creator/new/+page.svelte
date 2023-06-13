@@ -3,7 +3,7 @@
 
   import { ethersSigner, matchEvents } from '$lib/web3/ethers';
   import type { ContractRunner, Interface } from 'ethers';
-  import { creatorContractAddr } from '$lib/contractCoordinates';
+  import { creatorContractAddr } from '$lib/chain-config';
 
   const contractAddr = creatorContractAddr;
 

@@ -1,15 +1,13 @@
 <script lang="ts">
-  import Wallet from '../Wallet.svelte';
-  import { isAccountConnected } from '$lib/web3/onboard';
+    import { getChain } from '$lib/chain-config';
+  import { currentChainId, isAccountConnected } from '$lib/web3/onboard';
 
-  $: console.debug(`isAccountConnected in component`, $isAccountConnected);
-  $: console.debug(`value of isAccountConnected$ in component`, isAccountConnected);
+  // $: matchingChain = getChain($currentChainId ? $currentChainId : 0) === 
+
 </script>
 
 {#if $isAccountConnected}
   <slot />
 {:else}
-
   <div>please connect</div>
-  <Wallet />
 {/if}

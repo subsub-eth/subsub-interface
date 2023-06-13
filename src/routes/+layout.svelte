@@ -1,21 +1,21 @@
 <script lang="ts">
-  import "../app.css";
-  import Wallet from "./Wallet.svelte";
-
-  import { chains } from "$lib/web3/chains";
-
+  import '../app.css';
+  import HeaderWallet from '$lib/HeaderWallet.svelte';
 </script>
 
-<nav>
-  <a href="/" >Home</a>
-  {#each chains as chain}
-    <a href="/{chain.name}">{chain.label}</a>
-  {/each}
-</nav>
+<header class="flex bg-black text-white">
+  <div>
+    <a href="/">Home</a>
+  </div>
 
-Wallet: <Wallet />
+  <nav>
+    <ul />
+  </nav>
 
-<slot></slot>
+  <HeaderWallet />
+</header>
+
+<slot />
 
 <footer>
   <a href="https://github.com/createz-eth" target="_blank">GitHub</a>

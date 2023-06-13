@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
-import { chainNames } from '$lib/web3/chains';
+import { chainNames } from '$lib/chain-config';
 
 export const load = (({ params }) => {
   const network = params.network;

@@ -80,8 +80,27 @@ export const accountConnected$ = wallets$.pipe(
 );
 
 accountConnected$.subscribe((isConnected) => {
-  console.debug(`Setting connected wallet to store`);
+  console.debug(`Setting connected wallet to store`, isConnected);
   accountConnected.set(isConnected);
 });
 
 export const isAccountConnected = readonly(accountConnected);
+
+const currentChainIdStore = writable<null | number>();
+
+export const currentChainId$ = primaryWallet$.pipe(
+  map((wallet) => {
+    if (!wallet) {
+      return null;
+    }
+    const [chain] = wallet.chains;
+    return Number(chain.id);
+  })
+);
+
+currentChainId$.subscribe((chainId) => {
+  console.debug(`setting chain id`, chainId);
+  currentChainIdStore.set(chainId);
+});
+
+export const currentChainId = readonly(currentChainIdStore);
