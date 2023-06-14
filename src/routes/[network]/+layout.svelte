@@ -1,9 +1,32 @@
 <script lang="ts">
-    import { getChain } from '$lib/chain-config';
-  import { currentChainId, isAccountConnected } from '$lib/web3/onboard';
+  import { creatorContractAddr } from '$lib/chain-config';
+  import { isAccountConnected } from '$lib/web3/onboard';
+  import { setContext } from 'svelte';
+  import type { LayoutData } from './$types';
+  import { Creator__factory } from '@createz/contracts/types/ethers-contracts/factories/Creator__factory';
+  import { ethersProvider } from '$lib/web3/ethers';
+  import type { ContractRunner } from 'ethers';
+  import { readonly, writable } from 'svelte/store';
+  import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
+  import { CREATOR_CONTRACT } from '$lib/contexts';
 
-  // $: matchingChain = getChain($currentChainId ? $currentChainId : 0) === 
+  export let data: LayoutData;
 
+  const network = data.network;
+  if (!!network) {
+    setContext('network', data.network);
+  }
+
+  const creatorStore = writable<Creator>();
+
+  const creatorReadStore = readonly(creatorStore);
+  setContext(CREATOR_CONTRACT, creatorReadStore);
+
+  $: creator = Creator__factory.connect(creatorContractAddr, $ethersProvider as ContractRunner);
+
+  $: {
+    creatorStore.set(creator);
+  }
 </script>
 
 {#if $isAccountConnected}

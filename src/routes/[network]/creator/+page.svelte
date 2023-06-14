@@ -1,26 +1,29 @@
 <script lang="ts">
-  import { Creator__factory } from '@createz/contracts/types/ethers-contracts/factories/Creator__factory';
-
-  import { ethersProvider } from '$lib/web3/ethers';
-  import { creatorContractAddr } from '$lib/chain-config';
   import { currentAccount } from '$lib/web3/onboard';
-  import { loadFirstOwnerTokenIds, loadLastAllTokenIds } from '$lib/web3/contracts/creator-functions';
+  import {
+    loadFirstOwnerTokenIds,
+    loadLastAllTokenIds
+  } from '$lib/web3/contracts/creator-functions';
   import CreatorList from '$lib/components/creator/CreatorList.svelte';
-    import type { ContractRunner } from 'ethers';
+  import type { Readable } from 'svelte/store';
+  import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
+  import { CREATOR_CONTRACT, NETWORK, requireContext } from '$lib/contexts';
 
-  $: creator = Creator__factory.connect(
-    creatorContractAddr,
-    $ethersProvider as ContractRunner
-  );
+  const network = requireContext<string>(NETWORK);
+  const creator = requireContext<Readable<Creator>>(CREATOR_CONTRACT);
 
-  $: ownedTokens = creator.balanceOf($currentAccount + '');
+  $: ownedTokens = $creator?.balanceOf($currentAccount + '');
 
-  $: totalSupply = creator.totalSupply();
+  $: totalSupply = $creator?.totalSupply();
 </script>
 
 <h1>Creator overview</h1>
 
 <h2>My Creators</h2>
+
+<div>
+  <a href={`/${network}/creator/new/`}>Mint new Creator Profile</a>
+</div>
 
 <div>
   number of creator tokens:
@@ -29,9 +32,12 @@
   {:then balance}
     {balance}
 
-  <CreatorList
-    load={() => loadFirstOwnerTokenIds(creator, $currentAccount + '', 0n, Number(balance))}
-  />
+    {#if $creator !== null}
+      {@const creator = $creator}
+      <CreatorList
+        load={() => loadFirstOwnerTokenIds(creator, $currentAccount + '', 0n, Number(balance))}
+      />
+    {/if}
   {:catch err}
     error
     {err}
@@ -43,9 +49,12 @@
   Loading...
 {:then totalSupply}
   total supply: {totalSupply}
-  <CreatorList
-    load={() => loadLastAllTokenIds(creator, totalSupply - 1n, Math.min(5, Number(totalSupply)))}
-  />
+  {#if $creator !== null && totalSupply !== undefined}
+    {@const creator = $creator}
+    <CreatorList
+      load={() => loadLastAllTokenIds(creator, totalSupply - 1n, Math.min(5, Number(totalSupply)))}
+    />
+  {/if}
 {:catch err}
   <!-- TODO -->
   error: {err}

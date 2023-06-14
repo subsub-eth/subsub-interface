@@ -1,4 +1,6 @@
 <script lang="ts">
+  import CreatorTeaser from './CreatorTeaser.svelte';
+
   export let load: () => Promise<Array<bigint>>;
 </script>
 
@@ -7,11 +9,17 @@
   {#await load()}
     loading...
   {:then ids}
-    <ul>
-      {#each ids as id}
-        <li>{id}</li>
-      {/each}
-    </ul>
+    {#if ids.length === 0}
+      <p>None</p>
+    {:else}
+      <ul>
+        {#each ids as id}
+          <li>
+            <CreatorTeaser {id} />
+          </li>
+        {/each}
+      </ul>
+    {/if}
   {:catch err}
     <!-- TODO -->
     error: {err}
