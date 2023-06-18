@@ -7,9 +7,9 @@
   import CreatorList from '$lib/components/creator/CreatorList.svelte';
   import type { Readable } from 'svelte/store';
   import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
-  import { CREATOR_CONTRACT, NETWORK, requireContext } from '$lib/contexts';
+  import { CREATOR_CONTRACT, requireContext } from '$lib/contexts';
+    import { page } from '$app/stores';
 
-  const network = requireContext<string>(NETWORK);
   const creator = requireContext<Readable<Creator>>(CREATOR_CONTRACT);
 
   $: ownedTokens = $creator?.balanceOf($currentAccount + '');
@@ -22,7 +22,7 @@
 <h2>My Creators</h2>
 
 <div>
-  <a href={`/${network}/creator/new/`}>Mint new Creator Profile</a>
+  <a href={`${$page.url.pathname}new/`}>Mint new Creator Profile</a>
 </div>
 
 <div>

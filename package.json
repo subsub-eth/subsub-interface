@@ -44,6 +44,7 @@
 		"@createz/contracts": "file:../contracts/createz-contracts-0.0.2.tgz",
 		"@web3-onboard/core": "^2.19.2",
 		"@web3-onboard/injected-wallets": "^2.9.0",
+		"@zerodevx/svelte-toast": "^0.9.3",
 		"buffer": "^6.0.3",
 		"ethers": "^6.2.4",
 		"rxjs": "^7.8.1"
