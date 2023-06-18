@@ -4,8 +4,7 @@
   import { setContext } from 'svelte';
   import type { LayoutData } from './$types';
   import { Creator__factory } from '@createz/contracts/types/ethers-contracts/factories/Creator__factory';
-  import { ethersProvider } from '$lib/web3/ethers';
-  import type { ContractRunner } from 'ethers';
+  import { ethersProvider, ethersSigner } from '$lib/web3/ethers';
   import { readonly, writable } from 'svelte/store';
   import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
   import { CREATOR_CONTRACT } from '$lib/contexts';
@@ -22,7 +21,8 @@
   const creatorReadStore = readonly(creatorStore);
   setContext(CREATOR_CONTRACT, creatorReadStore);
 
-  $: creator = Creator__factory.connect(creatorContractAddr, $ethersProvider as ContractRunner);
+  // TODO distinguish provider and signer
+  $: creator = Creator__factory.connect(creatorContractAddr, $ethersSigner);
 
   $: {
     creatorStore.set(creator);

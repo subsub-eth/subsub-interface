@@ -1,22 +1,21 @@
 <script lang="ts">
-  import { Creator__factory } from '@createz/contracts/types/ethers-contracts/factories/Creator__factory';
-
-  import { ethersSigner, matchEvents } from '$lib/web3/ethers';
-  import { creatorContractAddr } from '$lib/chain-config';
+  import { matchEvents } from '$lib/web3/ethers';
   import { toast } from '@zerodevx/svelte-toast';
   import { currentAccount } from '$lib/web3/onboard';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import { CREATOR_CONTRACT, requireContext } from '$lib/contexts';
+  import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
+  import type { Readable } from 'svelte/store';
+  import { CreatorMetadataSchema, type CreatorMetadata } from '$lib/web3/contracts/creator';
 
-  const contractAddr = creatorContractAddr;
+  const creator = requireContext<Readable<Creator>>(CREATOR_CONTRACT);
 
-  $: creator = Creator__factory.connect(contractAddr, $ethersSigner);
-
-  let tokenData = {
+  let tokenData: CreatorMetadata = {
     name: '',
     description: '',
     image: '',
-    externalUrl: ''
+    external_url: ''
   };
 
   let formDisabled = false;
@@ -24,11 +23,13 @@
   const mint = async () => {
     formDisabled = true;
     try {
-      const tx = await creator.mint(
-        tokenData.name,
-        tokenData.description,
-        tokenData.image,
-        tokenData.externalUrl
+      const data = CreatorMetadataSchema.parse(tokenData);
+
+      const tx = await $creator.mint(
+        data.name,
+        data.description ?? '',
+        data.image ?? '',
+        data.external_url ?? ''
       );
       toast.push(`Transaction submitted: ${tx.hash}`, { pausable: true });
 
@@ -37,7 +38,7 @@
       const logs = receipt?.logs;
       const acc = $currentAccount;
       if (acc) {
-        const res = await matchEvents(logs as [], creator, creator.filters.Minted(acc));
+        const res = await matchEvents(logs as [], $creator, $creator.filters.Minted(acc));
         if (res[0]) {
           const newTokenId = res[0].args.tokenId;
           toast.push(`New token ID: ${newTokenId}`, { pausable: true });
@@ -53,6 +54,7 @@
           '--toastBarBackground': 'fuchsia'
         }
       });
+      console.error('Transaction failed', err);
     } finally {
       formDisabled = false;
     }
@@ -60,7 +62,7 @@
 </script>
 
 <h1>Create new Creator Token</h1>
-<p>contract: <span>{contractAddr}</span></p>
+<p>contract: <span>{#await $creator.getAddress() then addr}{addr}{/await}</span></p>
 
 <div>
   <p>
@@ -106,7 +108,7 @@
         <input
           id="externalUrl"
           name="externalUrl"
-          bind:value={tokenData.externalUrl}
+          bind:value={tokenData.external_url}
           disabled={formDisabled}
           placeholder="https://www.my-website.com"
         />

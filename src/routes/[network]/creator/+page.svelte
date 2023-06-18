@@ -8,7 +8,7 @@
   import type { Readable } from 'svelte/store';
   import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
   import { CREATOR_CONTRACT, requireContext } from '$lib/contexts';
-    import { page } from '$app/stores';
+  import { page } from '$app/stores';
 
   const creator = requireContext<Readable<Creator>>(CREATOR_CONTRACT);
 
