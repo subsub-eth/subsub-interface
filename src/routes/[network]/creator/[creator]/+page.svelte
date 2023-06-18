@@ -1,32 +1,14 @@
 <script lang="ts">
-  import type { PageData } from './types';
+  import { CREATOR_CONTRACT, requireContext } from '$lib/contexts';
+  import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
+  import type { Readable } from 'svelte/store';
+  import { page } from '$app/stores';
+  import CreatorDetails from '$lib/components/creator/CreatorDetails.svelte';
 
-  import { Creator__factory } from '@createz/contracts/types/ethers-contracts/factories/Creator__factory';
-
-  import { ethersProvider$ } from '$lib/web3/ethers';
-  import { map } from 'rxjs';
-  import { creatorContractAddr } from '$lib/chain-config';
-
-  export let data: PageData;
-
-  $: creator = ethersProvider$.pipe(
-    map((provider) => {
-      return Creator__factory.connect(creatorContractAddr, provider as any);
-    })
-  );
+  const tokenId = BigInt($page.params.creator);
+  const creatorContract = requireContext<Readable<Creator>>(CREATOR_CONTRACT);
 </script>
 
-<h1>creator: {data.creator}</h1>
-<h2>network: {data.network}</h2>
-{#if !!$creator}
-  {#await $creator.ownerOf(data.creator)}
-    looking up
-  {:then owner}
-    owner: {owner}
-  {:catch err}
-    error
-    {err}
-  {/await}
-{:else}
-  no creator contract
-{/if}
+<CreatorDetails id={tokenId} creator={$creatorContract} />
+
+<!-- TODO Subscription Contracts -->
