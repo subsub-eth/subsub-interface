@@ -8,6 +8,12 @@ dependencies:
   '@createz/contracts':
     specifier: file:../contracts/createz-contracts-0.0.2.tgz
     version: file:../contracts/createz-contracts-0.0.2.tgz
+  '@felte/reporter-svelte':
+    specifier: ^1.1.8
+    version: 1.1.8(svelte@3.59.1)
+  '@felte/validator-zod':
+    specifier: ^1.0.16
+    version: 1.0.16(zod@3.21.4)
   '@web3-onboard/core':
     specifier: ^2.19.2
     version: 2.19.2
@@ -23,6 +29,9 @@ dependencies:
   ethers:
     specifier: ^6.2.4
     version: 6.3.0
+  felte:
+    specifier: ^1.2.10
+    version: 1.2.10(svelte@3.59.1)
   rxjs:
     specifier: ^7.8.1
     version: 7.8.1
@@ -687,6 +696,38 @@ packages:
       '@ethersproject/logger': 5.5.0
       '@ethersproject/properties': 5.5.0
       '@ethersproject/strings': 5.5.0
+    dev: false
+
+  /@felte/common@1.1.7:
+    resolution: {integrity: sha512-vnm3Y4TBuldpfN1XojSWk3XNPrRNQUccIPsWTMgLnm+HWqC7DiRR2mDAjr7Ro0Qv5dZWNaakPhftZJbDW5F/iQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dev: false
+
+  /@felte/core@1.4.0:
+    resolution: {integrity: sha512-1HDhk64MaeWQ1FD7BzhNLiA/I4+/glBbfI5WSPa5zFAuQoQ6rPArW3KyFiFoIWxSiUPXrQeVd3E8dwMEOYOGrQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dependencies:
+      '@felte/common': 1.1.7
+    dev: false
+
+  /@felte/reporter-svelte@1.1.8(svelte@3.59.1):
+    resolution: {integrity: sha512-KFK/olTivWE3UIe9uHed/cCsfUPSglVv6D1wTy9kYYThgPKCtdlezn6kyY2cWn2fY02CkYWqgPVMmESq3xsWKg==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    peerDependencies:
+      svelte: ^3.31.0
+    dependencies:
+      '@felte/common': 1.1.7
+      svelte: 3.59.1
+    dev: false
+
+  /@felte/validator-zod@1.0.16(zod@3.21.4):
+    resolution: {integrity: sha512-fx6cVCt9AfJvKqlMPXXcwG4hjdxsdj8Z9vIyJvEgg37QkqZ2FySHbU+aAaYDJQ2tSvy+h2VPrlp+xBUW2wJmxQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    peerDependencies:
+      zod: ^3.2.0
+    dependencies:
+      '@felte/common': 1.1.7
+      zod: 3.21.4
     dev: false
 
   /@formatjs/ecma402-abstract@1.11.4:
@@ -2255,6 +2296,16 @@ packages:
     dependencies:
       reusify: 1.0.4
     dev: true
+
+  /felte@1.2.10(svelte@3.59.1):
+    resolution: {integrity: sha512-fGj46Aeua89NKl+RgzaOUmLnA7Xs78KyCDjzTpkOsJXM2cenAX4YIvjgVZJXAxp9GCdWS81Wj8oZd5ti4098uA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    peerDependencies:
+      svelte: ^3.31.0
+    dependencies:
+      '@felte/core': 1.4.0
+      svelte: 3.59.1
+    dev: false
 
   /file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
