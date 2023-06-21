@@ -1,6 +1,8 @@
 import { dev } from '$app/environment';
 
 export const creatorContractAddr = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
+export const subscriptionManagerContractAddr = '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6';
+export const testTokenContractAddr = '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318';
 
 export interface Chains {
   localhost: ChainData;
