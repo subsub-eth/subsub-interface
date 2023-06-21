@@ -19,43 +19,50 @@
 
 <h1>Creator overview</h1>
 
-<h2>My Creators</h2>
+<div class="flex flex-row space-x-4">
+  <div class="basis-1/2">
+    <h2>My Creators</h2>
 
-<div>
-  <a href={`${$page.url.pathname}new/`}>Mint new Creator Profile</a>
+    <div>
+      <a href={`${$page.url.pathname}new/`}>Mint new Creator Profile</a>
+    </div>
+
+    <div>
+      number of creator tokens:
+      {#await ownedTokens}
+        ...
+      {:then balance}
+        {balance}
+
+        {#if $creator !== null}
+          {@const creator = $creator}
+          <CreatorList
+            load={() => loadFirstOwnerTokenIds(creator, $currentAccount + '', 0n, Number(balance))}
+          />
+        {/if}
+      {:catch err}
+        error
+        {err}
+      {/await}
+    </div>
+  </div>
+
+  <div class="basis-1/2">
+    <h2>Latest Creators</h2>
+    {#await totalSupply}
+      Loading...
+    {:then totalSupply}
+      total supply: {totalSupply}
+      {#if $creator !== null && totalSupply !== undefined}
+        {@const creator = $creator}
+        <CreatorList
+          load={() =>
+            loadLastAllTokenIds(creator, totalSupply - 1n, Math.min(5, Number(totalSupply)))}
+        />
+      {/if}
+    {:catch err}
+      <!-- TODO -->
+      error: {err}
+    {/await}
+  </div>
 </div>
-
-<div>
-  number of creator tokens:
-  {#await ownedTokens}
-    ...
-  {:then balance}
-    {balance}
-
-    {#if $creator !== null}
-      {@const creator = $creator}
-      <CreatorList
-        load={() => loadFirstOwnerTokenIds(creator, $currentAccount + '', 0n, Number(balance))}
-      />
-    {/if}
-  {:catch err}
-    error
-    {err}
-  {/await}
-</div>
-
-<h2>Latest Creators</h2>
-{#await totalSupply}
-  Loading...
-{:then totalSupply}
-  total supply: {totalSupply}
-  {#if $creator !== null && totalSupply !== undefined}
-    {@const creator = $creator}
-    <CreatorList
-      load={() => loadLastAllTokenIds(creator, totalSupply - 1n, Math.min(5, Number(totalSupply)))}
-    />
-  {/if}
-{:catch err}
-  <!-- TODO -->
-  error: {err}
-{/await}

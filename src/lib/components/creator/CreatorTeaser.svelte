@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { page } from '$app/stores';
+  import { page } from '$app/stores';
   import { CREATOR_CONTRACT, requireContext } from '$lib/contexts';
+  import type { CreatorMetadata } from '$lib/web3/contracts/creator';
   import { decodeDataJsonTokenURI } from '$lib/web3/helpers';
   import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
   import type { Readable } from 'svelte/store';
@@ -14,7 +15,7 @@
   const decode = (encodedJson: string) => decodeDataJsonTokenURI<CreatorMetadata>(encodedJson);
 </script>
 
-<div>
+<div class="p-2 rounded-xl border-2 border-solid">
   <p>id: {id}</p>
   <p><a href={`${$page.url.pathname}${id}/`}>Details</a></p>
 
