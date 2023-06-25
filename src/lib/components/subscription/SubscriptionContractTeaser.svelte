@@ -28,6 +28,11 @@
     <div>
       <a href={metadata.external_url}>external url</a>
     </div>
+    {#each metadata.attributes as attribute}
+      <div>
+        {attribute.trait_type}: {attribute.value}
+      </div>
+    {/each}
   {:catch err}
     error {err}
   {/await}
