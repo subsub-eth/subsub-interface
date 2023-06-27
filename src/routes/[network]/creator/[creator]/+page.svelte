@@ -16,15 +16,15 @@
 
 <h1>Profile Details</h1>
 
-<div class="flex flex-row">
-  <div>
+<div class="flex flex-row space-x-4">
+  <div class="basis-1/2">
     <h2>Creator</h2>
     {#if $creatorContract}
       <CreatorDetails id={tokenId} creator={$creatorContract} />
     {/if}
   </div>
 
-  <div>
+  <div class="basis-1/2">
     <!-- TODO Subscription Contracts -->
     <h2>Subscription Contracts</h2>
     {#if $subscriptionManagerContract}

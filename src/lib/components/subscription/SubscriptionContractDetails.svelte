@@ -1,19 +1,12 @@
 <script lang="ts">
-  import { NETWORK, requireContext } from '$lib/contexts';
   import type { SubscriptionContractMetadata } from '$lib/web3/contracts/subscription';
-  import { ethersSigner } from '$lib/web3/ethers';
   import { decodeDataJsonTokenURI } from '$lib/web3/helpers';
-  import { ISubscription__factory } from '@createz/contracts/types/ethers-contracts';
+  import { type Subscription } from '@createz/contracts/types/ethers-contracts';
 
-  export let address: string;
-
-  // TODO better way to generate links?
-  const network = requireContext<string>(NETWORK);
-
-  const subscription = ISubscription__factory.connect(address, $ethersSigner);
+  export let contract: Subscription;
 
   const metadata = async () => {
-    const encoded = await subscription.contractURI();
+    const encoded = await contract.contractURI();
     return decodeDataJsonTokenURI<SubscriptionContractMetadata>(encoded);
   };
 </script>
@@ -37,9 +30,6 @@
         {attribute.trait_type}: {attribute.value}
       </div>
     {/each}
-    <div>
-      <a href={`/${network}/subscription/${address}/`}>Details</a>
-    </div>
   {:catch err}
     error {err}
   {/await}

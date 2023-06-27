@@ -7,7 +7,7 @@
 
 </script>
 
-<div>
+<div class="">
   {#await managerContract.getSubscriptionContracts(creatorTokenId)}
     Loading...
   {:then contracts}
