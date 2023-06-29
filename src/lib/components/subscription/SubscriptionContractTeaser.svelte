@@ -12,13 +12,14 @@
 
   const subscription = ISubscription__factory.connect(address, $ethersSigner);
 
+  // TODO reactive? on chain change is the component reused if the address changes
   const metadata = async () => {
     const encoded = await subscription.contractURI();
     return decodeDataJsonTokenURI<SubscriptionContractMetadata>(encoded);
   };
 </script>
 
-<div>
+<div class="p-2 rounded-xl border-2 border-solid">
   {#await metadata()}
     Loading...
   {:then metadata}
@@ -32,7 +33,7 @@
     <div>
       <a href={metadata.external_url}>external url</a>
     </div>
-    {#each metadata.attributes as attribute}
+    {#each metadata.attributes ?? [] as attribute}
       <div>
         {attribute.trait_type}: {attribute.value}
       </div>

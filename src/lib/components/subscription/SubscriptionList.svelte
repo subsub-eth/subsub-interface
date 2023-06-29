@@ -5,7 +5,7 @@
   export let contract: Subscription;
   export let account: string;
 
-  const subIds = async () => {
+  $: subIds = async () => {
     const balance = await contract.balanceOf(account);
 
     console.log("sub balance", balance);
@@ -19,7 +19,7 @@
 
 <div>
   {#await subIds()}
-    Loading Subscriptions...
+    Loading Subscriptions of {account}...
   {:then subIds}
     {#each subIds as tokenId}
       <SubscriptionTeaser {contract} {tokenId} />

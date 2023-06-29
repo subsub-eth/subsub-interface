@@ -1,48 +1,53 @@
 <script lang="ts">
-  import { requireContext } from '$lib/contexts';
   import { Subscription__factory } from '@createz/contracts/types/ethers-contracts';
   import type { PageData } from './$types';
   import { ethersSigner } from '$lib/web3/ethers';
   import SubscriptionContractDetails from '$lib/components/subscription/SubscriptionContractDetails.svelte';
   import SubscriptionList from '$lib/components/subscription/SubscriptionList.svelte';
   import { currentAccount } from '$lib/web3/onboard';
+    import SubscriptionMint from '$lib/components/subscription/SubscriptionMint.svelte';
 
   export let data: PageData;
 
   const addr = data.subscriptionAddr;
 
-  const subContract = Subscription__factory.connect(addr, $ethersSigner);
+  $: subContract = !!$ethersSigner ? Subscription__factory.connect(addr, $ethersSigner) : null;
 </script>
 
-<h1>Subscription Detail page</h1>
+<h1>Subscription Contract Details page</h1>
 
-{addr}
+Subscription Contract: {addr}
 
 <div>
-  <div>
-    <!-- LEFT -->
+  {#if !!subContract}
     <div>
-      <!-- creator teaser -->
-      {#await subContract.owner()}
-        Loading...
-      {:then [ownerContract, ownerId]}
-        {ownerContract} : {ownerId}
-        <!-- TODO check owner contract otherwise print warning -->
-      {:catch err}
-        Failed to load owner {err}
-      {/await}
+      <!-- LEFT -->
+      <div>
+        <!-- creator teaser -->
+        {#await subContract.owner()}
+          Loading...
+        {:then [ownerContract, ownerId]}
+          Contract owner: {ownerContract} : {ownerId}
+          <!-- TODO check owner contract otherwise print warning -->
+        {:catch err}
+          Failed to load owner {err}
+        {/await}
+      </div>
+      <div>
+        <!-- sub details -->
+        <SubscriptionContractDetails contract={subContract} />
+      </div>
     </div>
-    <div>
-      <!-- sub details -->
-      <SubscriptionContractDetails contract={subContract} />
-    </div>
-  </div>
 
-  <div>
-    <!-- RIGHt -->
-    <!-- mint subscription -->
-    <!-- subscription list -->
-    <!-- TODO Fix me -->
-    <SubscriptionList contract={subContract} account={$currentAccount ?? ''} />
-  </div>
+    <div>
+      <!-- RIGHt -->
+      <!-- mint subscription -->
+      <!-- TODO Fix me -->
+      <h2>My Subscrptions</h2>
+      {#if !!$currentAccount}
+        <SubscriptionMint />
+        <SubscriptionList contract={subContract} account={$currentAccount} />
+      {/if}
+    </div>
+  {/if}
 </div>
