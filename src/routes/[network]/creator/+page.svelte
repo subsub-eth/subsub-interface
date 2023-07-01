@@ -24,7 +24,11 @@
     <h2>My Creators</h2>
 
     <div>
-      <a href={`${$page.url.pathname}new/`}>Mint new Creator Profile</a>
+      <a
+        href={`${$page.url.pathname}new/`}
+        class="rounded-full bg-cyan-500 px-4 py-2 text-sm text-white shadow-sm"
+        >Mint new Creator Profile</a
+      >
     </div>
 
     <div>

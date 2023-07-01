@@ -7,3 +7,10 @@ export function decodeDataJsonTokenURI<T>(encodedJson: string): T {
   const payload = atob(encodedJson.substring(dataJsonPrelude.length));
   return JSON.parse(payload) as T;
 }
+
+export function addressEquals(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (!a || !b) {
+    return false;
+  }
+  return a?.toLowerCase() === b?.toLowerCase();
+}

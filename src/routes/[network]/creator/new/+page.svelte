@@ -15,6 +15,8 @@
 </script>
 
 <h1>Create new Creator Token</h1>
-<p>contract: <span>{#await $creator.getAddress() then addr}{addr}{/await}</span></p>
+{#if !!$creator && !!$currentAccount}
+  <p>contract: <span>{#await $creator.getAddress() then addr}{addr}{/await}</span></p>
 
-<NewCreator creator={$creator} currentAccount={$currentAccount ?? ''} {onSuccess} />
+  <NewCreator creator={$creator} currentAccount={$currentAccount} {onSuccess} />
+{/if}
