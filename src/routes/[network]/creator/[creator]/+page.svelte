@@ -35,7 +35,7 @@
         Loading...
       {:then owner}
         {#if addressEquals($currentAccount, owner)}
-          <LinkButton text="New Subscription Contract" url={`${$page.url.pathname}new`} />
+          <LinkButton text="New Subscription Contract" url={`${$page.url.pathname}newsub/`} />
         {/if}
       {/await}
     {/if}
