@@ -38,10 +38,10 @@
       {:then balance}
         {balance}
 
-        {#if $creator !== null}
-          {@const creator = $creator}
+        {#if !!creator}
           <CreatorList
-            load={() => loadFirstOwnerTokenIds(creator, $currentAccount + '', 0n, Number(balance))}
+            load={() => loadFirstOwnerTokenIds($creator, $currentAccount + '', 0n, Number(balance))}
+            creator={$creator}
           />
         {/if}
       {:catch err}
@@ -57,11 +57,11 @@
       Loading...
     {:then totalSupply}
       total supply: {totalSupply}
-      {#if $creator !== null && totalSupply !== undefined}
-        {@const creator = $creator}
+      {#if !!$creator && totalSupply !== undefined}
         <CreatorList
           load={() =>
-            loadLastAllTokenIds(creator, totalSupply - 1n, Math.min(5, Number(totalSupply)))}
+            loadLastAllTokenIds($creator, totalSupply - 1n, Math.min(5, Number(totalSupply)))}
+            creator={$creator}
         />
       {/if}
     {:catch err}

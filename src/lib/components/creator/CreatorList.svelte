@@ -1,11 +1,12 @@
 <script lang="ts">
+  import type { Creator } from '@createz/contracts/types/ethers-contracts';
   import CreatorTeaser from './CreatorTeaser.svelte';
 
   export let load: () => Promise<Array<bigint>>;
+  export let creator: Creator;
 </script>
 
 <div>
-  'creator list'
   {#await load()}
     loading...
   {:then ids}
@@ -15,7 +16,7 @@
       <ul>
         {#each ids as id}
           <li>
-            <CreatorTeaser {id} />
+            <CreatorTeaser {id} {creator} />
           </li>
         {/each}
       </ul>

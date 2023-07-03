@@ -1,23 +1,28 @@
 <script lang="ts">
+  import { profileImageFallback } from '$lib/static-content';
+  import type { CreatorMetadata } from '$lib/web3/contracts/creator';
   import { decodeDataJsonTokenURI } from '$lib/web3/helpers';
   import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
 
   export let id: bigint;
   export let creator: Creator;
 
-  const tokenUri = creator.tokenURI(id);
-
   const decode = (encodedJson: string) => decodeDataJsonTokenURI<CreatorMetadata>(encodedJson);
+
+  $: tokenData = (async () => decode(await creator.tokenURI(id)))();
 </script>
 
-<div>
-  {#await tokenUri}
+<div class="rounded-xl border-2 border-solid p-2">
+  {#await tokenData}
     Loading ...
-  {:then tokenUri}
-    {#if tokenUri}
-      {@const data = decode(tokenUri)}
+  {:then data}
+    {#if data}
       {#if data.image}
-        <img src={data.image} alt="image of {data.name}" />
+        <img
+          src={data.image}
+          alt="image of {data.name}"
+          on:error={() => (data.image = profileImageFallback)}
+        />
       {/if}
       <p>{data.name}</p>
       {#if data.description}

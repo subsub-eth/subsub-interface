@@ -4,7 +4,7 @@
   import { setContext } from 'svelte';
   import type { LayoutData } from './$types';
   import { Creator__factory } from '@createz/contracts/types/ethers-contracts/factories/Creator__factory';
-  import { ethersProvider, ethersSigner } from '$lib/web3/ethers';
+  import { ethersSigner } from '$lib/web3/ethers';
   import { readonly, writable, type Writable } from 'svelte/store';
   import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
   import { CREATOR_CONTRACT, SUBSCRIPTION_MANAGER_CONTRACT } from '$lib/contexts';

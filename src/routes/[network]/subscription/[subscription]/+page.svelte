@@ -18,11 +18,11 @@
 
 Subscription Contract: {addr}
 
-<div>
+<div class="flex flex-row space-x-4">
   {#if !!subContract}
-    <div>
+    <div class="basis-1/2">
       <!-- LEFT -->
-      <div>
+      <div class="rounded-xl border-2 border-solid p-2">
         <!-- creator teaser -->
         {#await subContract.owner()}
           Loading...
@@ -33,13 +33,13 @@ Subscription Contract: {addr}
           Failed to load owner {err}
         {/await}
       </div>
-      <div>
+      <div class="rounded-xl border-2 border-solid p-2">
         <!-- sub details -->
         <SubscriptionContractDetails contract={subContract} />
       </div>
     </div>
 
-    <div>
+    <div class="basis-1/2">
       <!-- RIGHt -->
       <!-- mint subscription -->
       <!-- TODO Fix me -->
