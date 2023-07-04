@@ -1,6 +1,6 @@
 <script lang="ts">
   import { NETWORK, requireContext } from '$lib/contexts';
-  import type { SubscriptionContractMetadata } from '$lib/web3/contracts/subscription';
+  import type { AttributesMetadata } from '$lib/web3/contracts/common';
   import { ethersSigner } from '$lib/web3/ethers';
   import { decodeDataJsonTokenURI } from '$lib/web3/helpers';
   import { ISubscription__factory } from '@createz/contracts/types/ethers-contracts';
@@ -15,11 +15,11 @@
   // TODO reactive? on chain change is the component reused if the address changes
   const metadata = async () => {
     const encoded = await subscription.contractURI();
-    return decodeDataJsonTokenURI<SubscriptionContractMetadata>(encoded);
+    return decodeDataJsonTokenURI<AttributesMetadata>(encoded);
   };
 </script>
 
-<div class="p-2 rounded-xl border-2 border-solid">
+<div class="rounded-xl border-2 border-solid p-2">
   {#await metadata()}
     Loading...
   {:then metadata}

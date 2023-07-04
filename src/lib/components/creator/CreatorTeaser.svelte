@@ -1,14 +1,14 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { profileImageFallback } from '$lib/static-content';
-  import type { CreatorMetadata } from '$lib/web3/contracts/creator';
+  import type { Metadata } from '$lib/web3/contracts/common';
   import { decodeDataJsonTokenURI } from '$lib/web3/helpers';
   import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
 
   export let id: bigint;
   export let creator: Creator;
 
-  const decode = (encodedJson: string) => decodeDataJsonTokenURI<CreatorMetadata>(encodedJson);
+  const decode = (encodedJson: string) => decodeDataJsonTokenURI<Metadata>(encodedJson);
   $: tokenData = (async () => decode(await creator.tokenURI(id)))();
 </script>
 

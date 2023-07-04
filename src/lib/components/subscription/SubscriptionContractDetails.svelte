@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SubscriptionContractMetadata } from '$lib/web3/contracts/subscription';
+  import { type AttributesMetadata } from '$lib/web3/contracts/common';
   import { decodeDataJsonTokenURI } from '$lib/web3/helpers';
   import { type Subscription } from '@createz/contracts/types/ethers-contracts';
 
@@ -7,7 +7,7 @@
 
   const metadata = async () => {
     const encoded = await contract.contractURI();
-    return decodeDataJsonTokenURI<SubscriptionContractMetadata>(encoded);
+    return decodeDataJsonTokenURI<AttributesMetadata>(encoded);
   };
 </script>
 
@@ -25,7 +25,7 @@
     <div>
       <a href={metadata.external_url}>external url</a>
     </div>
-    {#each metadata.attributes as attribute}
+    {#each metadata.attributes ?? [] as attribute}
       <div>
         {attribute.trait_type}: {attribute.value}
       </div>

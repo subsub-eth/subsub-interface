@@ -5,14 +5,13 @@
   import SubscriptionContractDetails from '$lib/components/subscription/SubscriptionContractDetails.svelte';
   import SubscriptionList from '$lib/components/subscription/SubscriptionList.svelte';
   import { currentAccount } from '$lib/web3/onboard';
-    import SubscriptionMint from '$lib/components/subscription/SubscriptionMint.svelte';
+  import SubscriptionMint from '$lib/components/subscription/SubscriptionMint.svelte';
 
   export let data: PageData;
 
   const addr = data.subscriptionAddr;
 
   $: subContract = !!$ethersSigner ? Subscription__factory.connect(addr, $ethersSigner) : null;
-  
 </script>
 
 <h1>Subscription Contract Details page</h1>

@@ -2,10 +2,10 @@
   import { matchEvents } from '$lib/web3/ethers';
   import { toast } from '@zerodevx/svelte-toast';
   import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
-  import { CreatorMetadataSchema, type CreatorMetadata } from '$lib/web3/contracts/creator';
   import { createForm } from 'felte';
   import { validator } from '@felte/validator-zod';
   import { reporter, ValidationMessage } from '@felte/reporter-svelte';
+  import { MetadataSchema, type Metadata } from '$lib/web3/contracts/common';
 
   export let creator: Creator;
   export let currentAccount: string;
@@ -13,7 +13,7 @@
 
   let formDisabled = false;
 
-  const { form } = createForm<CreatorMetadata>({
+  const { form } = createForm<Metadata>({
     async onSubmit(values) {
       formDisabled = true;
       try {
@@ -54,9 +54,8 @@
         formDisabled = false;
       }
     },
-    extend: [validator({ schema: CreatorMetadataSchema }), reporter]
+    extend: [validator({ schema: MetadataSchema }), reporter]
   });
-
 </script>
 
 <div>
@@ -77,7 +76,7 @@
           minlength="2"
           class="bg-gray-500"
         />
-        <ValidationMessage for="name" let:messages={messages}>
+        <ValidationMessage for="name" let:messages>
           {#if messages}
             <span>{messages}</span>
           {/if}
@@ -92,7 +91,7 @@
           placeholder="Some text for people to recognize you"
           class="bg-gray-500"
         />
-        <ValidationMessage for="description" let:messages={messages}>
+        <ValidationMessage for="description" let:messages>
           {#if messages}
             <span>{messages}</span>
           {/if}
@@ -107,7 +106,7 @@
           placeholder="https://example.com/my-image.png"
           class="bg-gray-500"
         />
-        <ValidationMessage for="image" let:messages={messages}>
+        <ValidationMessage for="image" let:messages>
           {#if messages}
             <span>{messages}</span>
           {/if}
@@ -122,7 +121,7 @@
           placeholder="https://www.my-website.com"
           class="bg-gray-500"
         />
-        <ValidationMessage for="external_url" let:messages={messages}>
+        <ValidationMessage for="external_url" let:messages>
           {#if messages}
             <span>{messages}</span>
           {/if}
