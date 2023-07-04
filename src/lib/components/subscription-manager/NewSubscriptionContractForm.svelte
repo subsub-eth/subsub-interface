@@ -8,16 +8,62 @@
   import { validator } from '@felte/validator-zod';
   import { reporter } from '@felte/reporter-svelte';
   import NumberInput from '../form/NumberInput.svelte';
+  import type {
+    MetadataStruct,
+    SubSettingsStruct
+  } from '@createz/contracts/types/ethers-contracts/Subscription';
+  import type { ISubscriptionManager } from '@createz/contracts/types/ethers-contracts';
+  import { createEventDispatcher } from 'svelte';
+  import { matchEvents } from '$lib/web3/ethers';
 
-  export let onSubmit: (value: SubscriptionContractProps) => Promise<boolean>;
+  export let managerContract: ISubscriptionManager;
+  export let creatorId: bigint;
 
   let formDisabled = false;
+  const dispatch = createEventDispatcher();
 
   $: ({ form } = createForm<SubscriptionContractProps>({
-    async onSubmit(value) {
+    async onSubmit(val) {
+      const metadata: MetadataStruct = {
+        title: val.metadata.name,
+        description: val.metadata.description ?? '',
+        image: val.metadata.image ?? '',
+        externalUrl: val.metadata.external_url ?? ''
+      };
+
+      const subSettings: SubSettingsStruct = {
+        token: val.subSettings.token,
+        rate: val.subSettings.rate,
+        lock: val.subSettings.lock,
+        epochSize: val.subSettings.epochSize
+      };
       try {
         formDisabled = true;
-        const result = await onSubmit(value);
+        const tx = await managerContract.createSubscription(
+          val.name,
+          val.symbol,
+          metadata,
+          subSettings,
+          creatorId
+        );
+        dispatch('txSubmitted', tx.hash);
+
+        const receipt = await tx.wait();
+
+        const logs = receipt?.logs;
+        const res = await matchEvents(
+          logs as [],
+          managerContract,
+          managerContract.filters.SubscriptionContractCreated(creatorId)
+        );
+        if (res[0]) {
+          const newContract = res[0].args.contractAddress;
+          dispatch('contractCreated', newContract);
+        }
+        // TODO handle waiting time
+      } catch (err: any) {
+        dispatch('txFailed', err);
+
       } finally {
         formDisabled = false;
       }
