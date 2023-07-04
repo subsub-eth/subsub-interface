@@ -1,9 +1,12 @@
 import { z } from 'zod';
 
-/**
-  * @deprecated use the general metadata schema
-  */
-export const CreatorMetadataSchema = z.object({
+import { ethers } from 'ethers';
+
+export const address = z.custom<`0x${string}`>((val) => {
+  return ethers.isAddress(val);
+});
+
+export const MetadataSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 chars'),
   description: z.string().optional(),
   image: z.union([z.literal(''), z.string().trim().url('Image must be a URL')]).optional(),
@@ -12,4 +15,5 @@ export const CreatorMetadataSchema = z.object({
     .optional()
 });
 
-export type CreatorMetadata = z.infer<typeof CreatorMetadataSchema>;
+export type Metadata = z.infer<typeof MetadataSchema>;
+

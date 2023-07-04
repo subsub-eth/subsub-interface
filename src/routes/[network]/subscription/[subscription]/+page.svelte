@@ -12,6 +12,7 @@
   const addr = data.subscriptionAddr;
 
   $: subContract = !!$ethersSigner ? Subscription__factory.connect(addr, $ethersSigner) : null;
+  
 </script>
 
 <h1>Subscription Contract Details page</h1>
