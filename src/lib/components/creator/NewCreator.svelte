@@ -13,6 +13,8 @@
 
   let formDisabled = false;
 
+// TODO refactor to dispatch events for redirecting, toasts, etc.
+// TODO redirect bug?
   const { form } = createForm<Metadata>({
     async onSubmit(values) {
       formDisabled = true;

@@ -5,13 +5,15 @@
   import SubscriptionContractDetails from '$lib/components/subscription/SubscriptionContractDetails.svelte';
   import SubscriptionList from '$lib/components/subscription/SubscriptionList.svelte';
   import { currentAccount } from '$lib/web3/onboard';
-  import SubscriptionMint from '$lib/components/subscription/SubscriptionMint.svelte';
+  import { page } from '$app/stores';
 
   export let data: PageData;
 
   const addr = data.subscriptionAddr;
 
   $: subContract = !!$ethersSigner ? Subscription__factory.connect(addr, $ethersSigner) : null;
+
+  // TODO contract is paused
 </script>
 
 <h1>Subscription Contract Details page</h1>
@@ -44,8 +46,10 @@ Subscription Contract: {addr}
       <!-- mint subscription -->
       <!-- TODO Fix me -->
       <h2>My Subscrptions</h2>
+      <div>
+        <a href={$page.url.pathname + 'new/'}>mint new Subscription</a>
+      </div>
       {#if !!$currentAccount}
-        <SubscriptionMint />
         <SubscriptionList contract={subContract} account={$currentAccount} />
       {/if}
     </div>

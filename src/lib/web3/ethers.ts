@@ -73,14 +73,17 @@ function matchTopics(filter: TopicFilter, log: LogDescription): boolean {
 export async function matchEvents<
   InputArray extends Array<any>,
   OutputArray extends Array<any>,
-  OutputObject extends any
+  OutputObject
 >(
   logs: (EventLog | Log)[],
   contract: BaseContract,
-  filter: TypedDeferredTopicFilter<TypedContractEvent<InputArray, OutputArray, OutputObject>>
+  filter: TypedDeferredTopicFilter<TypedContractEvent<InputArray, OutputArray, OutputObject>>,
+  filterAddress: string | undefined = undefined
 ): Promise<Array<TypedLogDescription<TypedContractEvent<InputArray, OutputArray, OutputObject>>>> {
+  const address = filterAddress ?? await contract.getAddress();
   const topticFilter = await filter.getTopicFilter();
   return logs
+    .filter((l) => l.address === address)
     .map((l) => contract.interface.parseLog(l as any))
     .flatMap((d) => (d ? [d] : []))
     .filter((d) => matchTopics(topticFilter, d!))
