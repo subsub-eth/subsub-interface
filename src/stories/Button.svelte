@@ -6,33 +6,20 @@
    */
   export let primary = false;
   /**
-   * How large should the button be?
-   */
-  export let size: 'small' | 'medium' | 'large' = 'medium';
-  /**
    * Button contents
    */
   export let label: string = '';
+  /**
+   * Additional css classes
+   */
+  let clazz: string = '';
+  export { clazz as class };
 
-  const getSizeClasses = (size: string) => {
-  switch (size) {
-    case 'small': {
-      return 'px-4 py-2.5';
-    }
-    case 'large': {
-      return 'px-6 py-3';
-    }
-    default: {
-      return 'px-5 py-2.5';
-    }
-  }
-};
+  const base = 'cursor-pointer rounded-lg py-2 px-6 border-1 inline-block';
 
-  const base = 'cursor-pointer rounded-full border-2 font-bold leading-none inline-block';
+  const primaryStyle = 'text-white bg-gradient-to-br from-primary-purple1 to-primary-purple4 border-primary-purple1';
 
-  const primaryStyle = 'text-white bg-pink-600 border-pink-600 dark:bg-pink-700 dark:border-pink-700';
-
-  const secondaryStyle = 'text-slate-700 bg-transparent border-slate-700 dark:text-white dark:border-white';
+  const secondaryStyle = 'text-primary-purple1 bg-primary-purple1/[0.15] border-primary-purple1';
 
   $: mode = primary ? primaryStyle : secondaryStyle;
 
@@ -40,7 +27,7 @@
 
 <button
   type="button"
-  class={twMerge(base, mode, getSizeClasses(size))}
+  class={twMerge(base, mode, clazz)}
   on:click
 >
   {label}
