@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from './Button.svelte';
+  import Button from '../lib/components/Button.svelte';
 
   import { createEventDispatcher } from 'svelte';
 

@@ -14,6 +14,14 @@
      */
     export let newWindow: boolean = false
     /**
+     * Show link as a fake button
+    */
+    export let showAsButton: boolean = false;
+    /**
+     * Is this a fake print button
+     */
+     export let primary = false;
+    /**
      * Additional css classes
      */
     let clazz: string = '';
@@ -25,7 +33,10 @@
       if (newWindow) opts.target = "_blank";
     }
 
-    const base = 'cursor-pointer rounded-lg py-2 px-6 border-1 inline-block';
+    $: btnMode = primary ? 'btn--primary' : 'btn--secondary';
+
+    $: base = showAsButton ? `btn ${btnMode}` : 'link';
+
   </script>
   
   <a

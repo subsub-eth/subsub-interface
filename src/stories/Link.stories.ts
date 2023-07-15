@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/svelte';
 
-import Link from './Link.svelte';
+import Link from '../lib/components/Link.svelte';
 
 const meta = {
     title: 'Atoms/Link',
@@ -11,8 +11,18 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const textLink: Story = {
+    args: {
+        text: 'This is a Text Link',
+        url: 'www.google.com',
+    },
+}
+
 export const buttonLink: Story = {
     args: {
-        text: 'This is a link'
+        text: 'Button Link',
+        url: 'www.google.com',
+        showAsButton: true,
+        primary: true,
     },
 }
