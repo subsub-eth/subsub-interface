@@ -10,6 +10,10 @@
    */
   export let label: string = '';
   /**
+   * Button disabled or not
+  */
+  export let isDisabled: boolean = false;
+  /**
    * Additional css classes
    */
   let clazz: string = '';
@@ -24,6 +28,7 @@
 <button
   type="button"
   class={twMerge(base, mode, clazz)}
+  disabled={isDisabled}
   on:click
 >
   {label}

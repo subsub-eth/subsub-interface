@@ -4,11 +4,11 @@
 
 @layer components {
     .btn {
-      @apply cursor-pointer rounded-lg py-2 px-6 inline-block;
+      @apply cursor-pointer transition rounded-lg py-2 px-6 inline-block disabled:pointer-events-none disabled:opacity-60;
     }
 
     .btn--primary {
-        @apply text-white bg-gradient-to-br from-primary-purple1 to-primary-purple4 hover:from-primary-purple4 hover:to-primary-purple1 transition;
+        @apply text-white bg-gradient-to-br from-primary-purple1 to-primary-purple4 hover:from-primary-purple4 hover:to-primary-purple1;
         text-shadow: 1px 1px #6619ff;
     }
 
