@@ -3,14 +3,16 @@
 
   export let name: string;
   export let label: string;
-  export let disabled: boolean = false;
-  export let required: boolean = false;
+  export let value: number | null = null;
+  export let disabled = false;
+  export let required = false;
 
   let opts: any = {};
   $: {
     opts = {};
     if (disabled) opts.disabled = disabled;
     if (required) opts.required = required;
+    if (value !== null) opts.value = value;
   }
 </script>
 
