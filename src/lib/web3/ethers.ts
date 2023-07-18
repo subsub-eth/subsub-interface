@@ -1,10 +1,8 @@
-import { filter, map, from, concatMap } from 'rxjs';
+import { filter, map, from, concatMap, distinctUntilChanged } from 'rxjs';
 import {
   ethers,
   EventLog,
-  Interface,
   Log,
-  Result,
   type Provider,
   type Signer,
   type TopicFilter,
@@ -16,17 +14,15 @@ import {
   type TypedDeferredTopicFilter,
   type TypedLogDescription
 } from '@createz/contracts/types/ethers-contracts/common';
-import { wallets$ } from './onboard';
+import { primaryWallet$ } from './onboard';
 import { readonly, writable } from 'svelte/store';
 
-export const ethersProvider$ = wallets$.pipe(
-  map((wallets) => {
-    const [primaryWallet] = wallets;
-    return primaryWallet;
-  }),
+export const ethersProvider$ = primaryWallet$.pipe(
   filter((wallet) => !!wallet),
+  distinctUntilChanged(),
   map((wallet) => {
-    return new ethers.BrowserProvider(wallet.provider);
+    console.log('creating ethers provider', wallet)
+    return new ethers.BrowserProvider(wallet!.provider);
   })
 );
 
@@ -39,14 +35,10 @@ ethersProvider$.subscribe((provider) => {
 
 export const ethersProvider = readonly(ethersProviderStore);
 
-export const ethersSigner$ = wallets$.pipe(
-  map((wallets) => {
-    const [primaryWallet] = wallets;
-    return primaryWallet;
-  }),
+export const ethersSigner$ = primaryWallet$.pipe(
   filter((wallet) => !!wallet),
   concatMap((wallet) => {
-    return from(new ethers.BrowserProvider(wallet.provider).getSigner());
+    return from(new ethers.BrowserProvider(wallet!.provider).getSigner());
   })
 );
 

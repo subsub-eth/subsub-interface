@@ -3,7 +3,7 @@ import type { OnboardAPI } from '@web3-onboard/core';
 import injectedWalletsModule from '@web3-onboard/injected-wallets';
 
 import { onBoardChains as chains } from './chains';
-import { Observable, map } from 'rxjs';
+import { Observable, distinctUntilChanged, map } from 'rxjs';
 import { readonly, writable } from 'svelte/store';
 
 const injected = injectedWalletsModule();
@@ -51,7 +51,18 @@ export const wallets$ = onboard.state.select('wallets');
 const primaryWalletStore = writable<null | WalletState>();
 
 export const primaryWallet$: Observable<WalletState | null> = wallets$.pipe(
-  map((wallets) => wallets?.[0] ?? null)
+  map((wallets) => wallets?.[0] ?? null),
+  distinctUntilChanged((previous, current) => {
+    if (previous === null || current === null) {
+      return false;
+    }
+    return (
+      previous.accounts[0]?.address === current.accounts[0]?.address &&
+      previous.label === current.label &&
+      previous.chains[0]?.id === current.chains[0]?.id &&
+      previous.chains[0]?.namespace === current.chains[0]?.namespace
+    );
+  })
 );
 
 primaryWallet$.subscribe((wallet) => {
@@ -62,11 +73,9 @@ primaryWallet$.subscribe((wallet) => {
 export const primaryWallet = readonly(primaryWalletStore);
 
 // is connected
-export const isAccountConnected$ = wallets$.pipe(
-  map((wallets) => {
-    console.debug(`checking connected account`, wallets);
-    const value = !!wallets?.[0]?.accounts?.[0];
-
+export const isAccountConnected$ = primaryWallet$.pipe(
+  map((wallet) => {
+    const value = !!wallet?.accounts[0];
     console.debug(`onboard: isAccountConnected`, value);
     return value;
   })
@@ -74,16 +83,16 @@ export const isAccountConnected$ = wallets$.pipe(
 
 const accountConnected = writable<boolean>(false);
 
-export const accountConnected$ = wallets$.pipe(
-  map((wallets) => {
-    const value = !!wallets?.[0]?.accounts?.[0];
+export const accountConnected$ = primaryWallet$.pipe(
+  map((wallet) => {
+    const value = wallet?.accounts[0];
     return value;
   })
 );
 
 accountConnected$.subscribe((isConnected) => {
   console.debug(`Setting connected wallet to store`, isConnected);
-  accountConnected.set(isConnected);
+  accountConnected.set(!!isConnected);
 });
 
 export const isAccountConnected = readonly(accountConnected);
