@@ -19,4 +19,5 @@
     .link {
         @apply text-white hover:underline hover:underline-offset-4;
     }
+
   }
