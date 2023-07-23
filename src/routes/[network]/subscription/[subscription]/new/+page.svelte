@@ -5,7 +5,7 @@
   import { currentAccount } from '$lib/web3/onboard';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import MintSubscription from '$lib/components/subscription/MintSubscription.svelte';
+  import MintSubscription from '$lib/components/subscription/action/MintSubscription.svelte';
   import { toast } from '@zerodevx/svelte-toast';
 
   export let data: PageData;

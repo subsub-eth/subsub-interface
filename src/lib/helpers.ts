@@ -1,8 +1,8 @@
 export function truncateAddress(
   addr: string,
-  prefix: number = 5,
-  suffix: number = 4,
-  placeholder: string = '...'
+  prefix = 5,
+  suffix = 4,
+  placeholder = '...'
 ): string {
   const minLength = prefix + suffix + placeholder.length;
 
@@ -11,4 +11,8 @@ export function truncateAddress(
   }
 
   return addr.substring(0, prefix) + placeholder + addr.substring(addr.length - suffix);
+}
+
+export async function waitFor(time: number) {
+  return new Promise((resolve) => setTimeout(resolve, time));
 }

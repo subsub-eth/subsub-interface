@@ -1,19 +1,16 @@
 <script lang="ts">
   import { createForm } from 'felte';
 
-  import NumberInput from '../form/NumberInput.svelte';
-  import TextInput from '../form/TextInput.svelte';
+  import NumberInput from '../../form/NumberInput.svelte';
+  import TextInput from '../../form/TextInput.svelte';
   import { type MintProps, MintPropsSchema } from '$lib/web3/contracts/subscription';
   import { validator } from '@felte/validator-zod';
   import { reporter } from '@felte/reporter-svelte';
-  import { createEventDispatcher, onMount } from 'svelte';
-  import {
-    type ERC20,
-    type Subscription
-  } from '@createz/contracts/types/ethers-contracts';
+  import { createEventDispatcher } from 'svelte';
+  import { type ERC20, type Subscription } from '@createz/contracts/types/ethers-contracts';
   import { matchEvents } from '$lib/web3/ethers';
   import { ZeroAddress } from 'ethers';
-    import type { MintSubscriptionEvents } from './mint-subscription';
+  import type { MintSubscriptionEvents } from './subscription-events';
 
   // TODO handle approval/permit, permit2?
 
@@ -30,10 +27,10 @@
 
   const doApprove = async (val: MintProps) => {
     if (val.amount > 0 && token) {
-      const apprTx = await token.approve(await subContract.getAddress(), val.amount);
+      const apprTx = await token.approve(subContract.getAddress(), val.amount);
       dispatch('approvalTxSubmitted', apprTx.hash);
       const receipt = await apprTx.wait();
-      dispatch('approved', receipt?.hash);
+      dispatch('approved', [val.amount, receipt?.hash ?? apprTx.hash]);
       allowance = await token.allowance(currentAccount, await subContract.getAddress());
     } else {
       throw new Error('Approval of 0 amount or token not found');
@@ -64,7 +61,7 @@
   let action = doApprove;
 
   // soften cyclic dependency
-  const setAction = (func: (val: MintProps) => Promise<void>) => action = func;
+  const setAction = (func: (val: MintProps) => Promise<void>) => (action = func);
 
   $: ({ form, data } = createForm<MintProps>({
     async onSubmit(val) {

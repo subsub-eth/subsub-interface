@@ -7,7 +7,9 @@ import {
   type Signer,
   type TopicFilter,
   BaseContract,
-  LogDescription
+  LogDescription,
+  ContractTransactionResponse,
+  TransactionReceipt
 } from 'ethers';
 import {
   type TypedContractEvent,
@@ -21,7 +23,7 @@ export const ethersProvider$ = primaryWallet$.pipe(
   filter((wallet) => !!wallet),
   distinctUntilChanged(),
   map((wallet) => {
-    console.log('creating ethers provider', wallet)
+    console.log('creating ethers provider', wallet);
     return new ethers.BrowserProvider(wallet!.provider);
   })
 );
@@ -72,7 +74,7 @@ export async function matchEvents<
   filter: TypedDeferredTopicFilter<TypedContractEvent<InputArray, OutputArray, OutputObject>>,
   filterAddress: string | undefined = undefined
 ): Promise<Array<TypedLogDescription<TypedContractEvent<InputArray, OutputArray, OutputObject>>>> {
-  const address = filterAddress ?? await contract.getAddress();
+  const address = filterAddress ?? (await contract.getAddress());
   const topticFilter = await filter.getTopicFilter();
   return logs
     .filter((l) => l.address === address)
@@ -85,4 +87,47 @@ export async function matchEvents<
           TypedContractEvent<InputArray, OutputArray, OutputObject>
         >
     );
+}
+
+export async function getReceipt(
+  response: ContractTransactionResponse
+): Promise<TransactionReceipt> {
+  const receipt = await (await (await response.wait())?.getTransaction())?.wait();
+  if (!receipt) {
+    throw new Error('Transaction was not mined');
+  }
+  return receipt;
+}
+
+export async function findLogs<
+  InputArray extends Array<any>,
+  OutputArray extends Array<any>,
+  OutputObject
+>(
+  response: ContractTransactionResponse,
+  contract: BaseContract,
+  filter: TypedDeferredTopicFilter<TypedContractEvent<InputArray, OutputArray, OutputObject>>,
+  filterAddress: string | undefined = undefined
+): Promise<Array<TypedLogDescription<TypedContractEvent<InputArray, OutputArray, OutputObject>>>> {
+  const receipt = await getReceipt(response);
+
+  const logs = receipt.logs;
+
+  const res = await matchEvents(logs as [], contract, filter, filterAddress);
+
+  return res;
+}
+
+export async function findLog<
+  InputArray extends Array<any>,
+  OutputArray extends Array<any>,
+  OutputObject
+>(
+  response: ContractTransactionResponse,
+  contract: BaseContract,
+  filter: TypedDeferredTopicFilter<TypedContractEvent<InputArray, OutputArray, OutputObject>>,
+  filterAddress: string | undefined = undefined
+): Promise<TypedLogDescription<TypedContractEvent<InputArray, OutputArray, OutputObject>> | null> {
+  const logs = await findLogs(response, contract, filter, filterAddress);
+  return logs.length > 0 ? logs[0] : null;
 }

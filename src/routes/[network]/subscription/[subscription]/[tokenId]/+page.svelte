@@ -3,6 +3,8 @@
   import { ethersSigner } from '$lib/web3/ethers';
   import { Subscription__factory } from '@createz/contracts/types/ethers-contracts';
   import type { PageData } from './$types';
+  import { currentAccount } from '$lib/web3/onboard';
+  import SubscriptionDeposit from '$lib/components/subscription/action/SubscriptionDeposit.svelte';
 
   export let data: PageData;
 
@@ -10,6 +12,7 @@
   const tokenId = data.tokenId;
 
   $: subContract = $ethersSigner ? Subscription__factory.connect(addr, $ethersSigner) : null;
+
 </script>
 
 <h1>Subscription Details</h1>
@@ -32,5 +35,8 @@
     <!-- subscription controls -->
     <!-- deposit(renew) / tip -->
     <!-- withdraw / cancel -->
+    {#if subContract && $currentAccount}
+      <SubscriptionDeposit {subContract} currentAccount={$currentAccount} subscriptionId={tokenId} />
+    {/if}
   </div>
 </div>

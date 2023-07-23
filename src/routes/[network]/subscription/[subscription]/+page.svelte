@@ -54,4 +54,6 @@ Subscription Contract: {addr}
       {/if}
     </div>
   {/if}
+
+  TODO Creator interface to claim funds
 </div>
