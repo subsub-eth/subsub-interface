@@ -1,5 +1,6 @@
 <script lang="ts">
   import { twMerge } from 'tailwind-merge';
+    import Loading from './Loading.svelte';
 
   /**
    * Is this the principal call to action on the page?
@@ -13,6 +14,10 @@
    * Button disabled or not
   */
   export let isDisabled: boolean = false;
+  /**
+   * isLoading
+  */
+ export let isLoading: boolean = false;
   /**
    * Additional css classes
    */
@@ -31,5 +36,8 @@
   disabled={isDisabled}
   on:click
 >
+  {#if isLoading}
+    <Loading size="small" class="mr-2"/>
+  {/if}
   {label}
 </button>

@@ -4,7 +4,7 @@
 
 @layer components {
     .btn {
-      @apply cursor-pointer transition rounded-lg py-2 px-6 inline-block disabled:pointer-events-none disabled:opacity-60;
+      @apply cursor-pointer transition rounded-lg py-2 px-6 inline-flex items-center text-center disabled:pointer-events-none disabled:opacity-60;
     }
 
     .btn--primary {

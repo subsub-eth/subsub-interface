@@ -32,6 +32,15 @@ export const PrimaryDisabled: Story = {
   },
 };
 
+export const PrimaryLoading: Story = {
+  args: {
+    primary: true,
+    label: 'Button',
+    isDisabled: true,
+    isLoading: true,
+  },
+};
+
 export const Secondary: Story = {
   args: {
     label: 'Button',
@@ -42,5 +51,13 @@ export const SecondaryDisabled: Story = {
   args: {
     label: 'Button',
     isDisabled: true,
+  },
+};
+
+export const SecondaryLoading: Story = {
+  args: {
+    label: 'Button',
+    isDisabled: true,
+    isLoading: true,
   },
 };
