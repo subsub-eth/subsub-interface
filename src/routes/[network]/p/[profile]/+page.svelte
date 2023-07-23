@@ -1,17 +1,16 @@
 <script lang="ts">
-  import { CREATOR_CONTRACT, SUBSCRIPTION_MANAGER_CONTRACT, requireContext } from '$lib/contexts';
-  import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
+  import { PROFILE_CONTRACT, SUBSCRIPTION_MANAGER_CONTRACT, requireContext } from '$lib/contexts';
   import type { Readable } from 'svelte/store';
   import { page } from '$app/stores';
-  import CreatorDetails from '$lib/components/creator/CreatorDetails.svelte';
   import SubscriptionContractList from '$lib/components/subscription-manager/SubscriptionContractList.svelte';
-  import type { ISubscriptionManager } from '@createz/contracts/types/ethers-contracts';
+  import type { ISubscriptionManager, Profile } from '@createz/contracts/types/ethers-contracts';
   import { currentAccount } from '$lib/web3/onboard';
   import LinkButton from '$lib/components/LinkButton.svelte';
   import { addressEquals } from '$lib/web3/helpers';
+  import ProfileDetails from '$lib/components/profile/ProfileDetails.svelte';
 
-  const tokenId = BigInt($page.params.creator);
-  const creatorContract = requireContext<Readable<Creator>>(CREATOR_CONTRACT);
+  const tokenId = BigInt($page.params.profile);
+  const profileContract = requireContext<Readable<Profile>>(PROFILE_CONTRACT);
   const subscriptionManagerContract = requireContext<Readable<ISubscriptionManager>>(
     SUBSCRIPTION_MANAGER_CONTRACT
   );
@@ -21,17 +20,17 @@
 
 <div class="flex flex-row space-x-4">
   <div class="basis-1/2">
-    <h2>Creator</h2>
-    {#if $creatorContract}
-      <CreatorDetails id={tokenId} creator={$creatorContract} />
+    <h2>Profile</h2>
+    {#if $profileContract}
+      <ProfileDetails id={tokenId} profile={$profileContract} />
     {/if}
   </div>
 
   <div class="basis-1/2">
     <!-- TODO Subscription Contracts -->
     <h2>Subscription Contracts</h2>
-    {#if $creatorContract}
-      {#await $creatorContract.ownerOf(tokenId)}
+    {#if $profileContract}
+      {#await $profileContract.ownerOf(tokenId)}
         Loading...
       {:then owner}
         {#if addressEquals($currentAccount, owner)}
@@ -42,7 +41,7 @@
     <div />
     {#if $subscriptionManagerContract}
       <SubscriptionContractList
-        creatorTokenId={tokenId}
+        profileTokenId={tokenId}
         managerContract={$subscriptionManagerContract}
       />
     {/if}

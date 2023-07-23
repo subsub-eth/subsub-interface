@@ -17,7 +17,7 @@
 
   const onContractCreated = (event: CustomEvent<string>) => {
     toast.push(`New Contract address: ${event.detail}`, { pausable: true });
-    goto(`/${$page.params.network}/subscription/${event.detail}/`);
+    goto(`/${$page.params.network}/s/${event.detail}/`);
   };
 
   const onTxFailed = () => {
@@ -37,7 +37,7 @@
 
 <NewSubscriptionContractForm
   managerContract={$managerContract}
-  creatorId={BigInt($page.params.creator)}
+  profileId={BigInt($page.params.profile)}
   on:txFailed={onTxFailed}
   on:txSubmitted={onTxSubmitted}
   on:contractCreated={onContractCreated}

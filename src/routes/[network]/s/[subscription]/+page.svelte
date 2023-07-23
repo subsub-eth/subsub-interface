@@ -25,7 +25,7 @@ Subscription Contract: {addr}
     <div class="basis-1/2">
       <!-- LEFT -->
       <div class="rounded-xl border-2 border-solid p-2">
-        <!-- creator teaser -->
+        <!-- profile teaser -->
         {#await subContract.owner()}
           Loading...
         {:then [ownerContract, ownerId]}
@@ -55,5 +55,5 @@ Subscription Contract: {addr}
     </div>
   {/if}
 
-  TODO Creator interface to claim funds
+  TODO Owner interface to claim funds
 </div>

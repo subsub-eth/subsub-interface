@@ -1,4 +1,4 @@
-import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
+import type { Profile } from "@createz/contracts/types/ethers-contracts";
 
 async function loadLastTokenIds(
   loadAtIndex: (num: bigint) => Promise<bigint>,
@@ -31,7 +31,7 @@ async function loadFirstTokenIds(
 }
 
 export async function loadLastAllTokenIds(
-  contract: Creator,
+  contract: Profile,
   indexEnd: bigint,
   count: number
 ): Promise<Array<bigint>> {
@@ -39,7 +39,7 @@ export async function loadLastAllTokenIds(
 }
 
 export async function loadFirstOwnerTokenIds(
-  contract: Creator,
+  contract: Profile,
   owner: string,
   indexStart: bigint,
   count: number

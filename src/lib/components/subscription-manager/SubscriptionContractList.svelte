@@ -3,12 +3,11 @@
   import SubscriptionContractTeaser from '../subscription/SubscriptionContractTeaser.svelte';
 
   export let managerContract: ISubscriptionManager;
-  export let creatorTokenId: bigint;
-
+  export let profileTokenId: bigint;
 </script>
 
 <div class="">
-  {#await managerContract.getSubscriptionContracts(creatorTokenId)}
+  {#await managerContract.getSubscriptionContracts(profileTokenId)}
     Loading...
   {:then contracts}
     {#each contracts as contract}

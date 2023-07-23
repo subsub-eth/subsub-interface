@@ -2,15 +2,15 @@ import { error } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
 
 export const load = (({ params }) => {
-  const creator = params.creator;
+  const profile = params.profile;
 
   try {
-    const id = BigInt(creator);
+    const id = BigInt(profile);
     return {
-      creator: id
+      profile: id
     };
   } catch (err) {
-    console.error(`Token id invalid`, creator, err);
-    throw error(403, `Token id invalid: ${creator}`);
+    console.error(`Token id invalid`, profile, err);
+    throw error(403, `Token id invalid: ${profile}`);
   }
 }) satisfies LayoutLoad;

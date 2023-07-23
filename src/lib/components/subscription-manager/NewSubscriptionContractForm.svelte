@@ -17,7 +17,7 @@
   import { matchEvents } from '$lib/web3/ethers';
 
   export let managerContract: ISubscriptionManager;
-  export let creatorId: bigint;
+  export let profileId: bigint;
 
   let formDisabled = false;
   const dispatch = createEventDispatcher();
@@ -44,7 +44,7 @@
           val.symbol,
           metadata,
           subSettings,
-          creatorId
+          profileId
         );
         dispatch('txSubmitted', tx.hash);
 
@@ -54,7 +54,7 @@
         const res = await matchEvents(
           logs as [],
           managerContract,
-          managerContract.filters.SubscriptionContractCreated(creatorId)
+          managerContract.filters.SubscriptionContractCreated(profileId)
         );
         if (res[0]) {
           const newContract = res[0].args.contractAddress;

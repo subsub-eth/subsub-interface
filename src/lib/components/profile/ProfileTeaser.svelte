@@ -3,13 +3,13 @@
   import { profileImageFallback } from '$lib/static-content';
   import type { Metadata } from '$lib/web3/contracts/common';
   import { decodeDataJsonTokenURI } from '$lib/web3/helpers';
-  import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
+  import type { Profile } from '@createz/contracts/types/ethers-contracts';
 
   export let id: bigint;
-  export let creator: Creator;
+  export let profile: Profile;
 
   const decode = (encodedJson: string) => decodeDataJsonTokenURI<Metadata>(encodedJson);
-  $: tokenData = (async () => decode(await creator.tokenURI(id)))();
+  $: tokenData = (async () => decode(await profile.tokenURI(id)))();
 </script>
 
 <div class="rounded-xl border-2 border-solid p-2">
@@ -35,7 +35,7 @@
         <p><a href={data.external_url} target="_blank">External Link</a></p>
       {/if}
     {:else}
-      Invalid creator data found
+      Invalid profile data found
     {/if}
   {:catch err}
     <!-- TODO -->

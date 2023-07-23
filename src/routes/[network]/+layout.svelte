@@ -1,16 +1,20 @@
 <script lang="ts">
-  import { creatorContractAddr, subscriptionManagerContractAddr } from '$lib/chain-config';
+  import { profileContractAddr, subscriptionManagerContractAddr } from '$lib/chain-config';
   import { isAccountConnected } from '$lib/web3/onboard';
   import { setContext } from 'svelte';
   import type { LayoutData } from './$types';
-  import { Creator__factory } from '@createz/contracts/types/ethers-contracts/factories/Creator__factory';
   import { ethersSigner } from '$lib/web3/ethers';
   import { readonly, writable, type Writable } from 'svelte/store';
-  import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
-  import { CREATOR_CONTRACT, SUBSCRIPTION_MANAGER_CONTRACT } from '$lib/contexts';
+  import { PROFILE_CONTRACT, SUBSCRIPTION_MANAGER_CONTRACT } from '$lib/contexts';
   import {
     type ISubscriptionManager,
-    ISubscriptionManager__factory
+    ISubscriptionManager__factory,
+
+    type Profile,
+
+    Profile__factory
+
+
   } from '@createz/contracts/types/ethers-contracts';
 
   export let data: LayoutData;
@@ -28,7 +32,7 @@
   }
 
   const managerStore = createStore<ISubscriptionManager>(SUBSCRIPTION_MANAGER_CONTRACT);
-  const creatorStore = createStore<Creator>(CREATOR_CONTRACT);
+  const profileStore = createStore<Profile>(PROFILE_CONTRACT);
   $: {
     const signer = $ethersSigner;
     if (!!signer) {
@@ -39,9 +43,9 @@
       console.log(`setting sub manager to context: `, manager);
       managerStore.set(manager);
 
-      const creator = Creator__factory.connect(creatorContractAddr, $ethersSigner);
-      console.log(`setting creator contract to context: `, creator);
-      creatorStore.set(creator);
+      const profile = Profile__factory.connect(profileContractAddr, $ethersSigner);
+      console.log(`setting profile contract to context: `, profile);
+      profileStore.set(profile);
     }
   }
 

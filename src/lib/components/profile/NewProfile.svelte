@@ -1,25 +1,25 @@
 <script lang="ts">
   import { matchEvents } from '$lib/web3/ethers';
   import { toast } from '@zerodevx/svelte-toast';
-  import type { Creator } from '@createz/contracts/types/ethers-contracts/Creator';
   import { createForm } from 'felte';
   import { validator } from '@felte/validator-zod';
   import { reporter, ValidationMessage } from '@felte/reporter-svelte';
   import { MetadataSchema, type Metadata } from '$lib/web3/contracts/common';
+  import type { Profile } from '@createz/contracts/types/ethers-contracts';
 
-  export let creator: Creator;
+  export let profile: Profile;
   export let currentAccount: string;
   export let onSuccess: (tokenId: bigint) => void;
 
   let formDisabled = false;
 
-// TODO refactor to dispatch events for redirecting, toasts, etc.
-// TODO redirect bug?
+  // TODO refactor to dispatch events for redirecting, toasts, etc.
+  // TODO redirect bug?
   const { form } = createForm<Metadata>({
     async onSubmit(values) {
       formDisabled = true;
       try {
-        const tx = await creator.mint(
+        const tx = await profile.mint(
           values.name,
           values.description ?? '',
           values.image ?? '',
@@ -33,8 +33,8 @@
         if (currentAccount) {
           const res = await matchEvents(
             logs as [],
-            creator,
-            creator.filters.Minted(currentAccount)
+            profile,
+            profile.filters.Minted(currentAccount)
           );
           if (res[0]) {
             const newTokenId = res[0].args.tokenId;
