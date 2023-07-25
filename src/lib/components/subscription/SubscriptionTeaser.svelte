@@ -44,7 +44,7 @@
       </div>
     {/each}
     <div>
-      <a href={`/${network}/subscription/${address}/${tokenId}/`}>Details</a>
+      <a href={`/${network}/s/${address}/${tokenId}/`}>Details</a>
     </div>
   {:catch err}
     error: {err}

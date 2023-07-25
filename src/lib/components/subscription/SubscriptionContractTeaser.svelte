@@ -39,7 +39,7 @@
       </div>
     {/each}
     <div>
-      <a href={`/${network}/subscription/${address}/`}>Details</a>
+      <a href={`/${network}/s/${address}/`}>Details</a>
     </div>
   {:catch err}
     error {err}
