@@ -1,6 +1,6 @@
 <script lang="ts">
   import { twMerge } from 'tailwind-merge';
-    import Loading from './Loading.svelte';
+  import Loading from './Loading.svelte';
 
   /**
    * Is this the principal call to action on the page?
@@ -11,13 +11,21 @@
    */
   export let label: string = '';
   /**
+   * link target
+   */
+  export let href: string = '';
+  /**
+   * button input type
+   */
+  export let type: string = 'button';
+  /**
    * Button disabled or not
-  */
+   */
   export let isDisabled: boolean = false;
   /**
    * isLoading
-  */
- export let isLoading: boolean = false;
+   */
+  export let isLoading: boolean = false;
   /**
    * Additional css classes
    */
@@ -26,18 +34,35 @@
 
   const base = 'btn';
 
+  let props = {};
+  let classes = '';
+
   $: mode = primary ? 'btn--primary' : 'btn--secondary';
 
+  $: {
+    const p: any = {};
+    let c = '';
+    if (href) {
+      c = isDisabled ? 'pointer-events-none opacity-60' : '';
+    } else {
+      p.disabled = isDisabled;
+    }
+    props = p;
+    classes = c;
+  }
 </script>
 
-<button
-  type="button"
-  class={twMerge(base, mode, clazz)}
-  disabled={isDisabled}
+<svelte:element
+  this={href ? 'a' : 'button'}
+  type={href ? undefined : type}
+  {href}
+  class={twMerge(base, mode, classes, clazz)}
+  {...props}
   on:click
+  role={href ? 'button' : undefined}
 >
   {#if isLoading}
-    <Loading size="small" class="mr-2"/>
+    <Loading size="small" class="mr-2" />
   {/if}
   {label}
-</button>
+</svelte:element>
