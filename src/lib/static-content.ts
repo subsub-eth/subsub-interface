@@ -1,1 +1,1 @@
-export { default as profileImageFallback } from '$lib/assets/images/profile.svg';
+export { default as profileImageFallback } from '$lib/assets/images/cat.jpg';

@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .btn {
+      @apply cursor-pointer transition rounded-lg py-2 px-6 inline-flex items-center text-center disabled:pointer-events-none disabled:opacity-60;
+    }
+
+    .btn--primary {
+        @apply text-white bg-gradient-to-br from-primary-purple1 to-primary-purple4 hover:from-primary-purple4 hover:to-primary-purple1;
+        text-shadow: 1px 1px #6619ff;
+    }
+
+    .btn--secondary {
+        @apply text-primary-purple1 bg-primary-purple1/[0.15] ring-primary-purple1/[0.15] drop-shadow-md ring-2 ring-inset hover:ring-primary-purple1/[0.3] hover:bg-transparent;
+    }
+
+    .link {
+        @apply text-white hover:underline hover:underline-offset-4;
+    }
+
+  }
