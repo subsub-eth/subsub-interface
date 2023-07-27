@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { profileContractAddr, subscriptionManagerContractAddr } from '$lib/chain-config';
+  import { type chain, getChainByName } from '$lib/chain-config';
   import { isAccountConnected } from '$lib/web3/onboard';
   import { setContext } from 'svelte';
   import type { LayoutData } from './$types';
@@ -9,18 +9,15 @@
   import {
     type ISubscriptionManager,
     ISubscriptionManager__factory,
-
     type Profile,
-
     Profile__factory
-
-
   } from '@createz/contracts/types/ethers-contracts';
 
   export let data: LayoutData;
 
-  const network = data.network;
-  if (!!network) {
+  // assuming that LayoutData provides a validated value
+  const network: chain = data.network;
+  if (network) {
     setContext('network', data.network);
   }
 
@@ -35,15 +32,18 @@
   const profileStore = createStore<Profile>(PROFILE_CONTRACT);
   $: {
     const signer = $ethersSigner;
-    if (!!signer) {
+    const chain = getChainByName(network);
+
+    if (signer && chain) {
+      const contracts = chain.contracts;
       const manager = ISubscriptionManager__factory.connect(
-        subscriptionManagerContractAddr,
+        contracts.subscriptionManager,
         $ethersSigner
       );
       console.log(`setting sub manager to context: `, manager);
       managerStore.set(manager);
 
-      const profile = Profile__factory.connect(profileContractAddr, $ethersSigner);
+      const profile = Profile__factory.connect(contracts.profile, $ethersSigner);
       console.log(`setting profile contract to context: `, profile);
       profileStore.set(profile);
     }

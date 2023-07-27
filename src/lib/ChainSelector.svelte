@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { chainProps, getChain } from '$lib/chain-config';
+  import { currentChains, getChain } from '$lib/chain-config';
   import { currentChainId } from './web3/onboard';
 
   $: currentChain = getChain($currentChainId ? $currentChainId : 0)?.[1].displayName;
@@ -20,7 +20,7 @@
   class="z-10 {dropdownVisibility} w-44 divide-y divide-gray-100 rounded-lg bg-white shadow dark:bg-gray-700"
 >
   <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-    {#each chainProps as [chain, data]}
+    {#each currentChains as [chain, data]}
       <li>
         <a
           href="#"
