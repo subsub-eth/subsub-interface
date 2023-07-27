@@ -4,12 +4,16 @@
     type ERC20,
     type Subscription
   } from '@createz/contracts/types/ethers-contracts';
-  import { ethersSigner, findLog, getReceipt } from '$lib/web3/ethers';
+  import { ethersSigner, getReceipt } from '$lib/web3/ethers';
   import { type Signer } from 'ethers';
   import DepositForm from './deposit/DepositForm.svelte';
-  import { approveFunc, type DepositDispatch, type DepositSubscriptionEvents } from './subscription-events';
+  import {
+    approveFunc,
+    type DepositEvents,
+    type DepositSubscriptionEvents
+  } from './subscription-events';
   import { waitFor } from '$lib/helpers';
-    import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, type EventDispatcher } from 'svelte';
 
   export let subContract: Subscription;
   export let subscriptionId: bigint;
@@ -18,6 +22,7 @@
   let token: ERC20;
   let allowance: bigint;
   let balance: bigint;
+  let rate: bigint;
   let subscriptionAddress: string;
 
   const dispatch = createEventDispatcher<DepositSubscriptionEvents>();
@@ -28,7 +33,8 @@
     currentAccount: string
   ): Promise<void> => {
     console.log('load token address', await subContract.getAddress());
-    const [tokenAddr] = await subContract.settings();
+    const [tokenAddr, _rate] = await subContract.settings();
+    rate = _rate;
     token = ERC20__factory.connect(tokenAddr, etherSigner);
     allowance = await token.allowance(currentAccount, subContract.getAddress());
     balance = await token.balanceOf(currentAccount);
@@ -41,7 +47,7 @@
   $: renew = async (
     amount: bigint,
     message: string,
-    dispatch: DepositDispatch
+    dispatch: EventDispatcher<DepositEvents>
   ): Promise<[bigint, string]> => {
     const tx = await subContract.renew(subscriptionId, amount, message);
     dispatch('depositTxSubmitted', tx.hash);
@@ -63,13 +69,22 @@
         submitLabel="Renew"
         approve={approveFunc(token, subscriptionAddress)}
         deposit={renew}
+        maxAmount={balance}
+        minAmount={rate}
         on:approved={(ev) => {
           // TODO toast
           const [amount, hash] = ev.detail;
           allowance = amount;
           dispatch('approved', ev.detail);
         }}
-        on:deposited
+        on:deposited={async (ev) => {
+          // TODO toast
+          const [amount, hash] = ev.detail;
+          balance = await token.balanceOf(currentAccount);
+          allowance = await token.allowance(currentAccount, subContract.getAddress());
+
+          dispatch('deposited', ev.detail);
+        }}
         on:txFailed
         on:depositTxSubmitted
         on:approvalTxSubmitted

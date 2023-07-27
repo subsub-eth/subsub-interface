@@ -63,7 +63,7 @@
   // soften cyclic dependency
   const setAction = (func: (val: MintProps) => Promise<void>) => (action = func);
 
-  $: ({ form, data } = createForm<MintProps>({
+  const { form, data } = createForm<MintProps>({
     async onSubmit(val) {
       console.log('submitted', val);
 
@@ -83,7 +83,7 @@
       return value as MintProps;
     },
     extend: [validator({ schema: MintPropsSchema }), reporter]
-  }));
+  });
 
   $: needsApproval = allowance < $data.amount;
 
