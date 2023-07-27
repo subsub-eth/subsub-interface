@@ -7,7 +7,7 @@ export const testTokenContractAddr = '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318
 export interface Chains {
   localhost: ChainData;
   polygon: ChainData;
-  'polygon-test': ChainData;
+  'polygon-mumbai': ChainData;
 }
 
 export interface ChainData {
@@ -19,12 +19,17 @@ export interface ChainData {
   rpcUrl: string;
 }
 
+export interface ContractAddresses {
+  profile: string,
+  subscriptionManager: string,
+}
+
 export type chain = keyof Chains;
 
 export const chains: Chains = {
   localhost: {
     isDev: true,
-    isTest: false,
+    isTest: true,
     displayName: 'Localhost',
     chainId: 31337,
     token: 'ETH',
@@ -38,7 +43,7 @@ export const chains: Chains = {
     token: 'MATIC',
     rpcUrl: 'https://matic-mainnet.chainstacklabs.com'
   },
-  'polygon-test': {
+  'polygon-mumbai': {
     isDev: false,
     isTest: true,
     displayName: 'Polygon Mumbai Testnet',
