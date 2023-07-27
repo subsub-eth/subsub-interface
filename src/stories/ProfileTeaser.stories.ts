@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/svelte';
 
-import CreatorTeaser from './CreatorTeaser.svelte';
+import ProfileTeaser from './ProfileTeaser.svelte';
 
 const meta = {
-    title: 'Atoms/CreatorTeaser',
-    component: CreatorTeaser,
+    title: 'Atoms/ProfileTeaser',
+    component: ProfileTeaser,
     tags: ['autodocs'],
-} satisfies Meta<CreatorTeaser>;
+} satisfies Meta<ProfileTeaser>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
