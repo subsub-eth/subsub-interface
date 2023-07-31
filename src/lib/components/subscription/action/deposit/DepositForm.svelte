@@ -7,6 +7,7 @@
   import type { ApprovalEvents, DepositEvents, TxFailedEvents } from '../subscription-events';
   import NumberInput from '$lib/components/form/NumberInput.svelte';
   import TextInput from '$lib/components/form/TextInput.svelte';
+  import Button from '$lib/components/Button.svelte';
 
   export let allowance: bigint;
   export let balance: bigint;
@@ -79,8 +80,12 @@
     <TextInput name="message" label="Message" disabled={approvalMode} />
 
     <div>
-      <button type="submit" disabled={formDisabled}>{approvalMode ? 'Approve' : submitLabel}</button
-      >
+      <Button
+        type="submit"
+        isDisabled={formDisabled}
+        label={approvalMode ? 'Approve' : submitLabel}
+        primary={true}
+      />
     </div>
   </form>
 </div>

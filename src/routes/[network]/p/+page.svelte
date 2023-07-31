@@ -9,6 +9,7 @@
   import { page } from '$app/stores';
   import type { Profile } from '@createz/contracts/types/ethers-contracts';
   import ProfileList from '$lib/components/profile/ProfileList.svelte';
+    import Button from '$lib/components/Button.svelte';
 
   const profile = requireContext<Readable<Profile>>(PROFILE_CONTRACT);
 
@@ -24,10 +25,7 @@
     <h2>My Profiles</h2>
 
     <div>
-      <a
-        href={`${$page.url.pathname}new/`}
-        class="rounded-full bg-cyan-500 px-4 py-2 text-sm text-white shadow-sm">Mint new Profile</a
-      >
+      <Button href={`${$page.url.pathname}new/`} label="Mint new Profile" primary/>
     </div>
 
     <div>

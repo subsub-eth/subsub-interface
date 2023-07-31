@@ -15,6 +15,7 @@
   import type { ISubscriptionManager } from '@createz/contracts/types/ethers-contracts';
   import { createEventDispatcher } from 'svelte';
   import { matchEvents } from '$lib/web3/ethers';
+    import Button from '../Button.svelte';
 
   export let managerContract: ISubscriptionManager;
   export let profileId: bigint;
@@ -101,7 +102,7 @@
       <NumberInput name="subSettings.epochSize" label="Size of an Epoch" required />
     </fieldset>
     <div>
-      <button type="submit" disabled={formDisabled}>create</button>
+      <Button label="create" type="submit" isDisabled={formDisabled} primary={true}/>
     </div>
   </form>
 </div>

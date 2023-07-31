@@ -6,6 +6,7 @@
   import SubscriptionList from '$lib/components/subscription/SubscriptionList.svelte';
   import { currentAccount } from '$lib/web3/onboard';
   import { page } from '$app/stores';
+    import Button from '$lib/components/Button.svelte';
 
   export let data: PageData;
 
@@ -47,7 +48,7 @@ Subscription Contract: {addr}
       <!-- TODO Fix me -->
       <h2>My Subscrptions</h2>
       <div>
-        <a href={$page.url.pathname + 'new/'}>mint new Subscription</a>
+        <Button primary={true} label="Mint new Subscription" href={$page.url.pathname + 'new/'} type="submit"/>
       </div>
       {#if !!$currentAccount}
         <SubscriptionList contract={subContract} account={$currentAccount} />

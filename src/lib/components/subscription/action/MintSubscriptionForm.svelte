@@ -11,6 +11,7 @@
   import { matchEvents } from '$lib/web3/ethers';
   import { ZeroAddress } from 'ethers';
   import type { MintSubscriptionEvents } from './subscription-events';
+  import Button from '$lib/components/Button.svelte';
 
   // TODO handle approval/permit, permit2?
 
@@ -110,11 +111,12 @@
     <TextInput name="message" label="Message" disabled={needsApproval} />
 
     <div>
-      {#if needsApproval}
-        <button type="submit" disabled={formDisabled}>approve</button>
-      {:else}
-        <button type="submit" disabled={formDisabled}>create</button>
-      {/if}
+      <Button
+        primary={true}
+        label={needsApproval ? 'Approve' : 'Create'}
+        type="submit"
+        isDisabled={formDisabled}
+      />
     </div>
   </form>
 </div>

@@ -5,9 +5,9 @@
   import SubscriptionContractList from '$lib/components/subscription-manager/SubscriptionContractList.svelte';
   import type { ISubscriptionManager, Profile } from '@createz/contracts/types/ethers-contracts';
   import { currentAccount } from '$lib/web3/onboard';
-  import LinkButton from '$lib/components/LinkButton.svelte';
   import { addressEquals } from '$lib/web3/helpers';
   import ProfileDetails from '$lib/components/profile/ProfileDetails.svelte';
+    import Button from '$lib/components/Button.svelte';
 
   const tokenId = BigInt($page.params.profile);
   const profileContract = requireContext<Readable<Profile>>(PROFILE_CONTRACT);
@@ -34,7 +34,7 @@
         Loading...
       {:then owner}
         {#if addressEquals($currentAccount, owner)}
-          <LinkButton text="New Subscription Contract" url={`${$page.url.pathname}newsub/`} />
+          <Button primary={true} label="New Subscription Contract" href={`${$page.url.pathname}newsub/`} />
         {/if}
       {/await}
     {/if}
