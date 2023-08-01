@@ -56,6 +56,19 @@
 
     return [amount, message];
   };
+
+  $: tip = async (
+    amount: bigint,
+    message: string,
+    dispatch: EventDispatcher<DepositEvents>
+  ): Promise<[bigint, string]> => {
+    const tx = await subContract.tip(subscriptionId, amount, message);
+    dispatch('depositTxSubmitted', tx.hash);
+    const receipt = await getReceipt(tx);
+    dispatch('deposited', [amount, receipt.hash]);
+
+    return [amount, message];
+  };
 </script>
 
 <div>
@@ -63,32 +76,64 @@
     {#await loadTokenData(subContract, $ethersSigner, currentAccount)}
       Loading...
     {:then _}
-      <DepositForm
-        {allowance}
-        {balance}
-        submitLabel="Renew"
-        approve={approveFunc(token, subscriptionAddress)}
-        deposit={renew}
-        maxAmount={balance}
-        minAmount={rate}
-        on:approved={(ev) => {
-          // TODO toast
-          const [amount, hash] = ev.detail;
-          allowance = amount;
-          dispatch('approved', ev.detail);
-        }}
-        on:deposited={async (ev) => {
-          // TODO toast
-          const [amount, hash] = ev.detail;
-          balance = await token.balanceOf(currentAccount);
-          allowance = await token.allowance(currentAccount, subContract.getAddress());
+      <div>
+        <h3>Renew</h3>
+        <DepositForm
+          {allowance}
+          {balance}
+          submitLabel="Renew"
+          approve={approveFunc(token, subscriptionAddress)}
+          deposit={renew}
+          maxAmount={balance}
+          minAmount={rate}
+          on:approved={(ev) => {
+            // TODO toast
+            const [amount, hash] = ev.detail;
+            allowance = amount;
+            dispatch('approved', ev.detail);
+          }}
+          on:deposited={async (ev) => {
+            // TODO toast
+            const [amount, hash] = ev.detail;
+            balance = await token.balanceOf(currentAccount);
+            allowance = await token.allowance(currentAccount, subContract.getAddress());
 
-          dispatch('deposited', ev.detail);
-        }}
-        on:txFailed
-        on:depositTxSubmitted
-        on:approvalTxSubmitted
-      />
+            dispatch('deposited', ev.detail);
+          }}
+          on:txFailed
+          on:depositTxSubmitted
+          on:approvalTxSubmitted
+        />
+      </div>
+      <div>
+        <h3>Tip</h3>
+        <DepositForm
+          {allowance}
+          {balance}
+          submitLabel="Tip"
+          approve={approveFunc(token, subscriptionAddress)}
+          deposit={tip}
+          maxAmount={balance}
+          minAmount={rate}
+          on:approved={(ev) => {
+            // TODO toast
+            const [amount, hash] = ev.detail;
+            allowance = amount;
+            dispatch('approved', ev.detail);
+          }}
+          on:deposited={async (ev) => {
+            // TODO toast
+            const [amount, hash] = ev.detail;
+            balance = await token.balanceOf(currentAccount);
+            allowance = await token.allowance(currentAccount, subContract.getAddress());
+
+            dispatch('deposited', ev.detail);
+          }}
+          on:txFailed
+          on:depositTxSubmitted
+          on:approvalTxSubmitted
+        />
+      </div>
     {/await}
   {/if}
 </div>
