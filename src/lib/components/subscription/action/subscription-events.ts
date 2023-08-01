@@ -22,19 +22,16 @@ export type DepositEvents = {
   deposited: [bigint, Hash];
 }
 
+export type WithdrawalEvents = {
+  withdrawTxSubmitted: Hash;
+  withdrawn: [bigint, Hash];
+}
+
 export type DepositSubscriptionEvents = DepositEvents & ApprovalEvents &
   TxFailedEvents;
 
 
-export type WithdrawSubscriptionEvents = {
-  withdrawTxSubmitted: string;
-  withdrawn: bigint;
-} & TxFailedEvents;
-
-export type CancelSubscriptionEvents = {
-  cancelTxSubmitted: string;
-  canceled: bigint;
-} & TxFailedEvents;
+export type WithdrawSubscriptionEvents = WithdrawalEvents & TxFailedEvents;
 
 export function approveFunc(token: ERC20, spender: string) {
   return async (amount: bigint, dispatch: EventDispatcher<ApprovalEvents>): Promise<bigint> => {

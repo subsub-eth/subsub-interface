@@ -1,7 +1,16 @@
 import { z } from 'zod';
 
-export const DepositPropsSchema = z.object({
+const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0'),
+});
+
+type FundsProps = z.infer<typeof FundsPropsSchema>;
+
+export const WithdrawPropsSchema = FundsPropsSchema;
+
+export type WithdrawProps = FundsProps;
+
+export const DepositPropsSchema = FundsPropsSchema.extend({
   message: z.string().optional()
 });
 

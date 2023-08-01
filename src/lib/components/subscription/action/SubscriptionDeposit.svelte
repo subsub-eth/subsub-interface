@@ -114,7 +114,7 @@
           approve={approveFunc(token, subscriptionAddress)}
           deposit={tip}
           maxAmount={balance}
-          minAmount={rate}
+          minAmount={0n}
           on:approved={(ev) => {
             // TODO toast
             const [amount, hash] = ev.detail;
