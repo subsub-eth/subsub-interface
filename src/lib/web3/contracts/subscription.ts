@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { MetadataSchema } from './common';
 
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0'),
@@ -24,3 +25,7 @@ export const MintPropsSchema = DepositPropsSchema.extend({
 });
 
 export type MintProps = z.infer<typeof MintPropsSchema>;
+
+export const SubscriptionTokenMetadataSchema = MetadataSchema.extend({});
+
+export type SubscriptionTokenMetadata = z.infer<typeof SubscriptionTokenMetadataSchema>;
