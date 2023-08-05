@@ -5,6 +5,7 @@ export function decodeDataJsonTokenURI<T>(encodedJson: string): T {
     throw new Error(`Encoded JSON string does not include prelude: ${encodedJson}`);
   }
   const payload = atob(encodedJson.substring(dataJsonPrelude.length));
+  console.log('payload', payload);
   return JSON.parse(payload) as T;
 }
 

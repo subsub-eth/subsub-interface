@@ -15,6 +15,7 @@
     try {
       formDisabled = true;
       await cancel(withdrawDispatch);
+      console.log('cancel successful');
     } catch (err) {
       failDispatch('txFailed', err);
     } finally {

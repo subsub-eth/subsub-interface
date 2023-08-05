@@ -4,7 +4,6 @@
   import type { Subscription } from '@createz/contracts/types/ethers-contracts';
 
   export let contract: Subscription;
-  export let tokenId: bigint;
 
   let counter = 0;
 
@@ -17,7 +16,7 @@
 
   $: (async () => {
     counter;
-    const encoded = await contract.tokenURI(tokenId);
+    const encoded = await contract.contractURI();
     metadata = decodeDataJsonTokenURI<SubscriptionTokenMetadata>(encoded);
   })();
 
@@ -29,5 +28,5 @@
 {#if address && metadata}
   <slot {address} {metadata} {update} />
 {:else}
-  Loading token metadata
+  Loading contract metadata
 {/if}
