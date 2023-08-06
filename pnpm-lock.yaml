@@ -6627,6 +6627,7 @@ packages:
 
   /debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
+    requiresBuild: true
     peerDependencies:
       supports-color: '*'
     peerDependenciesMeta:
@@ -8209,6 +8210,7 @@ packages:
   /iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
     dependencies:
       safer-buffer: 2.1.2
     dev: true
@@ -10108,6 +10110,7 @@ packages:
 
   /prr@1.0.1:
     resolution: {integrity: sha512-yPw4Sng1gWghHQWj0B3ZggWUm4qVbPwPFcRG8KyxiU7J2OHFSoEHKS+EZ3fv5l1t9CyCiop6l/ZYeWbrgoQejw==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -10596,6 +10599,7 @@ packages:
 
   /sax@1.2.4:
     resolution: {integrity: sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -12186,7 +12190,7 @@ packages:
     dev: false
 
   file:../contracts/createz-contracts-0.0.2.tgz:
-    resolution: {integrity: sha512-+lsYf3HppXclHq7R7Dtn7HywUFyO8veSJEim157jT5chSHsojyrcvsqhTqRl6wqiT9crCP32Hx/7eHS+xvP9hg==, tarball: file:../contracts/createz-contracts-0.0.2.tgz}
+    resolution: {integrity: sha512-r6CFvxz2ubyqetQ6Eozs6F9zqrq6jT9AkbX6Kvv+QLrLr2WuYy7uofaTJEzQ5QePs5g/utuk1RGF8VtPXb1cdg==, tarball: file:../contracts/createz-contracts-0.0.2.tgz}
     name: '@createz/contracts'
     version: 0.0.2
     dev: false

@@ -7,6 +7,7 @@ import type {
   WithdrawalEvents
 } from '$lib/components/subscription/action/subscription-events';
 import { findLog, getReceipt } from '../ethers';
+import { decodeDataJsonTokenURI } from '../helpers';
 
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
@@ -95,7 +96,6 @@ export function renew(
   };
 }
 
-
 export function tip(
   contract: Subscription,
   tokenId: bigint
@@ -116,4 +116,36 @@ export function tip(
 
     return [amount, message];
   };
+}
+
+export async function countUserSubscriptions(contract: Subscription, account: string): Promise<number> {
+  const count = await contract.balanceOf(account);
+  return Number(count);
+}
+
+export function listUserSubscriptionsRev(
+  contract: Subscription,
+  account: string,
+  pageSize: number,
+  totalItems: number
+): (page: number) => Promise<[string, bigint, SubscriptionTokenMetadata][]> {
+  // TODO multicall
+  const func= async (page: number): Promise<[string, bigint, SubscriptionTokenMetadata][]> => {
+    const index = page * pageSize;
+    const count = Math.max(Math.min(totalItems - index, pageSize), 0);
+
+    const contractAddress = await contract.getAddress();
+
+    const load = async (i: number): Promise<[string, bigint, SubscriptionTokenMetadata]> => {
+      const id = await contract.tokenOfOwnerByIndex(account, i + index);
+      const encoded = await contract.tokenURI(id);
+      const data = decodeDataJsonTokenURI<SubscriptionTokenMetadata>(encoded);
+      return [contractAddress, id, data];
+    };
+
+    const data = [...Array(count).keys()].map((i) => load(i));
+    return Promise.all(data);
+  };
+
+  return func;
 }

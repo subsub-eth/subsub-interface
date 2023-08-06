@@ -1,30 +1,27 @@
 <script lang="ts">
-  import type { Subscription } from '@createz/contracts/types/ethers-contracts';
   import SubscriptionTeaser from './SubscriptionTeaser.svelte';
+  import type { SubscriptionTokenMetadata } from '$lib/web3/contracts/subscription';
 
-  export let contract: Subscription;
-  export let account: string;
-
-  $: subIds = async () => {
-    const balance = await contract.balanceOf(account);
-
-    console.log("sub balance", balance);
-
-    const range = Array.from(Array(Number(balance)).keys());
-
-    console.log('range', range);
-    return Promise.all(range.map((i) => contract.tokenOfOwnerByIndex(account, i)));
-  };
+  export let pages: number;
+  export let loadSubscriptions: (
+    page: number
+  ) => Promise<Array<[string, bigint, SubscriptionTokenMetadata]>>;
+  let currentPage = 0;
 </script>
 
 <div>
-  {#await subIds()}
-    Loading Subscriptions of {account}...
-  {:then subIds}
-    {#each subIds as tokenId}
-      <SubscriptionTeaser {contract} {tokenId} />
-    {/each}
-  {:catch err}
-    failed to load subscrptions {err}
-  {/await}
+  {#if pages == 0}
+    No Subscriptions
+  {:else}
+    {#await loadSubscriptions(currentPage)}
+      Loading Subscriptions ...
+    {:then data}
+      {#each data as [contractAddress, tokenId, metadata]}
+        <SubscriptionTeaser {contractAddress} {tokenId} {metadata} />
+      {/each}
+    {:catch err}
+      failed to load subscrptions {err}
+    {/await}
+    <div>Page: {currentPage + 1} / {pages}</div>
+  {/if}
 </div>
