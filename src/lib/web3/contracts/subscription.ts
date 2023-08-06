@@ -118,7 +118,10 @@ export function tip(
   };
 }
 
-export async function countUserSubscriptions(contract: Subscription, account: string): Promise<number> {
+export async function countUserSubscriptions(
+  contract: Subscription,
+  account: string
+): Promise<number> {
   const count = await contract.balanceOf(account);
   return Number(count);
 }
@@ -130,14 +133,15 @@ export function listUserSubscriptionsRev(
   totalItems: number
 ): (page: number) => Promise<[string, bigint, SubscriptionTokenMetadata][]> {
   // TODO multicall
-  const func= async (page: number): Promise<[string, bigint, SubscriptionTokenMetadata][]> => {
+  const func = async (page: number): Promise<[string, bigint, SubscriptionTokenMetadata][]> => {
     const index = page * pageSize;
     const count = Math.max(Math.min(totalItems - index, pageSize), 0);
 
     const contractAddress = await contract.getAddress();
 
     const load = async (i: number): Promise<[string, bigint, SubscriptionTokenMetadata]> => {
-      const id = await contract.tokenOfOwnerByIndex(account, i + index);
+      // reverse index here
+      const id = await contract.tokenOfOwnerByIndex(account, totalItems - 1 - (i + index));
       const encoded = await contract.tokenURI(id);
       const data = decodeDataJsonTokenURI<SubscriptionTokenMetadata>(encoded);
       return [contractAddress, id, data];
