@@ -1,18 +1,17 @@
 <script lang="ts">
-  import { ethersSigner } from '$lib/web3/ethers';
-  import { Subscription__factory } from '@createz/contracts/types/ethers-contracts';
   import type { PageData } from './$types';
-  import { currentAccount } from '$lib/web3/onboard';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import MintSubscription from '$lib/components/subscription/action/MintSubscription.svelte';
   import { toast } from '@zerodevx/svelte-toast';
+    import EthersContext from '$lib/components/util/EthersContext.svelte';
+    import SubscriptionContractContext from '$lib/components/util/SubscriptionContractContext.svelte';
+    import CurrentAccountContext from '$lib/components/util/CurrentAccountContext.svelte';
+    import SubscriptionContractMetadataContext from '$lib/components/subscription/SubscriptionContractMetadataContext.svelte';
 
   export let data: PageData;
 
   const addr = data.subscriptionAddr;
-
-  $: subContract = $ethersSigner ? Subscription__factory.connect(addr, $ethersSigner) : null;
 
   const onMinted = async (ev: CustomEvent<bigint>) => {
     toast.push(`New Subscription minted: ${ev.detail}`, { pausable: true });
@@ -24,10 +23,13 @@
 
 <h1>Mint new Subscription Token</h1>
 
-{#if subContract && $currentAccount}
+<EthersContext let:ethersSigner>
+<SubscriptionContractContext address={addr} {ethersSigner} let:subscriptionContract >
+<SubscriptionContractMetadataContext contract={subscriptionContract} let:metadata>
+<CurrentAccountContext let:currentAccount >
   <MintSubscription
-    {subContract}
-    currentAccount={$currentAccount}
+    {subscriptionContract}
+    currentAccount={currentAccount}
     on:minted={onMinted}
     on:approved={(ev) => toastMessage(`Amount approved`)}
     on:mintTxSubmitted={(ev) => toast.push(`Mint Transaction submitted: ${ev.detail}`)}
@@ -42,4 +44,7 @@
         }
       })}
   />
-{/if}
+</CurrentAccountContext>
+</SubscriptionContractMetadataContext>
+</SubscriptionContractContext>
+</EthersContext>

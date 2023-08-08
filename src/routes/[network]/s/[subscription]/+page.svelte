@@ -8,6 +8,7 @@
   import SubscriptionContractContext from '$lib/components/util/SubscriptionContractContext.svelte';
   import CurrentAccountContext from '$lib/components/util/CurrentAccountContext.svelte';
   import { countUserSubscriptions, listUserSubscriptionsRev } from '$lib/web3/contracts/subscription';
+    import SubscriptionContractMetadataContext from '$lib/components/subscription/SubscriptionContractMetadataContext.svelte';
 
   export let data: PageData;
 
@@ -28,6 +29,7 @@ Subscription Contract: {addr}
         <!-- LEFT -->
         <div class="rounded-xl border-2 border-solid p-2">
           <!-- profile teaser -->
+          TODO
           {#await subscriptionContract.owner()}
             Loading...
           {:then [ownerContract, ownerId]}
@@ -39,7 +41,9 @@ Subscription Contract: {addr}
         </div>
         <div class="rounded-xl border-2 border-solid p-2">
           <!-- sub details -->
-          <SubscriptionContractDetails contract={subscriptionContract} />
+          <SubscriptionContractMetadataContext contract={subscriptionContract} let:metadata >
+            <SubscriptionContractDetails address={addr} {metadata} />
+          </SubscriptionContractMetadataContext>
         </div>
       </div>
 
