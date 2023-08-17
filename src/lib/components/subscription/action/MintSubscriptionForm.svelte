@@ -6,20 +6,29 @@
   import { type MintProps, MintPropsSchema } from '$lib/web3/contracts/subscription';
   import { validator } from '@felte/validator-zod';
   import { reporter } from '@felte/reporter-svelte';
-  import { createEventDispatcher } from 'svelte';
-  import { type ERC20, type Subscription } from '@createz/contracts/types/ethers-contracts';
-  import { matchEvents } from '$lib/web3/ethers';
-  import { ZeroAddress } from 'ethers';
-  import type { MintSubscriptionEvents } from './subscription-events';
+  import { createEventDispatcher, type EventDispatcher } from 'svelte';
+  import type { MintEvents, MintSubscriptionEvents } from './subscription-events';
   import Button from '$lib/components/Button.svelte';
+  import type { ApprovalEvents } from '$lib/web3/contracts/erc20';
 
   // TODO handle approval/permit, permit2?
 
-  export let subContract: Subscription;
-  export let currentAccount: string;
   export let allowance: bigint;
   export let balance: bigint;
-  export let token: ERC20;
+
+  export let mint: (
+    amount: bigint,
+    multiplier: number,
+    message: string,
+    dispatch: EventDispatcher<MintEvents>
+  ) => Promise<[bigint, bigint, string]>;
+
+  export let approve: (
+    amount: bigint,
+    dispatch: EventDispatcher<ApprovalEvents>
+  ) => Promise<bigint>;
+
+  export let update: () => Promise<void>;
 
   const dispatch = createEventDispatcher<MintSubscriptionEvents>();
   let formDisabled = false;
@@ -27,36 +36,17 @@
   let needsApproval = true;
 
   const doApprove = async (val: MintProps) => {
-    if (val.amount > 0 && token) {
-      const apprTx = await token.approve(subContract.getAddress(), val.amount);
-      dispatch('approvalTxSubmitted', apprTx.hash);
-      const receipt = await apprTx.wait();
-      dispatch('approved', [val.amount, receipt?.hash ?? apprTx.hash]);
-      allowance = await token.allowance(currentAccount, await subContract.getAddress());
+    if (val.amount > 0) {
+      await approve(val.amount, dispatch);
+      await update();
     } else {
       throw new Error('Approval of 0 amount or token not found');
     }
   };
 
   const doMint = async (val: MintProps) => {
-    const tx = await subContract.mint(val.amount, val.multiplier, val.message ?? '');
-    dispatch('mintTxSubmitted', tx.hash);
-
-    // TODO dirty hack until there is a fix
-    const receipt = await (await (await tx.wait())?.getTransaction())?.wait();
-
-    console.log('receipt', receipt);
-    // debugger;
-    const logs = receipt?.logs;
-    const res = await matchEvents(
-      logs as [],
-      subContract,
-      subContract.filters.Transfer(ZeroAddress, currentAccount)
-    );
-    if (res[0]) {
-      const tokenId = res[0].args.tokenId;
-      dispatch('minted', tokenId);
-    }
+    await mint(val.amount, val.multiplier, val.message ?? '', dispatch);
+    await update();
   };
 
   let action = doApprove;

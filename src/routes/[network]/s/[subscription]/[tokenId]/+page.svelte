@@ -3,14 +3,18 @@
   import type { PageData } from './$types';
   import SubscriptionDeposit from '$lib/components/subscription/action/SubscriptionDeposit.svelte';
   import SubscriptionWithdrawal from '$lib/components/subscription/action/SubscriptionWithdrawal.svelte';
-  import EthersContext from '$lib/components/util/EthersContext.svelte';
-  import SubscriptionContractContext from '$lib/components/util/SubscriptionContractContext.svelte';
-  import CurrentAccountContext from '$lib/components/util/CurrentAccountContext.svelte';
-  import SubscriptionMetadataContext from '$lib/components/subscription/SubscriptionMetadataContext.svelte';
   import { cancel, renew, withdraw, tip } from '$lib/web3/contracts/subscription';
-  import SubscriptionContractMetadataContext from '$lib/components/subscription/SubscriptionContractMetadataContext.svelte';
-  import Erc20Context from '$lib/components/util/ERC20Context.svelte';
-  import { approveFunc } from '$lib/components/subscription/action/subscription-events';
+  import {
+    CurrentAccountContext,
+    ERC20AllowanceContext,
+    ERC20BalanceContext,
+    ERC20Context,
+    EthersContext,
+    SubscriptionContractContext,
+    SubscriptionContractMetadataContext,
+    SubscriptionMetadataContext
+  } from '$lib/components/context/web3';
+  import { approveFunc } from '$lib/web3/contracts/erc20';
 
   export let data: PageData;
 
@@ -51,40 +55,50 @@
             <!-- deposit(renew) / tip -->
             <!-- withdraw / cancel -->
             <CurrentAccountContext let:currentAccount>
-              <Erc20Context
-                address={tokenAddr}
-                {ethersSigner}
-                {currentAccount}
-                spender={addr}
-                let:token
-                let:balance
-                let:allowance
-                let:update={updateErc20}
-              >
-                {@const doUpdate = async () =>
-                  await Promise.all([updateErc20(), updateTokenMetadata()]).then(() => {})}
-                <SubscriptionDeposit
-                  {allowance}
-                  {balance}
-                  approve={approveFunc(token, addr)}
-                  renew={renew(subscriptionContract, tokenId)}
-                  tip={tip(subscriptionContract, tokenId)}
-                  updateData={doUpdate}
-                />
-                {@const withdrawable = BigInt(
-                  tokenMetadata.attributes?.find((e) => e.trait_type === 'withdrawable')?.value
-                )}
-                {@const deposited = BigInt(
-                  tokenMetadata.attributes?.find((e) => e.trait_type === 'deposited')?.value
-                )}
-                <SubscriptionWithdrawal
-                  withdraw={withdraw(subscriptionContract, tokenId)}
-                  cancel={cancel(subscriptionContract, tokenId)}
-                  {withdrawable}
-                  {deposited}
-                  updateData={doUpdate}
-                />
-              </Erc20Context>
+              <ERC20Context address={tokenAddr} {ethersSigner} let:token>
+                <ERC20BalanceContext
+                  {token}
+                  account={currentAccount}
+                  let:balance
+                  let:update={updateBalance}
+                >
+                  <ERC20AllowanceContext
+                    {token}
+                    account={currentAccount}
+                    spender={addr}
+                    let:allowance
+                    let:update={updateAllowance}
+                  >
+                    {@const doUpdate = async () =>
+                      await Promise.all([
+                        updateBalance(),
+                        updateAllowance(),
+                        updateTokenMetadata()
+                      ]).then(() => {})}
+                    <SubscriptionDeposit
+                      {allowance}
+                      {balance}
+                      approve={approveFunc(token, addr)}
+                      renew={renew(subscriptionContract, tokenId)}
+                      tip={tip(subscriptionContract, tokenId)}
+                      updateData={doUpdate}
+                    />
+                    {@const withdrawable = BigInt(
+                      tokenMetadata.attributes?.find((e) => e.trait_type === 'withdrawable')?.value
+                    )}
+                    {@const deposited = BigInt(
+                      tokenMetadata.attributes?.find((e) => e.trait_type === 'deposited')?.value
+                    )}
+                    <SubscriptionWithdrawal
+                      withdraw={withdraw(subscriptionContract, tokenId)}
+                      cancel={cancel(subscriptionContract, tokenId)}
+                      {withdrawable}
+                      {deposited}
+                      updateData={doUpdate}
+                    />
+                  </ERC20AllowanceContext>
+                </ERC20BalanceContext>
+              </ERC20Context>
             </CurrentAccountContext>
           </div>
         </div>

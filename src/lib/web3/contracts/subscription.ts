@@ -4,10 +4,12 @@ import type { Subscription } from '@createz/contracts/types/ethers-contracts';
 import type { EventDispatcher } from 'svelte';
 import type {
   DepositEvents,
+  MintEvents,
   WithdrawalEvents
 } from '$lib/components/subscription/action/subscription-events';
 import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
+import { ZeroAddress } from 'ethers';
 
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
@@ -115,6 +117,38 @@ export function tip(
     dispatch('deposited', [amount, receipt.hash]);
 
     return [amount, message];
+  };
+}
+
+export function mint(
+  contract: Subscription,
+  currentAccount: string
+): (
+  amount: bigint,
+  multiplier: number,
+  message: string,
+  dispatch: EventDispatcher<MintEvents>
+) => Promise<[bigint, bigint, string]> {
+  return async (
+    amount: bigint,
+    multiplier: number,
+    message: string,
+    dispatch: EventDispatcher<MintEvents>
+  ): Promise<[bigint, bigint, string]> => {
+    const tx = await contract.mint(amount, multiplier, message);
+    dispatch('mintTxSubmitted', tx.hash);
+    const mintEvent = await findLog(
+      tx,
+      contract,
+      contract.filters.Transfer(ZeroAddress, currentAccount)
+    );
+    if (!mintEvent) {
+      throw new Error('Transaction Log not found');
+    }
+    const tokenId = mintEvent?.args.tokenId;
+    dispatch('minted', [tokenId, tx.hash]);
+
+    return [tokenId, amount, message];
   };
 }
 

@@ -2,10 +2,13 @@ import { z } from 'zod';
 
 import { ethers } from 'ethers';
 
+export type Hash = string;
+
 export const address = z.custom<`0x${string}`>((val) => {
   return ethers.isAddress(val);
 });
 
+// TODO address validation
 // TODO validations
 export const AttributeSchema = z.object({
   trait_type: z.string(),
@@ -26,7 +29,7 @@ export const MetadataSchema = z.object({
 export type Metadata = z.infer<typeof MetadataSchema>;
 
 export const AttributesMetadataSchema = MetadataSchema.extend({
-  attributes: z.array(AttributeSchema).optional(),
+  attributes: z.array(AttributeSchema).optional()
 });
 
 export type AttributesMetadata = z.infer<typeof AttributesMetadataSchema>;

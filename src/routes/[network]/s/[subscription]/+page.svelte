@@ -4,11 +4,11 @@
   import SubscriptionList from '$lib/components/subscription/SubscriptionList.svelte';
   import { page } from '$app/stores';
   import Button from '$lib/components/Button.svelte';
-  import EthersContext from '$lib/components/util/EthersContext.svelte';
-  import SubscriptionContractContext from '$lib/components/util/SubscriptionContractContext.svelte';
-  import CurrentAccountContext from '$lib/components/util/CurrentAccountContext.svelte';
-  import { countUserSubscriptions, listUserSubscriptionsRev } from '$lib/web3/contracts/subscription';
-    import SubscriptionContractMetadataContext from '$lib/components/subscription/SubscriptionContractMetadataContext.svelte';
+  import {
+    countUserSubscriptions,
+    listUserSubscriptionsRev
+  } from '$lib/web3/contracts/subscription';
+    import { CurrentAccountContext, EthersContext, SubscriptionContractContext, SubscriptionContractMetadataContext } from '$lib/components/context/web3';
 
   export let data: PageData;
 
@@ -41,7 +41,7 @@ Subscription Contract: {addr}
         </div>
         <div class="rounded-xl border-2 border-solid p-2">
           <!-- sub details -->
-          <SubscriptionContractMetadataContext contract={subscriptionContract} let:metadata >
+          <SubscriptionContractMetadataContext contract={subscriptionContract} let:metadata>
             <SubscriptionContractDetails address={addr} {metadata} />
           </SubscriptionContractMetadataContext>
         </div>
