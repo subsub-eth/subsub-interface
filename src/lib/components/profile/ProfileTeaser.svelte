@@ -1,44 +1,29 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { profileImageFallback } from '$lib/static-content';
-  import type { Metadata } from '$lib/web3/contracts/common';
-  import { decodeDataJsonTokenURI } from '$lib/web3/helpers';
-  import type { Profile } from '@createz/contracts/types/ethers-contracts';
+    import type { ProfileTokenMetadata } from '$lib/web3/contracts/profile';
 
   export let id: bigint;
-  export let profile: Profile;
+  export let metadata: ProfileTokenMetadata;
 
-  const decode = (encodedJson: string) => decodeDataJsonTokenURI<Metadata>(encodedJson);
-  $: tokenData = (async () => decode(await profile.tokenURI(id)))();
 </script>
 
 <div class="rounded-xl border-2 border-solid p-2">
   <p>id: {id}</p>
   <p><a href={`${$page.url.pathname}${id}/`}>Details</a></p>
 
-  {#await tokenData}
-    loading...
-  {:then data}
-    {#if data}
-      {#if data.image}
+      {#if metadata.image}
         <img
-          src={data.image}
-          alt="image of {data.name}"
-          on:error={() => (data.image = profileImageFallback)}
+          src={metadata.image}
+          alt={`image of ${metadata.name}`}
+          on:error={() => (metadata.image = profileImageFallback)}
         />
       {/if}
-      <p>{data.name}</p>
-      {#if data.description}
-        <p>{data.description}</p>
+      <p>{metadata.name}</p>
+      {#if metadata.description}
+        <p>{metadata.description}</p>
       {/if}
-      {#if data.external_url}
-        <p><a href={data.external_url} target="_blank">External Link</a></p>
+      {#if metadata.external_url}
+        <p><a href={metadata.external_url} target="_blank">External Link</a></p>
       {/if}
-    {:else}
-      Invalid profile data found
-    {/if}
-  {:catch err}
-    <!-- TODO -->
-    error {err}
-  {/await}
 </div>

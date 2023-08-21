@@ -89,6 +89,7 @@
                     {@const deposited = BigInt(
                       tokenMetadata.attributes?.find((e) => e.trait_type === 'deposited')?.value
                     )}
+                    <!-- TODO: disable when not owner -->
                     <SubscriptionWithdrawal
                       withdraw={withdraw(subscriptionContract, tokenId)}
                       cancel={cancel(subscriptionContract, tokenId)}

@@ -7,9 +7,12 @@ import ERC20MetadataContext from './ERC20MetadataContext.svelte';
 
 import EthersContext from './EthersContext.svelte';
 
+import ProfileContractContext from './ProfileContractContext.svelte';
+
 import SubscriptionContext from './SubscriptionContext.svelte';
 import SubscriptionContractContext from './SubscriptionContractContext.svelte';
 import SubscriptionContractMetadataContext from './SubscriptionContractMetadataContext.svelte';
+import SubscriptionManagerContractContext from './SubscriptionManagerContractContext.svelte';
 import SubscriptionMetadataContext from './SubscriptionMetadataContext.svelte';
 
 export {
@@ -19,8 +22,10 @@ export {
   ERC20Context,
   ERC20MetadataContext,
   EthersContext,
+  ProfileContractContext,
   SubscriptionContext,
   SubscriptionContractContext,
   SubscriptionContractMetadataContext,
+  SubscriptionManagerContractContext,
   SubscriptionMetadataContext
 };
