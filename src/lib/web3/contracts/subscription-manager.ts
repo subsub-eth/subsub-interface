@@ -1,6 +1,13 @@
 import { z } from 'zod';
 import { MetadataSchema, address } from './common';
 import type { ISubscriptionManager } from '@createz/contracts/types/ethers-contracts';
+import type {
+  MetadataStruct,
+  SubSettingsStruct
+} from '@createz/contracts/types/ethers-contracts/SubscriptionManager';
+import type { EventDispatcher } from 'svelte';
+import type { CreateEvents } from '$lib/components/subscription-manager/action/subscription-manager-events';
+import { findLog } from '../ethers';
 
 export const SubSettingsSchema = z.object({
   token: address,
@@ -34,4 +41,37 @@ export async function getSubscriptionContractAddresses(
   profileId: bigint
 ): Promise<Array<string>> {
   return contract.getSubscriptionContracts(profileId);
+}
+
+export function createSubscription(
+  contract: ISubscriptionManager,
+  profileId: bigint
+): (
+  name: string,
+  symbol: string,
+  metadata: MetadataStruct,
+  subSettings: SubSettingsStruct,
+  dispatch: EventDispatcher<CreateEvents>
+) => Promise<string> {
+  return async (
+    name: string,
+    symbol: string,
+    metadata: MetadataStruct,
+    subSettings: SubSettingsStruct,
+    dispatch: EventDispatcher<CreateEvents>
+  ): Promise<string> => {
+    const tx = await contract.createSubscription(name, symbol, metadata, subSettings, profileId);
+    dispatch('createTxSubmitted', tx.hash);
+    const createEvent = await findLog(
+      tx,
+      contract,
+      contract.filters.SubscriptionContractCreated(profileId)
+    );
+    if (!createEvent) {
+      throw new Error('Transaction Log not found');
+    }
+    const address = createEvent?.args.contractAddress;
+    dispatch('created', [address, tx.hash]);
+    return address;
+  };
 }

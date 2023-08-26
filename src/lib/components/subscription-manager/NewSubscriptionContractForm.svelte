@@ -12,16 +12,20 @@
     MetadataStruct,
     SubSettingsStruct
   } from '@createz/contracts/types/ethers-contracts/Subscription';
-  import type { ISubscriptionManager } from '@createz/contracts/types/ethers-contracts';
-  import { createEventDispatcher } from 'svelte';
-  import { matchEvents } from '$lib/web3/ethers';
-    import Button from '../Button.svelte';
+  import { createEventDispatcher, type EventDispatcher } from 'svelte';
+  import Button from '../Button.svelte';
+  import { type CreateSubscriptionContractEvents, type CreateEvents } from '$lib/components/subscription-manager/action/subscription-manager-events';
 
-  export let managerContract: ISubscriptionManager;
-  export let profileId: bigint;
+  export let create: (
+    name: string,
+    symbol: string,
+    metadata: MetadataStruct,
+    subSettings: SubSettingsStruct,
+    dispatch: EventDispatcher<CreateEvents>
+  ) => Promise<string>;
 
   let formDisabled = false;
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<CreateSubscriptionContractEvents>();
 
   $: ({ form } = createForm<SubscriptionContractProps>({
     async onSubmit(val) {
@@ -40,39 +44,17 @@
       };
       try {
         formDisabled = true;
-        const tx = await managerContract.createSubscription(
-          val.name,
-          val.symbol,
-          metadata,
-          subSettings,
-          profileId
-        );
-        dispatch('txSubmitted', tx.hash);
-
-        const receipt = await tx.wait();
-
-        const logs = receipt?.logs;
-        const res = await matchEvents(
-          logs as [],
-          managerContract,
-          managerContract.filters.SubscriptionContractCreated(profileId)
-        );
-        if (res[0]) {
-          const newContract = res[0].args.contractAddress;
-          dispatch('contractCreated', newContract);
-        }
-        // TODO handle waiting time
-      } catch (err: any) {
+        await create(val.name, val.symbol, metadata, subSettings, dispatch);
+      } catch (err: unknown) {
         dispatch('txFailed', err);
-
       } finally {
         formDisabled = false;
       }
     },
     transform: (value: any) => {
       console.log('transform', value);
-      if (!!value.subSettings.rate) value.subSettings.rate = BigInt(value.subSettings.rate);
-      if (!!value.subSettings.epochSize)
+      if (value.subSettings.rate) value.subSettings.rate = BigInt(value.subSettings.rate);
+      if (value.subSettings.epochSize)
         value.subSettings.epochSize = BigInt(value.subSettings.epochSize);
       return value as SubscriptionContractProps;
     },
@@ -102,7 +84,7 @@
       <NumberInput name="subSettings.epochSize" label="Size of an Epoch" required />
     </fieldset>
     <div>
-      <Button label="create" type="submit" isDisabled={formDisabled} primary={true}/>
+      <Button label="create" type="submit" isDisabled={formDisabled} primary={true} />
     </div>
   </form>
 </div>
