@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { matchEvents } from '$lib/web3/ethers';
+  import { toast } from '@zerodevx/svelte-toast';
   import { createForm } from 'felte';
   import { validator } from '@felte/validator-zod';
   import { reporter, ValidationMessage } from '@felte/reporter-svelte';
   import { MetadataSchema, type Metadata } from '$lib/web3/contracts/common';
-  import { createEventDispatcher, type EventDispatcher } from 'svelte';
-  import type { MintEvents, MintProfileEvents } from './action/profile-events';
+  import type { EventDispatcher } from 'svelte';
+  import type { MintEvents } from '$lib/components/profile/action/profile-events';
 
   export let mint: (
     name: string,
@@ -12,25 +14,49 @@
     image: string,
     externalUrl: string,
     dispatch: EventDispatcher<MintEvents>
-  ) => Promise<bigint>;
+  ) => Promise<string>;
 
-  const dispatch = createEventDispatcher<MintProfileEvents>();
   let formDisabled = false;
 
+  // TODO refactor to dispatch events for redirecting, toasts, etc.
+  // TODO redirect bug?
   const { form } = createForm<Metadata>({
     async onSubmit(values) {
       formDisabled = true;
       try {
-        await mint(
+        const tx = await profile.mint(
           values.name,
-          '' + values.description,
-          '' + values.image,
-          '' + values.external_url,
-          dispatch
+          values.description ?? '',
+          values.image ?? '',
+          values.external_url ?? ''
         );
+        toast.push(`Transaction submitted: ${tx.hash}`, { pausable: true });
+
+        const receipt = await tx.wait();
+
+        const logs = receipt?.logs;
+        if (currentAccount) {
+          const res = await matchEvents(
+            logs as [],
+            profile,
+            profile.filters.Minted(currentAccount)
+          );
+          if (res[0]) {
+            const newTokenId = res[0].args.tokenId;
+            toast.push(`New token ID: ${newTokenId}`, { pausable: true });
+            onSuccess(newTokenId);
+          }
+        }
       } catch (err) {
+        toast.push('Transaction failed', {
+          pausable: true,
+          theme: {
+            '--toastBackground': 'red',
+            '--toastColor': 'white',
+            '--toastBarBackground': 'fuchsia'
+          }
+        });
         console.error('Transaction failed', err);
-        dispatch('txFailed', err)
       } finally {
         formDisabled = false;
       }

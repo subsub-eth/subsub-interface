@@ -1,12 +1,10 @@
 import type { Hash } from '$lib/web3/contracts/common';
+import type { TxFailedEvents } from '$lib/components/common-events';
+export {TxFailedEvents};
 
 export type ApprovalEvents = {
   approvalTxSubmitted: Hash;
   approved: [bigint, Hash];
-};
-
-export type TxFailedEvents = {
-  txFailed: unknown;
 };
 
 export type MintEvents = {

@@ -2,6 +2,9 @@ import { z } from 'zod';
 import { AttributesMetadataSchema } from './common';
 import type { Profile } from '@createz/contracts/types/ethers-contracts';
 import { decodeDataJsonTokenURI } from '../helpers';
+import type { EventDispatcher } from 'svelte';
+import type { MintEvents } from '$lib/components/profile/action/profile-events';
+import { findLog } from '../ethers';
 
 export const ProfileTokenMetadataSchema = AttributesMetadataSchema.extend({});
 
@@ -15,6 +18,36 @@ export async function countUserProfiles(contract: Profile, account: string): Pro
 export async function totalSupply(contract: Profile): Promise<number> {
   const count = await contract.totalSupply();
   return Number(count);
+}
+
+export function mint(
+  contract: Profile,
+  account: string
+): (
+  name: string,
+  description: string,
+  image: string,
+  externalUrl: string,
+  dispatch: EventDispatcher<MintEvents>
+) => Promise<bigint> {
+  return async (
+    name: string,
+    description: string,
+    image: string,
+    externalUrl: string,
+    dispatch: EventDispatcher<MintEvents>
+  ): Promise<bigint> => {
+    const tx = await contract.mint(name, description, image, externalUrl);
+    dispatch('mintTxSubmitted', tx.hash);
+    const mintEvent = await findLog(tx, contract, contract.filters.Minted(account));
+    if (!mintEvent) {
+      throw new Error('Transaction Log not found');
+    }
+    const tokenId = mintEvent?.args.tokenId;
+    dispatch('minted', [tokenId, tx.hash]);
+
+    return tokenId;
+  };
 }
 
 export function listUserProfilesRev(
