@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { AttributesMetadataSchema } from './common';
-import type { Subscription } from '@createz/contracts/types/ethers-contracts';
+import {
+  Subscription__factory,
+  type Subscription
+} from '@createz/contracts/types/ethers-contracts';
 import type { EventDispatcher } from 'svelte';
 import type {
   DepositEvents,
@@ -9,7 +12,7 @@ import type {
 } from '$lib/components/subscription/action/subscription-events';
 import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
-import { ZeroAddress } from 'ethers';
+import { ZeroAddress, type Signer } from 'ethers';
 
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
@@ -39,6 +42,10 @@ export type MintProps = z.infer<typeof MintPropsSchema>;
 export const SubscriptionTokenMetadataSchema = AttributesMetadataSchema.extend({});
 
 export type SubscriptionTokenMetadata = z.infer<typeof SubscriptionTokenMetadataSchema>;
+
+export const SubscriptionContractMetadataSchema = AttributesMetadataSchema.extend({});
+
+export type SubscriptionContractMetadata = z.infer<typeof SubscriptionContractMetadataSchema>;
 
 export function withdraw(
   contract: Subscription,
@@ -179,6 +186,32 @@ export function listUserSubscriptionsRev(
       const encoded = await contract.tokenURI(id);
       const data = decodeDataJsonTokenURI<SubscriptionTokenMetadata>(encoded);
       return [contractAddress, id, data];
+    };
+
+    const data = [...Array(count).keys()].map((i) => load(i));
+    return Promise.all(data);
+  };
+
+  return func;
+}
+
+export function listSubscriptionContracts(
+  ethers: Signer,
+  addresses: string[],
+  pageSize: number
+): (page: number) => Promise<[string, SubscriptionContractMetadata][]> {
+  // TODO multicall
+  const func = async (page: number): Promise<[string, SubscriptionContractMetadata][]> => {
+    const index = page * pageSize;
+    const totalItems = addresses.length;
+    const count = Math.max(Math.min(totalItems - index, pageSize), 0);
+
+    const load = async (i: number): Promise<[string, SubscriptionContractMetadata]> => {
+      const address = addresses[i + index];
+      const contract = Subscription__factory.connect(address, ethers);
+      const encoded = await contract.contractURI();
+      const data = decodeDataJsonTokenURI<SubscriptionTokenMetadata>(encoded);
+      return [address, data];
     };
 
     const data = [...Array(count).keys()].map((i) => load(i));

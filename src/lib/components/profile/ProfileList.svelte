@@ -1,11 +1,9 @@
 <script lang="ts">
-    import type { ProfileTokenMetadata } from '$lib/web3/contracts/profile';
+  import type { ProfileTokenMetadata } from '$lib/web3/contracts/profile';
   import ProfileTeaser from './ProfileTeaser.svelte';
 
   export let pages: number;
-  export let load: (
-    page: number
-  ) => Promise<Array<[bigint, ProfileTokenMetadata]>>;
+  export let load: (page: number) => Promise<Array<[bigint, ProfileTokenMetadata]>>;
 
   let currentPage = 0;
 </script>
