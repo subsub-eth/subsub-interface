@@ -9,7 +9,7 @@
 
 <div class="rounded-xl border-2 border-solid p-2">
   <p>id: {id}</p>
-  <Url path={`/[network]/p/${id}/`} let:path>
+  <Url template={`/[network]/p/${id}/`} let:path>
     <p><a href={path}>Details</a></p>
   </Url>
 

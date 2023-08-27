@@ -1,12 +1,9 @@
 <script lang="ts">
-  import { NETWORK, requireContext } from '$lib/contexts';
   import type { SubscriptionContractMetadata } from '$lib/web3/contracts/subscription';
+  import Url from '../Url.svelte';
 
   export let address: string;
   export let metadata: SubscriptionContractMetadata;
-
-  // TODO better way to generate links?
-  const network = requireContext<string>(NETWORK);
 </script>
 
 <div class="rounded-xl border-2 border-solid p-2">
@@ -20,12 +17,12 @@
   <div>
     <a href={metadata.external_url}>external url</a>
   </div>
-  {#each metadata.attributes ?? [] as attribute}
-    <div>
-      {attribute.trait_type}: {attribute.value}
-    </div>
-  {/each}
   <div>
-    <a href={`/${network}/s/${address}/`}>Details</a>
+    token: {metadata.token}
+  </div>
+  <div>
+    <Url template={`/[network]/s/${address}/`} let:path>
+      <a href={path}>Details</a>
+    </Url>
   </div>
 </div>

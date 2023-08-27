@@ -1,12 +1,12 @@
 <script lang="ts">
   import { page } from '$app/stores';
 
-  export let path: string;
+  export let template: string;
 
   const isDynamic = (segment: string) =>
     segment.length > 2 && segment.startsWith('[') && segment.endsWith(']');
 
-  const replacedPath = path
+  const replacedPath = template
     .split('/')
     .map((s) => {
       const params = $page?.params;

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MetadataSchema, address } from './common';
+import { MetadataSchema, AddressSchema } from './common';
 import type { ISubscriptionManager } from '@createz/contracts/types/ethers-contracts';
 import type {
   MetadataStruct,
@@ -10,7 +10,7 @@ import type { CreateEvents } from '$lib/components/subscription-manager/action/s
 import { findLog } from '../ethers';
 
 export const SubSettingsSchema = z.object({
-  token: address,
+  token: AddressSchema,
   rate: z.bigint(),
   lock: z
     .number()

@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { AttributesMetadataSchema } from './common';
+import {
+  AttributesMetadataSchema,
+  MetadataSchema,
+  type AttributesMetadata,
+  AddressSchema,
+  fromAttributes
+} from './common';
 import {
   Subscription__factory,
   type Subscription
@@ -43,9 +49,46 @@ export const SubscriptionTokenMetadataSchema = AttributesMetadataSchema.extend({
 
 export type SubscriptionTokenMetadata = z.infer<typeof SubscriptionTokenMetadataSchema>;
 
-export const SubscriptionContractMetadataSchema = AttributesMetadataSchema.extend({});
+export const SubscriptionContractMetadataSchema = MetadataSchema.extend({
+  token: AddressSchema,
+  rate: z.number(),
+  lock: z.number(),
+  epochSize: z.number(),
+  ownerContract: AddressSchema,
+  ownerId: z.bigint(),
+  ownerAddress: AddressSchema
+});
 
 export type SubscriptionContractMetadata = z.infer<typeof SubscriptionContractMetadataSchema>;
+
+export async function contractMetadata(
+  contract: Subscription
+): Promise<SubscriptionContractMetadata> {
+  const encoded = await contract.contractURI();
+  const decoded = decodeDataJsonTokenURI<AttributesMetadata>(encoded);
+
+  try {
+    const m = AttributesMetadataSchema.parse(decoded);
+
+    const a = fromAttributes(m.attributes ?? []);
+    return {
+      name: m.name,
+      description: m.description,
+      image: m.image,
+      external_url: m.external_url,
+      rate: a.number('rate'),
+      lock: a.number('lock'),
+      epochSize: a.number('epoch_size'),
+      token: a.address('token'),
+      ownerId: a.bigint('owner_id'),
+      ownerAddress: a.address('owner_address'),
+      ownerContract: a.address('owner_contract')
+    };
+  } catch (err) {
+    console.error('received subscription contract metadata is malformed', decoded, err);
+    throw err;
+  }
+}
 
 export function withdraw(
   contract: Subscription,
@@ -209,8 +252,7 @@ export function listSubscriptionContracts(
     const load = async (i: number): Promise<[string, SubscriptionContractMetadata]> => {
       const address = addresses[i + index];
       const contract = Subscription__factory.connect(address, ethers);
-      const encoded = await contract.contractURI();
-      const data = decodeDataJsonTokenURI<SubscriptionTokenMetadata>(encoded);
+      const data = await contractMetadata(contract);
       return [address, data];
     };
 

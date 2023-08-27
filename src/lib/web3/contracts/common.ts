@@ -4,15 +4,15 @@ import { ethers } from 'ethers';
 
 export type Hash = string;
 
-export const address = z.custom<`0x${string}`>((val) => {
+export const AddressSchema = z.custom<`0x${string}`>((val) => {
   return ethers.isAddress(val);
 });
 
-// TODO address validation
-// TODO validations
+export type address = z.infer<typeof AddressSchema>;
+
 export const AttributeSchema = z.object({
   trait_type: z.string(),
-  value: z.union([z.string(), z.bigint()])
+  value: z.union([z.string(), z.bigint(), z.number()])
 });
 
 export type Attribute = z.infer<typeof AttributeSchema>;
@@ -33,3 +33,42 @@ export const AttributesMetadataSchema = MetadataSchema.extend({
 });
 
 export type AttributesMetadata = z.infer<typeof AttributesMetadataSchema>;
+
+function getValue(attributes: Array<Attribute>, name: string): unknown {
+  return attributes
+    .filter((a) => a.trait_type === name)
+    .map((a) => a.value)
+    .find(() => true);
+}
+
+export type AttributeExtractor = {
+  bigint: (name: string) => bigint;
+  string: (name: string) => string;
+  number: (name: string) => number;
+  address: (name: string) => address;
+};
+
+export function fromAttributes(attributes: Array<Attribute>): AttributeExtractor {
+  return {
+    bigint: (name: string) => getBigint(attributes, name),
+    string: (name: string) => getString(attributes, name),
+    number: (name: string) => getNumber(attributes, name),
+    address: (name: string) => getAddress(attributes, name)
+  };
+}
+
+function getBigint(attributes: Array<Attribute>, name: string): bigint {
+  return z.coerce.bigint().parse(getValue(attributes, name));
+}
+
+function getString(attributes: Array<Attribute>, name: string): string {
+  return z.string().parse(getValue(attributes, name));
+}
+
+function getAddress(attributes: Array<Attribute>, name: string): address {
+  return AddressSchema.parse(getValue(attributes, name));
+}
+
+function getNumber(attributes: Array<Attribute>, name: string): number {
+  return z.coerce.number().parse(getValue(attributes, name));
+}
