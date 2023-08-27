@@ -9,6 +9,7 @@
     listUserSubscriptionsRev
   } from '$lib/web3/contracts/subscription';
     import { CurrentAccountContext, EthersContext, SubscriptionContractContext, SubscriptionContractMetadataContext } from '$lib/components/context/web3';
+    import SubscriptionContractControl from '$lib/components/subscription/SubscriptionContractControl.svelte';
 
   export let data: PageData;
 
@@ -41,8 +42,9 @@ Subscription Contract: {addr}
         </div>
         <div class="rounded-xl border-2 border-solid p-2">
           <!-- sub details -->
-          <SubscriptionContractMetadataContext contract={subscriptionContract} let:metadata>
+          <SubscriptionContractMetadataContext contract={subscriptionContract} let:metadata let:update>
             <SubscriptionContractDetails address={addr} {metadata} />
+            <SubscriptionContractControl {metadata} on:change={() => update()}/>
           </SubscriptionContractMetadataContext>
         </div>
       </div>

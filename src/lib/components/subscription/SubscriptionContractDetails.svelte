@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { SubscriptionTokenMetadata } from '$lib/web3/contracts/subscription';
+  import type { SubscriptionContractMetadata } from '$lib/web3/contracts/subscription';
 
   export let address: string;
-  export let metadata: SubscriptionTokenMetadata;
+  export let metadata: SubscriptionContractMetadata;
 </script>
 
 <div>
@@ -17,9 +17,10 @@
   <div>
     <a href={metadata.external_url}>external url</a>
   </div>
-  {#each metadata.attributes ?? [] as attribute}
-    <div>
-      {attribute.trait_type}: {attribute.value}
-    </div>
-  {/each}
+  <div>
+    token: {metadata.token}
+  </div>
+  <div>
+    rate: {metadata.rate}
+  </div>
 </div>

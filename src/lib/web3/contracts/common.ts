@@ -27,7 +27,7 @@ export type address = z.infer<typeof AddressSchema>;
 
 export const AttributeSchema = z.object({
   trait_type: z.string(),
-  value: z.union([z.string(), z.bigint(), z.number()])
+  value: z.union([z.string(), z.bigint(), z.number(), z.boolean()])
 });
 
 export type Attribute = z.infer<typeof AttributeSchema>;
@@ -61,6 +61,7 @@ export type AttributeExtractor<T> = {
   string: (name: KeyOfType<T, string>) => string;
   number: (name: KeyOfType<T, number>) => number;
   address: (name: KeyOfType<T, address>) => address;
+  boolean: (name: KeyOfType<T, boolean>) => boolean;
 };
 
 export function fromAttributes<T>(attributes: Array<Attribute>): AttributeExtractor<T> {
@@ -68,7 +69,8 @@ export function fromAttributes<T>(attributes: Array<Attribute>): AttributeExtrac
     bigint: (name: KeyOfType<T, bigint>) => getBigint(attributes, String(name)),
     string: (name: KeyOfType<T, string>) => getString(attributes, String(name)),
     number: (name: KeyOfType<T, number>) => getNumber(attributes, String(name)),
-    address: (name: KeyOfType<T, address>) => getAddress(attributes, String(name))
+    address: (name: KeyOfType<T, address>) => getAddress(attributes, String(name)),
+    boolean: (name: KeyOfType<T, boolean>) => getBoolean(attributes, String(name))
   };
 }
 
@@ -86,4 +88,8 @@ function getAddress(attributes: Array<Attribute>, name: string): address {
 
 function getNumber(attributes: Array<Attribute>, name: string): number {
   return z.coerce.number().parse(getValue(attributes, name));
+}
+
+function getBoolean(attributes: Array<Attribute>, name: string): boolean {
+  return z.boolean().parse(getValue(attributes, name));
 }

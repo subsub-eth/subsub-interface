@@ -1,6 +1,5 @@
 <script lang="ts">
-  import type { SubscriptionContractMetadata } from '$lib/web3/contracts/subscription';
-  import { decodeDataJsonTokenURI } from '$lib/web3/helpers';
+  import { contractMetadata, type SubscriptionContractMetadata } from '$lib/web3/contracts/subscription';
   import type { Subscription } from '@createz/contracts/types/ethers-contracts';
 
   export let contract: Subscription;
@@ -16,8 +15,7 @@
 
   $: (async () => {
     counter;
-    const encoded = await contract.contractURI();
-    metadata = decodeDataJsonTokenURI<SubscriptionContractMetadata>(encoded);
+    metadata = await contractMetadata(contract);
   })();
 
   const update = async () => {

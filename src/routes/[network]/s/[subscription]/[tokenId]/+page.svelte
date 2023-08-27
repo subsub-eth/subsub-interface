@@ -36,8 +36,6 @@
         let:metadata={tokenMetadata}
         let:update={updateTokenMetadata}
       >
-        {@const tokenAddr =
-          '' + contractMetadata.attributes?.find((e) => e.trait_type === 'token')?.value}
         <div>
           <div>
             <!-- LEFT -->
@@ -55,7 +53,7 @@
             <!-- deposit(renew) / tip -->
             <!-- withdraw / cancel -->
             <CurrentAccountContext let:currentAccount>
-              <ERC20Context address={tokenAddr} {ethersSigner} let:token>
+              <ERC20Context address={contractMetadata.token} {ethersSigner} let:token>
                 <ERC20BalanceContext
                   {token}
                   account={currentAccount}

@@ -1,8 +1,5 @@
 import { dev } from '$app/environment';
 
-export const profileContractAddr = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
-export const subscriptionManagerContractAddr = '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6';
-
 export interface Chains {
   localhost: ChainData;
   polygon: ChainData;
@@ -36,9 +33,9 @@ const chains: Chains = {
     token: 'ETH',
     rpcUrl: 'http://localhost:8545',
     contracts : {
-      profile: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
-      subscriptionManager: '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
-      testErc20: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
+      profile: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+      subscriptionManager: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
+      testErc20: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
     }
   },
   polygon: {

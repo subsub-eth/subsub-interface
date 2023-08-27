@@ -56,7 +56,10 @@ const SubscriptionContractExtendedMetadataSchema = z.object({
   epochSize: z.number(),
   ownerContract: AddressSchema,
   ownerId: z.bigint(),
-  ownerAddress: AddressSchema
+  ownerAddress: AddressSchema,
+  claimable: z.bigint(),
+  totalClaimed: z.bigint(),
+  paused: z.boolean(),
 });
 
 type SubscriptionContractExtendedMetadata = z.infer<
@@ -90,7 +93,10 @@ export async function contractMetadata(
       token: a.address('token'),
       ownerId: a.bigint('owner_id'),
       ownerAddress: a.address('owner_address'),
-      ownerContract: a.address('owner_contract')
+      ownerContract: a.address('owner_contract'),
+      claimable: a.bigint('claimable'),
+      totalClaimed: a.bigint('total_claimed'),
+      paused: a.boolean('paused'),
     };
   } catch (err) {
     console.error('received subscription contract metadata is malformed', decoded, err);
