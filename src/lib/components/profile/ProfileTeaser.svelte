@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { page } from '$app/stores';
   import { profileImageFallback } from '$lib/static-content';
   import type { ProfileTokenMetadata } from '$lib/web3/contracts/profile';
+  import Url from '../Url.svelte';
 
   export let id: bigint;
   export let metadata: ProfileTokenMetadata;
@@ -9,7 +9,9 @@
 
 <div class="rounded-xl border-2 border-solid p-2">
   <p>id: {id}</p>
-  <p><a href={`${$page.url.pathname}${id}/`}>Details</a></p>
+  <Url path={`/[network]/p/${id}/`} let:path>
+    <p><a href={path}>Details</a></p>
+  </Url>
 
   {#if metadata.image}
     <img
