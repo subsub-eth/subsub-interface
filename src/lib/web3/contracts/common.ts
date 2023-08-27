@@ -2,6 +2,21 @@ import { z } from 'zod';
 
 import { ethers } from 'ethers';
 
+type RemoveUnderscoreFirstLetter<S extends string> = S extends `${infer FirstLetter}${infer U}`
+  ? `${FirstLetter extends '_' ? U : `${FirstLetter}${U}`}`
+  : S;
+
+type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
+  ? `${T extends Capitalize<T> ? '_' : ''}${RemoveUnderscoreFirstLetter<
+      Lowercase<T>
+    >}${CamelToSnakeCase<U>}`
+  : S;
+
+export type KeyOfType<T, V> = keyof {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [P in keyof T as T[P] extends V ? CamelToSnakeCase<P & string> : never]: any;
+};
+
 export type Hash = string;
 
 export const AddressSchema = z.custom<`0x${string}`>((val) => {
@@ -41,19 +56,19 @@ function getValue(attributes: Array<Attribute>, name: string): unknown {
     .find(() => true);
 }
 
-export type AttributeExtractor = {
-  bigint: (name: string) => bigint;
-  string: (name: string) => string;
-  number: (name: string) => number;
-  address: (name: string) => address;
+export type AttributeExtractor<T> = {
+  bigint: (name: KeyOfType<T, bigint>) => bigint;
+  string: (name: KeyOfType<T, string>) => string;
+  number: (name: KeyOfType<T, number>) => number;
+  address: (name: KeyOfType<T, address>) => address;
 };
 
-export function fromAttributes(attributes: Array<Attribute>): AttributeExtractor {
+export function fromAttributes<T>(attributes: Array<Attribute>): AttributeExtractor<T> {
   return {
-    bigint: (name: string) => getBigint(attributes, name),
-    string: (name: string) => getString(attributes, name),
-    number: (name: string) => getNumber(attributes, name),
-    address: (name: string) => getAddress(attributes, name)
+    bigint: (name: KeyOfType<T, bigint>) => getBigint(attributes, String(name)),
+    string: (name: KeyOfType<T, string>) => getString(attributes, String(name)),
+    number: (name: KeyOfType<T, number>) => getNumber(attributes, String(name)),
+    address: (name: KeyOfType<T, address>) => getAddress(attributes, String(name))
   };
 }
 

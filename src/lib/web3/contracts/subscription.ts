@@ -49,7 +49,7 @@ export const SubscriptionTokenMetadataSchema = AttributesMetadataSchema.extend({
 
 export type SubscriptionTokenMetadata = z.infer<typeof SubscriptionTokenMetadataSchema>;
 
-export const SubscriptionContractMetadataSchema = MetadataSchema.extend({
+const SubscriptionContractExtendedMetadataSchema = z.object({
   token: AddressSchema,
   rate: z.number(),
   lock: z.number(),
@@ -58,6 +58,14 @@ export const SubscriptionContractMetadataSchema = MetadataSchema.extend({
   ownerId: z.bigint(),
   ownerAddress: AddressSchema
 });
+
+type SubscriptionContractExtendedMetadata = z.infer<
+  typeof SubscriptionContractExtendedMetadataSchema
+>;
+
+export const SubscriptionContractMetadataSchema = MetadataSchema.and(
+  SubscriptionContractExtendedMetadataSchema
+);
 
 export type SubscriptionContractMetadata = z.infer<typeof SubscriptionContractMetadataSchema>;
 
@@ -70,7 +78,7 @@ export async function contractMetadata(
   try {
     const m = AttributesMetadataSchema.parse(decoded);
 
-    const a = fromAttributes(m.attributes ?? []);
+    const a = fromAttributes<SubscriptionContractExtendedMetadata>(m.attributes ?? []);
     return {
       name: m.name,
       description: m.description,
