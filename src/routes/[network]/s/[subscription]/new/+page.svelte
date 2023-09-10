@@ -34,9 +34,8 @@
 <EthersContext let:ethersSigner>
   <SubscriptionContractContext address={addr} {ethersSigner} let:subscriptionContract>
     <SubscriptionContractMetadataContext contract={subscriptionContract} let:metadata>
-      {@const tokenAddr = '' + metadata.attributes?.find((e) => e.trait_type === 'token')?.value}
       <CurrentAccountContext let:currentAccount>
-        <ERC20Context address={tokenAddr} {ethersSigner} let:token>
+        <ERC20Context address={metadata.token} {ethersSigner} let:token>
           <ERC20AllowanceContext
             {token}
             account={currentAccount}
