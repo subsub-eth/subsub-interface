@@ -6,7 +6,7 @@
   const isDynamic = (segment: string) =>
     segment.length > 2 && segment.startsWith('[') && segment.endsWith(']');
 
-  const replacedPath = template
+  $: replacedPath = template
     .split('/')
     .map((s) => {
       const params = $page?.params;
