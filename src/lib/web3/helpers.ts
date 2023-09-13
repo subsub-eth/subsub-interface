@@ -1,3 +1,6 @@
+import { ZeroAddress } from "ethers";
+import { AddressSchema } from "./contracts/common";
+
 const dataJsonPrelude = 'data:application/json;base64,';
 
 export function decodeDataJsonTokenURI<T>(encodedJson: string): T {
@@ -15,3 +18,5 @@ export function addressEquals(a: string | null | undefined, b: string | null | u
   }
   return a?.toLowerCase() === b?.toLowerCase();
 }
+
+export const zeroAddress = AddressSchema.parse(ZeroAddress);

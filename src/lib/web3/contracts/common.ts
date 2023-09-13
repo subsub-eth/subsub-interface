@@ -19,6 +19,10 @@ export type KeyOfType<T, V> = keyof {
 
 export type Hash = string;
 
+export const BigNumberishSchema = z.union([z.number(), z.bigint()]);
+
+export type BigNumberish = z.infer<typeof BigNumberishSchema>;
+
 export const AddressSchema = z.custom<`0x${string}`>((val) => {
   return ethers.isAddress(val);
 });
@@ -57,7 +61,7 @@ function getValue(attributes: Array<Attribute>, name: string): unknown {
 }
 
 export type AttributeExtractor<T> = {
-  bigint: (name: KeyOfType<T, bigint>) => bigint;
+  bigint: (name: KeyOfType<T, BigNumberish>) => BigNumberish;
   string: (name: KeyOfType<T, string>) => string;
   number: (name: KeyOfType<T, number>) => number;
   address: (name: KeyOfType<T, address>) => address;
@@ -66,7 +70,7 @@ export type AttributeExtractor<T> = {
 
 export function fromAttributes<T>(attributes: Array<Attribute>): AttributeExtractor<T> {
   return {
-    bigint: (name: KeyOfType<T, bigint>) => getBigint(attributes, String(name)),
+    bigint: (name: KeyOfType<T, BigNumberish>) => getBigint(attributes, String(name)),
     string: (name: KeyOfType<T, string>) => getString(attributes, String(name)),
     number: (name: KeyOfType<T, number>) => getNumber(attributes, String(name)),
     address: (name: KeyOfType<T, address>) => getAddress(attributes, String(name)),

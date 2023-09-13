@@ -4,7 +4,8 @@ import {
   MetadataSchema,
   type AttributesMetadata,
   AddressSchema,
-  fromAttributes
+  fromAttributes,
+  BigNumberishSchema
 } from './common';
 import {
   Subscription__factory,
@@ -55,10 +56,10 @@ const SubscriptionContractExtendedMetadataSchema = z.object({
   lock: z.number(),
   epochSize: z.number(),
   ownerContract: AddressSchema,
-  ownerId: z.bigint(),
+  ownerId: BigNumberishSchema,
   ownerAddress: AddressSchema,
-  claimable: z.bigint(),
-  totalClaimed: z.bigint(),
+  claimable: BigNumberishSchema,
+  totalClaimed: BigNumberishSchema,
   paused: z.boolean(),
 });
 
