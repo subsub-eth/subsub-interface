@@ -13,6 +13,7 @@ import {
 } from '@createz/contracts/types/ethers-contracts';
 import type { EventDispatcher } from 'svelte';
 import type {
+    ClaimEvents,
   DepositEvents,
   MintEvents,
   WithdrawalEvents
@@ -21,7 +22,6 @@ import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
 import { ZeroAddress, type Signer } from 'ethers';
 import type { PauseEvents, UnpauseEvents } from '$lib/components/common-events';
-import type { Address } from '@web3-onboard/core/dist/types';
 
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
@@ -260,6 +260,34 @@ export function pause(
       throw new Error('Transaction Log not found');
     }
     dispatch('paused', tx.hash);
+  };
+}
+
+export function claim(
+  contract: Subscription
+): (
+  dispatch: EventDispatcher<ClaimEvents>
+) => Promise<void> {
+  return async (
+    dispatch: EventDispatcher<ClaimEvents>
+  ): Promise<void> => {
+    // we increase the gas estimate as `claim` iterates over epochs which
+    // might require more gas between estimate and actual execution
+    const gasEstimate = await contract.claim.estimateGas();
+
+    // increase to 110% of original estimate
+    const increasedGas = (gasEstimate * 11n) / 10n;
+    const tx = await contract.claim({gasLimit: increasedGas});
+    dispatch('claimTxSubmitted', tx.hash);
+    const claimEvent = await findLog(
+      tx,
+      contract,
+      contract.filters.FundsClaimed()
+    );
+    if (!claimEvent) {
+      throw new Error('Transaction Log not found');
+    }
+    dispatch('claimed', [claimEvent.args.amount, tx.hash]);
   };
 }
 

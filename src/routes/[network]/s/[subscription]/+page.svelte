@@ -5,6 +5,7 @@
   import { page } from '$app/stores';
   import Button from '$lib/components/Button.svelte';
   import {
+    claim,
     countUserSubscriptions,
     listUserSubscriptionsRev,
     pause,
@@ -54,8 +55,14 @@ Subscription Contract: {addr}
                 {metadata}
                 pause={pause(subscriptionContract)}
                 unpause={unpause(subscriptionContract)}
+                claim={claim(subscriptionContract)}
                 on:paused={() => update()}
                 on:unpaused={() => update()}
+                on:claimed={() => {
+                  console.log('updating info on claimed');
+                  update();
+                  console.log('metadata updated on claimed');
+                  }}
               />
             </div>
           </div>
