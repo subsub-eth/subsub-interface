@@ -20,6 +20,8 @@ import type {
 import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
 import { ZeroAddress, type Signer } from 'ethers';
+import type { PauseEvents, UnpauseEvents } from '$lib/components/common-events';
+import type { Address } from '@web3-onboard/core/dist/types';
 
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
@@ -214,6 +216,50 @@ export function mint(
     dispatch('minted', [tokenId, tx.hash]);
 
     return [tokenId, amount, message];
+  };
+}
+
+export function unpause(
+  contract: Subscription
+): (
+  dispatch: EventDispatcher<UnpauseEvents>
+) => Promise<void> {
+  return async (
+    dispatch: EventDispatcher<UnpauseEvents>
+  ): Promise<void> => {
+    const tx = await contract.unpause();
+    dispatch('unpauseTxSubmitted', tx.hash);
+    const unpauseEvent = await findLog(
+      tx,
+      contract,
+      contract.filters.Unpaused()
+    );
+    if (!unpauseEvent) {
+      throw new Error('Transaction Log not found');
+    }
+    dispatch('unpaused', tx.hash);
+  };
+}
+
+export function pause(
+  contract: Subscription
+): (
+  dispatch: EventDispatcher<PauseEvents>
+) => Promise<void> {
+  return async (
+    dispatch: EventDispatcher<PauseEvents>
+  ): Promise<void> => {
+    const tx = await contract.pause();
+    dispatch('pauseTxSubmitted', tx.hash);
+    const pauseEvent = await findLog(
+      tx,
+      contract,
+      contract.filters.Paused()
+    );
+    if (!pauseEvent) {
+      throw new Error('Transaction Log not found');
+    }
+    dispatch('paused', tx.hash);
   };
 }
 

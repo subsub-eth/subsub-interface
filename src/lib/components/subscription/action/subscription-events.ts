@@ -1,5 +1,5 @@
 import type { Hash } from '$lib/web3/contracts/common';
-import type { TxFailedEvents } from '$lib/components/common-events';
+import type { PauseEvents, TxFailedEvents, UnpauseEvents } from '$lib/components/common-events';
 export {TxFailedEvents};
 
 export type ApprovalEvents = {
@@ -26,3 +26,7 @@ export type WithdrawalEvents = {
 export type DepositSubscriptionEvents = DepositEvents & ApprovalEvents & TxFailedEvents;
 
 export type WithdrawSubscriptionEvents = WithdrawalEvents & TxFailedEvents;
+
+export type PauseSubscriptionContractEvents = PauseEvents & TxFailedEvents;
+
+export type UnpauseSubscriptionContractEvents = UnpauseEvents & TxFailedEvents;
