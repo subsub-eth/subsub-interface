@@ -4,27 +4,30 @@
 
   export let contract: Subscription;
 
-  let counter = 0;
-
   let address: string;
   let metadata: SubscriptionContractMetadata;
+
+  let loading = true;
+
+  const loadData = async (contract: Subscription) => {
+    loading = true;
+    metadata = await contractMetadata(contract);
+    loading = false;
+  }
 
   $: (async () => {
     address = await contract.getAddress();
   })();
 
-  $: (async () => {
-    counter;
-    metadata = await contractMetadata(contract);
-  })();
+  $: loadData(contract);
 
   const update = async () => {
-    counter++;
+    await loadData(contract);
   };
 </script>
 
 {#if address && metadata}
-  <slot {address} {metadata} {update} />
+  <slot {address} {metadata} {loading} {update} />
 {:else}
   Loading contract metadata
 {/if}
