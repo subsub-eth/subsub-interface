@@ -19,7 +19,7 @@ export type KeyOfType<T, V> = keyof {
 
 export type Hash = string;
 
-export const BigNumberishSchema = z.union([z.number(), z.bigint()]);
+export const BigNumberishSchema = z.union([z.string(), z.number(), z.bigint()]);
 
 export type BigNumberish = z.infer<typeof BigNumberishSchema>;
 
