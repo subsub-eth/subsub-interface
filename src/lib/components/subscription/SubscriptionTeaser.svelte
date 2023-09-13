@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { NETWORK, requireContext } from '$lib/contexts';
   import type { SubscriptionTokenMetadata } from '$lib/web3/contracts/subscription';
+  import Url from '../Url.svelte';
 
+  /**
+   * Address of the contract this token is defined in
+   */
   export let contractAddress: string;
   export let tokenId: bigint;
   export let metadata: SubscriptionTokenMetadata;
-
-  // TODO remove me
-  const network = requireContext<string>(NETWORK);
 </script>
 
 <div class="rounded-xl border-2 border-solid p-2">
@@ -31,6 +31,8 @@
     </div>
   {/each}
   <div>
-    <a href={`/${network}/s/${contractAddress}/${tokenId}/`}>Details</a>
+    <Url template={`/[network]/s/${contractAddress}/${tokenId}/`} let:path>
+      <a href={path}>Details</a>
+    </Url>
   </div>
 </div>
