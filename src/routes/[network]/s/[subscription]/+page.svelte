@@ -53,16 +53,18 @@ Subscription Contract: {addr}
               <SubscriptionContractDetails address={addr} {metadata} />
               <SubscriptionContractControl
                 {metadata}
-                pause={pause(subscriptionContract)}
-                unpause={unpause(subscriptionContract)}
-                claim={claim(subscriptionContract)}
-                on:paused={() => update()}
-                on:unpaused={() => update()}
-                on:claimed={() => {
-                  console.log('updating info on claimed');
-                  update();
-                  console.log('metadata updated on claimed');
-                  }}
+                pause={async (d) => {
+                  await pause(subscriptionContract)(d);
+                  await update();
+                }}
+                unpause={async (d) => {
+                  await unpause(subscriptionContract)(d);
+                  await update();
+                }}
+                claim={async (d) => {
+                  await claim(subscriptionContract)(d);
+                  await update();
+                }}
               />
             </div>
           </div>

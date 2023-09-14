@@ -2,6 +2,8 @@
   import { twMerge } from 'tailwind-merge';
   import Loading from './Loading.svelte';
 
+  // TODO when loading do not show as disabled, but still unclickable
+
   /**
    * Is this the principal call to action on the page?
    */
@@ -43,9 +45,9 @@
     const p: any = {};
     let c = '';
     if (href) {
-      c = isDisabled ? 'pointer-events-none opacity-60' : '';
+      c = isDisabled || isLoading ? 'pointer-events-none opacity-60' : '';
     } else {
-      p.disabled = isDisabled;
+      p.disabled = isDisabled || isLoading;
     }
     props = p;
     classes = c;

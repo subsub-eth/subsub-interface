@@ -17,12 +17,35 @@
   export let claim: (dispatch: EventDispatcher<ClaimEvents>) => Promise<void>;
 
   let claimProcessing = false;
+  let pauseProcessing = false;
 
   const dispatch = createEventDispatcher<
     PauseSubscriptionContractEvents &
       UnpauseSubscriptionContractEvents &
       ClaimSubscriptionContractEvents
   >();
+
+  const doClaim = async () => {
+    claimProcessing = true;
+    try {
+      await claim(dispatch);
+    } finally {
+      claimProcessing = false;
+    }
+  };
+
+  const doPauseAction = async (
+    action: (
+      dispatcher: EventDispatcher<PauseEvents> | EventDispatcher<UnpauseEvents>
+    ) => Promise<void>
+  ) => {
+    pauseProcessing = true;
+    try {
+      await action(dispatch);
+    } finally {
+      pauseProcessing = false;
+    }
+  };
 </script>
 
 <div>
@@ -42,19 +65,12 @@
   <Button
     label="Claim"
     isLoading={claimProcessing}
-    on:click={async () => {
-      claimProcessing = true;
-      try {
-        await claim(dispatch);
-      } finally {
-        claimProcessing = false;
-      }
-    }}
+    on:click={() => doClaim()}
     isDisabled={metadata.claimable == 0}
   />
   {#if metadata.paused}
-    <Button label="Unpause" on:click={() => unpause(dispatch)} />
+    <Button label="Unpause" isLoading={pauseProcessing} on:click={() => doPauseAction(unpause)} />
   {:else}
-    <Button label="Pause" on:click={() => pause(dispatch)} />
+    <Button label="Pause" isLoading={pauseProcessing} on:click={() => doPauseAction(pause)} />
   {/if}
 </div>
