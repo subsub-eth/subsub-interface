@@ -18,6 +18,7 @@
     SubscriptionContractMetadataContext
   } from '$lib/components/context/web3';
   import SubscriptionContractControl from '$lib/components/subscription/SubscriptionContractControl.svelte';
+  import { aflow } from '$lib/helpers';
 
   export let data: PageData;
 
@@ -53,18 +54,9 @@ Subscription Contract: {addr}
               <SubscriptionContractDetails address={addr} {metadata} />
               <SubscriptionContractControl
                 {metadata}
-                pause={async (d) => {
-                  await pause(subscriptionContract)(d);
-                  await update();
-                }}
-                unpause={async (d) => {
-                  await unpause(subscriptionContract)(d);
-                  await update();
-                }}
-                claim={async (d) => {
-                  await claim(subscriptionContract)(d);
-                  await update();
-                }}
+                pause={aflow(pause(subscriptionContract), update)}
+                unpause={aflow(unpause(subscriptionContract), update)}
+                claim={aflow(claim(subscriptionContract), update)}
               />
             </div>
           </div>
