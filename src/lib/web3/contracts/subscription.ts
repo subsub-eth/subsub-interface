@@ -15,6 +15,9 @@ import type { EventDispatcher } from 'svelte';
 import type {
     ClaimEvents,
   DepositEvents,
+  DescriptionChangeEvents,
+  ExternalUrlChangeEvents,
+  ImageChangeEvents,
   MintEvents,
   WithdrawalEvents
 } from '$lib/components/subscription/action/subscription-events';
@@ -288,6 +291,60 @@ export function claim(
       throw new Error('Transaction Log not found');
     }
     dispatch('claimed', [claimEvent.args.amount, tx.hash]);
+  };
+}
+
+export function setDescription(
+  contract: Subscription
+): (
+  description: string,
+  dispatch: EventDispatcher<DescriptionChangeEvents>
+) => Promise<string> {
+  return async (
+    description: string,
+    dispatch: EventDispatcher<DescriptionChangeEvents>
+  ): Promise<string> => {
+    const tx = await contract.setDescription(description);
+    dispatch('descriptionTxSubmitted', tx.hash);
+    await tx.wait();
+    dispatch('descriptionChanged', [description, tx.hash]);
+    return description;
+  };
+}
+
+export function setImage(
+  contract: Subscription
+): (
+  image: string,
+  dispatch: EventDispatcher<ImageChangeEvents>
+) => Promise<string> {
+  return async (
+    image: string,
+    dispatch: EventDispatcher<ImageChangeEvents>
+  ): Promise<string> => {
+    const tx = await contract.setImage(image);
+    dispatch('imageTxSubmitted', tx.hash);
+    await tx.wait();
+    dispatch('imageChanged', [image, tx.hash]);
+    return image;
+  };
+}
+
+export function setExternalUrl(
+  contract: Subscription
+): (
+  externalUrl: string,
+  dispatch: EventDispatcher<ExternalUrlChangeEvents>
+) => Promise<string> {
+  return async (
+    externalUrl: string,
+    dispatch: EventDispatcher<ExternalUrlChangeEvents>
+  ): Promise<string> => {
+    const tx = await contract.setExternalUrl(externalUrl);
+    dispatch('externalUrlTxSubmitted', tx.hash);
+    await tx.wait();
+    dispatch('externalUrlChanged', [externalUrl, tx.hash]);
+    return externalUrl;
   };
 }
 

@@ -3,11 +3,16 @@
 
   export let name: string;
   export let label: string;
+  export let id: string = '';
   export let placeholder: string = '';
   export let disabled: boolean = false;
   export let required: boolean = false;
   export let minLength: number = 0;
   export let maxLength: number = 0;
+
+  if (!id) {
+    id = 'input-' + name;
+  }
 
   let opts: any = {};
   $: {
@@ -21,8 +26,8 @@
 </script>
 
 <div>
-  <label for={name}>{label}</label>
-  <input id={name} {name} class="bg-gray-500" {...opts} />
+  <label for={id}>{label}</label>
+  <input id={id} {name} class="bg-gray-500" {...opts} />
   <ValidationMessage for={name} let:messages>
     {#if messages}
       <span>{messages}</span>
