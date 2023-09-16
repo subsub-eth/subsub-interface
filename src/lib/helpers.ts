@@ -1,9 +1,4 @@
-export function truncateAddress(
-  addr: string,
-  prefix = 5,
-  suffix = 4,
-  placeholder = '...'
-): string {
+export function truncateAddress(addr: string, prefix = 5, suffix = 4, placeholder = '...'): string {
   const minLength = prefix + suffix + placeholder.length;
 
   if (addr.length <= minLength) {
@@ -16,7 +11,6 @@ export function truncateAddress(
 export async function waitFor(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
-
 
 export function aflow<A extends ReadonlyArray<unknown>, B, C>(
   ab: (...a: A) => Promise<B>,
@@ -42,4 +36,8 @@ export function aflow<A extends ReadonlyArray<unknown>, B, C, D>(
     }
     return await cd(c);
   };
+}
+
+export function rangeArray(start: number, stop: number, step: number = 1): Array<number> {
+  return Array.from({ length: (stop - start) / step + 1 }, (_, index) => start + index * step);
 }

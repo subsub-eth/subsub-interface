@@ -1,11 +1,14 @@
 <script lang="ts">
   import type { ProfileTokenMetadata } from '$lib/web3/contracts/profile';
+  import Paging from '../Paging.svelte';
   import ProfileTeaser from './ProfileTeaser.svelte';
 
   export let pages: number;
   export let load: (page: number) => Promise<Array<[bigint, ProfileTokenMetadata]>>;
 
   let currentPage = 0;
+
+  const setPage = (newPage: number) => (currentPage = newPage);
 </script>
 
 <div>
@@ -21,6 +24,6 @@
     {:catch err}
       failed to load profiles {err}
     {/await}
-    <div>Page: {currentPage + 1} / {pages}</div>
+    <Paging current={currentPage} size={pages} {setPage} />
   {/if}
 </div>
