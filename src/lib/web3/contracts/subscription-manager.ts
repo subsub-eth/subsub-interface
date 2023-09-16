@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MetadataSchema, AddressSchema } from './common';
+import { AddressSchema, WritingMetadataSchema } from './common';
 import type { ISubscriptionManager } from '@createz/contracts/types/ethers-contracts';
 import type {
   MetadataStruct,
@@ -30,7 +30,7 @@ export const SubscriptionContractPropsSchema = z.object({
     .trim()
     .min(2, 'Symbol must have at least 2 chars')
     .max(12, 'Symbol can be 12 chars at most'),
-  metadata: z.object(MetadataSchema.shape),
+  metadata: z.object(WritingMetadataSchema.shape),
   subSettings: z.object(SubSettingsSchema.shape)
 });
 

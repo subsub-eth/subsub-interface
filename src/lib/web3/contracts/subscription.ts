@@ -388,18 +388,23 @@ export function listSubscriptionContracts(
   ethers: Signer,
   addresses: string[],
   pageSize: number
-): (page: number) => Promise<[string, SubscriptionContractMetadata][]> {
+): (page: number) => Promise<[string, SubscriptionContractMetadata | undefined][]> {
   // TODO multicall
-  const func = async (page: number): Promise<[string, SubscriptionContractMetadata][]> => {
+  const func = async (page: number): Promise<[string, SubscriptionContractMetadata | undefined][]> => {
     const index = page * pageSize;
     const totalItems = addresses.length;
     const count = Math.max(Math.min(totalItems - index, pageSize), 0);
 
-    const load = async (i: number): Promise<[string, SubscriptionContractMetadata]> => {
+    const load = async (i: number): Promise<[string, SubscriptionContractMetadata | undefined]> => {
       const address = addresses[i + index];
       const contract = Subscription__factory.connect(address, ethers);
-      const data = await contractMetadata(contract);
-      return [address, data];
+      try {
+        const data = await contractMetadata(contract);
+        return [address, data];
+      } catch (err) {
+        console.debug(`Failed to load Subscription contract: ${address}`, err);
+        return [address, undefined];
+      }
     };
 
     const data = [...Array(count).keys()].map((i) => load(i));

@@ -36,13 +36,30 @@ export const AttributeSchema = z.object({
 
 export type Attribute = z.infer<typeof AttributeSchema>;
 
-export const MetadataSchema = z.object({
+export const BaseMetadataSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 chars'),
-  description: z.string().optional(),
-  image: z.union([z.literal(''), z.string().trim().url('Image must be a URL')]).optional(),
-  external_url: z
-    .union([z.literal(''), z.string().trim().url('External link must be a URL')])
-    .optional()
+  description: z.string().optional()
+});
+
+export const ImageUrlSchema = z
+  .union([z.literal(''), z.string().trim().url('Image must be a URL')])
+  .optional();
+
+export const ExternalUrlSchema = z
+  .union([z.literal(''), z.string().trim().url('External link must be a URL')])
+  .optional();
+
+export const WritingMetadataSchema = BaseMetadataSchema.extend({
+  image: ImageUrlSchema,
+  external_url: ExternalUrlSchema
+});
+
+export type WritingMetadata = z.infer<typeof WritingMetadataSchema>;
+
+// Reading version of MetadataSchema that tries to remove invalid data.
+export const MetadataSchema = BaseMetadataSchema.extend({
+  image: ImageUrlSchema.catch(''),
+  external_url: ExternalUrlSchema.catch('')
 });
 
 export type Metadata = z.infer<typeof MetadataSchema>;

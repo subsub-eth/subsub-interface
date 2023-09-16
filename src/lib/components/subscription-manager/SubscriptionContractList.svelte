@@ -3,7 +3,7 @@
   import SubscriptionContractTeaser from '$lib/components/subscription/SubscriptionContractTeaser.svelte';
 
   export let pages: number;
-  export let load: (page: number) => Promise<Array<[string, SubscriptionContractMetadata]>>;
+  export let load: (page: number) => Promise<Array<[string, SubscriptionContractMetadata | undefined]>>;
 
   let currentPage = 0;
 </script>
@@ -16,7 +16,11 @@
       Loading Contracts ...
     {:then data}
       {#each data as [address, metadata]}
-        <SubscriptionContractTeaser {address} {metadata} />
+        {#if metadata}
+          <SubscriptionContractTeaser {address} {metadata} />
+          {:else}
+          <div>Failed to load contract data from {address}</div>
+        {/if}
       {/each}
     {:catch err}
       failed to load contracts {err}
