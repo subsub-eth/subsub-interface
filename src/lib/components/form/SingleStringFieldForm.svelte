@@ -22,16 +22,31 @@
 
   export let handle: (s: string, dispatch: EventDispatcher<FieldChangeEvents>) => Promise<string>;
 
+  let isLoading = false;
+
   const dispatch = createEventDispatcher<FieldChangeEvents & TxFailedEvents>();
 
-  const { form, data, isDirty, reset } = createForm<{ field: string | undefined }>({
+  const { form, isDirty, reset, setInitialValues } = createForm<{
+    field: string | undefined;
+  }>({
     onSubmit: async (values) => {
       console.log('submit triggered');
 
       try {
-        await handle(values.field + '', dispatch);
+        isLoading = true;
+        const val = values.field + '';
+        await handle(val, dispatch);
+
+        // re-initialize the form
+        setInitialValues({
+          field: val
+        });
+        reset();
       } catch (err) {
         dispatch('txFailed', err);
+        throw err;
+      } finally {
+        isLoading = false;
       }
     },
     initialValues: {
@@ -46,7 +61,7 @@
   <form use:form>
     <TextInput name="field" {label} id={label.toLowerCase().replaceAll(/\s/g, '')} />
     {#if $isDirty}
-      <Button label="apply" type="submit" />
+      <Button label="apply" type="submit" {isLoading} />
       <Button label="reset" on:click={() => reset()} />
     {/if}
   </form>
