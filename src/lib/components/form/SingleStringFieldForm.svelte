@@ -55,11 +55,13 @@
 
     extend: [validator({ schema: z.object({ field: validatorSchema }) }), reporter]
   });
+
+  const id = label.toLowerCase().replaceAll(/\s/g, '');
 </script>
 
 <div>
   <form use:form>
-    <TextInput name="field" {label} id={label.toLowerCase().replaceAll(/\s/g, '')} />
+    <TextInput name="field" {label} {id} />
     {#if $isDirty}
       <Button label="apply" type="submit" {isLoading} />
       <Button label="reset" on:click={() => reset()} />

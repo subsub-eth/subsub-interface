@@ -20,7 +20,7 @@
       isError = false;
     } catch (err) {
       isError = true;
-      console.error('Failed to load metadata from contract', contract);
+      console.error('Failed to load metadata from contract', contract, err);
     } finally {
       loading = false;
     }
