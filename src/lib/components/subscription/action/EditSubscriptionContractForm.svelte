@@ -8,8 +8,9 @@
     DescriptionChangeEvents,
     ExternalUrlChangeEvents,
     ImageChangeEvents,
-    MetadataChangeContractEvents,
+    MetadataChangeContractEvents
   } from './subscription-events';
+  import { ExternalUrlSchema, ImageUrlSchema } from '$lib/web3/contracts/common';
 
   export let metadata: SubscriptionContractMetadata;
 
@@ -78,18 +79,24 @@
   on:txSubmitted={({ detail }) => dispatch('descriptionTxSubmitted', detail)}
   on:valueChanged={({ detail }) => dispatch('descriptionChanged', detail)}
 />
-<SingleStringFieldForm label="Image" value={metadata.image} 
+<SingleStringFieldForm
+  label="Image"
+  value={metadata.image}
   handle={async (s, d) => {
     return setImage(s, mapImageEvents(d));
   }}
+  validatorSchema={ImageUrlSchema}
   on:txFailed
   on:txSubmitted={({ detail }) => dispatch('imageTxSubmitted', detail)}
   on:valueChanged={({ detail }) => dispatch('imageChanged', detail)}
 />
-<SingleStringFieldForm label="External URL" value={metadata.external_url} 
+<SingleStringFieldForm
+  label="External URL"
+  value={metadata.external_url}
   handle={async (s, d) => {
     return setExternalUrl(s, mapExternalUrlEvents(d));
   }}
+  validatorSchema={ExternalUrlSchema}
   on:txFailed
   on:txSubmitted={({ detail }) => dispatch('externalUrlTxSubmitted', detail)}
   on:valueChanged={({ detail }) => dispatch('externalUrlChanged', detail)}
