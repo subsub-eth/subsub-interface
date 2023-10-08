@@ -57,7 +57,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@createz/contracts": "file:../contracts/createz-contracts-0.0.2.tgz",
+    "@createz/contracts": "0.0.2-alpha.5",
     "@felte/reporter-svelte": "^1.1.11",
     "@felte/validator-zod": "^1.0.17",
     "@web3-onboard/core": "^2.21.0",
