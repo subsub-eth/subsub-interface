@@ -60,14 +60,19 @@
     "@createz/contracts": "file:../contracts/createz-contracts-0.0.2.tgz",
     "@felte/reporter-svelte": "^1.1.11",
     "@felte/validator-zod": "^1.0.17",
+    "@storybook/addon-svelte-csf": "^4.0.9",
     "@web3-onboard/core": "^2.21.0",
     "@web3-onboard/injected-wallets": "^2.10.5",
     "@zerodevx/svelte-toast": "^0.9.5",
+    "bits-ui": "^0.5.7",
     "buffer": "^6.0.3",
+    "clsx": "^2.0.0",
     "ethers": "^6.7.1",
     "felte": "^1.2.12",
+    "lucide-svelte": "^0.284.0",
     "rxjs": "^7.8.1",
     "tailwind-merge": "^1.14.0",
+    "tailwind-variants": "^0.1.14",
     "zod": "^3.22.2"
   }
 }
