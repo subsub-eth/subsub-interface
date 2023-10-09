@@ -13,7 +13,7 @@ dependencies:
     version: 1.1.11(svelte@4.2.0)
   '@felte/validator-zod':
     specifier: ^1.0.17
-    version: 1.0.17(zod@3.22.2)
+    version: 1.0.17(zod@3.22.3)
   '@web3-onboard/core':
     specifier: ^2.21.0
     version: 2.21.0
@@ -39,8 +39,8 @@ dependencies:
     specifier: ^1.14.0
     version: 1.14.0
   zod:
-    specifier: ^3.22.2
-    version: 3.22.2
+    specifier: ^3.22.3
+    version: 3.22.3
 
 devDependencies:
   '@playwright/test':
@@ -2312,14 +2312,14 @@ packages:
       svelte: 4.2.0
     dev: false
 
-  /@felte/validator-zod@1.0.17(zod@3.22.2):
+  /@felte/validator-zod@1.0.17(zod@3.22.3):
     resolution: {integrity: sha512-rOX1chLfTcixKMPEdrMSi8zsCM685Dsoy1a5qN1G6Fyh7HYK1vSmI6SfJ7m92DOt6kV+vAP4m5rk94Y8UFIeVw==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     peerDependencies:
       zod: ^3.2.0
     dependencies:
       '@felte/common': 1.1.8
-      zod: 3.22.2
+      zod: 3.22.3
     dev: false
 
   /@floating-ui/core@1.4.1:
@@ -11543,6 +11543,6 @@ packages:
     engines: {node: '>=12.20'}
     dev: true
 
-  /zod@3.22.2:
-    resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
+  /zod@3.22.3:
+    resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
     dev: false
