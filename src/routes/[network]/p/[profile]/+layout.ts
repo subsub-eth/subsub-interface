@@ -11,6 +11,6 @@ export const load = (({ params }) => {
     };
   } catch (err) {
     console.error(`Token id invalid`, profile, err);
-    throw error(403, `Token id invalid: ${profile}`);
+    error(403, `Token id invalid: ${profile}`);
   }
 }) satisfies LayoutLoad;

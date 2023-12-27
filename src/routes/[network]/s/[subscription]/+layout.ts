@@ -9,7 +9,7 @@ export const load = (({ params }) => {
 
   if (!ethers.isAddress(subAddr)) {
     console.error(`Address invalid`, subAddr);
-    throw error(400, `Address invalid: ${subAddr}`);
+    error(400, `Address invalid: ${subAddr}`);
   }
 
   return {

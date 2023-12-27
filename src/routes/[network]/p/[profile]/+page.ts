@@ -11,6 +11,6 @@ export const load = (({ params }) => {
     };
   } catch (err) {
     console.error(`Invalid Profile Id`, params.profile);
-    throw error(404, `Invalid Profile Id: ${params.profile}`);
+    error(404, `Invalid Profile Id: ${params.profile}`);
   }
 }) satisfies PageLoad;

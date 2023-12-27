@@ -11,6 +11,6 @@ export const load = (({ params }) => {
     };
   } catch (err) {
     console.error(`Invalid tokenId`, params.tokenId);
-    throw error(404, `Invalid tokenId: ${params.tokenId}`);
+    error(404, `Invalid tokenId: ${params.tokenId}`);
   }
 }) satisfies PageLoad;

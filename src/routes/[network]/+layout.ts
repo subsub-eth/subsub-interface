@@ -7,7 +7,7 @@ export const load = (({ params }) => {
   const network = params.network;
 
   if (!chainNames.includes(network)) {
-    throw error(404, `Unknown network '${network}'`);
+    error(404, `Unknown network '${network}'`);
   }
 
   return {
