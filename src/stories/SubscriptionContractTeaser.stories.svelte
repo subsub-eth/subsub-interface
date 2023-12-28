@@ -22,7 +22,7 @@
   };
 
   export const meta = {
-    title: 'Atoms/SubscriptionContractTeaser',
+    title: 'SubscriptionContractTeaser',
     component: SubscriptionContractTeaser,
     tags: ['autodocs'],
     args: {
