@@ -1,6 +1,6 @@
 import type { StorybookConfig } from '@storybook/sveltekit';
 const config: StorybookConfig = {
-  stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx|svelte)'],
   addons: [
     '@storybook/addon-links',
     '@storybook/addon-essentials',
@@ -8,7 +8,8 @@ const config: StorybookConfig = {
     {
       name: '@storybook/addon-styling',
       options: {}
-    }
+    },
+    '@storybook/addon-svelte-csf'
   ],
   framework: {
     name: '@storybook/sveltekit',
@@ -16,6 +17,9 @@ const config: StorybookConfig = {
   },
   docs: {
     autodocs: 'tag'
+  },
+  core: {
+    disableTelemetry: true
   }
 };
 export default config;
