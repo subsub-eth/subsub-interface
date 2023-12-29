@@ -1,54 +1,62 @@
 <script lang="ts">
-  import { truncateAddress } from '$lib/helpers';
   import type { SubscriptionContractMetadata } from '$lib/web3/contracts/subscription';
+  import TokenLogo from '../TokenLogo.svelte';
   import Url from '../Url.svelte';
+  import * as Card from '$lib/components/ui/card';
+  import { Button } from '$lib/components/ui/button';
+  import * as Tooltip from '$lib/components/ui/tooltip';
+  import { ChevronRight, PauseCircle } from 'lucide-svelte';
 
   export let address: string;
   export let metadata: SubscriptionContractMetadata;
+
+  export let showOwner = false;
+
+  // TODO
+  const tokenSymbol = 'USDT';
 </script>
 
-<div
-  class="max-w-md max-h-48 backdrop-blur-sm bg-primary-purple1/[0.15] ring-primary-purple1/[0.15] rounded-xl ring-2 ring-inset"
->
-  <div class="grid grid-cols-6 grid-rows-3 items-center gap-4">
-    <img
-      class="row-span-2 max-w-28 max-h-28 aspect-square rounded-lg overflow-hidden drop-shadow-lg pl-4"
-      src={metadata.image}
-      alt={metadata.name}
-    />
-    <div class="col-span-4 row-span-2 text-white">
-      <h5 class="font-bold">
-        {metadata.name}
-      </h5>
-      <p class="line-clamp-2">
-        {metadata.description}
-      </p>
-      <dl class="flex-1 text-white">
-        <div class="flex flex-row max-w-xs">
-          <dt class="basis-1/2 after:content-[':']">Owner</dt>
-          <dd class="basis-1/2">TODO OWNER</dd>
-        </div>
-      </dl>
-    </div>
-    <div class="">
-      Alerts
-    </div>
-    <div class="row-span-2">
+<Card.Root>
+  <Card.Content>
+    <div class="flex items-center">
+      <TokenLogo symbol={tokenSymbol} />
+      <div class="">
+        {#if showOwner}
+          <p class="text-sm font-medium leading-none">Owner Jane</p>
+        {/if}
+        <h5 class="font-bold">
+          {metadata.name}
+        </h5>
+      </div>
+      <div>
+        <p class="text-sm font-medium leading-none">
+          <span class="text-xl font-bold">0.02</span>
+          {tokenSymbol} / month
+        </p>
+        <p class="text-xs text-muted-foreground">$2.02 / month</p>
+      </div>
+      <div>
+        <p class="text-sm font-medium leading-none">
+          <span class="text-xl font-bold">10</span> / 200 Subs active
+        </p>
+      </div>
+      <div>
+        {#if metadata.paused}
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <PauseCircle class="h-8 w-8" />
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              Subscription Plan is paused and does not accept renewals
+            </Tooltip.Content>
+          </Tooltip.Root>
+        {/if}
+      </div>
       <Url template={`/[network]/s/${address}/`} let:path>
-        <a href={path}>Details</a>
+        <Button href={path} size="icon" class="ml-auto self-center justify-self-end">
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </Url>
     </div>
-    <div class="col-start-2 col-span-4 flex flex-row">
-      <dl class="flex-1 text-white">
-        <div class="flex flex-row max-w-xs">
-          <dt class="basis-1/2">External Link</dt>
-          <dd class="basis-1/2"><a href={metadata.external_url}>external url</a></dd>
-        </div>
-        <div class="flex flex-row max-w-xs">
-          <dt class="basis-1/2">Token</dt>
-          <dd class="basis-1/2">{truncateAddress(metadata.token)}</dd>
-        </div>
-      </dl>
-    </div>
-  </div>
-</div>
+  </Card.Content>
+</Card.Root>

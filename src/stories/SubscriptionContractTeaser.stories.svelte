@@ -59,4 +59,6 @@
   <SubscriptionContractTeaser {...args} />
 </Template>
 
-<Story name="with Image" args={{bla: "meh"}}/>
+<Story name="with Owner" args={{ showOwner: true }} />
+
+<Story name="paused" args={{ metadata: { ...testMetadata, paused: true } }} />
