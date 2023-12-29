@@ -6,6 +6,7 @@
   import { Button } from '$lib/components/ui/button';
   import * as Tooltip from '$lib/components/ui/tooltip';
   import { ChevronRight, PauseCircle } from 'lucide-svelte';
+  import ProgressRadial from '../ProgressRadial.svelte';
 
   export let address: string;
   export let metadata: SubscriptionContractMetadata;
@@ -36,6 +37,7 @@
         <p class="text-xs text-muted-foreground">$2.02 / month</p>
       </div>
       <div>
+        <ProgressRadial width="w-6" stroke={100} font={200} value={(10 / 200) * 100} />
         <p class="text-sm font-medium leading-none">
           <span class="text-xl font-bold">10</span> / 200 Subs active
         </p>
