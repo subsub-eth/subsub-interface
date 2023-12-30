@@ -4,6 +4,7 @@
   import { cn } from '$lib/utils';
   import { afterUpdate } from 'svelte';
 
+  /** Sets the progress value between 0 and 100 */
   export let value: number | undefined = undefined;
   /** Sets the base stroke width. Scales responsively. */
   export let stroke = 40; // px
@@ -20,7 +21,7 @@
   /** Provide classes to set track color. */
   export let track = 'stroke-muted';
   /** Provide classes to set the SVG text fill color. */
-  export let fill = 'fill-token';
+  export let fill = 'fill-primary';
 
   // Props A11y
   /** Provide the ARIA labelledby value. */
