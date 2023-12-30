@@ -19,8 +19,8 @@
 
 <Card.Root>
   <Card.Content class="p-4">
-    <div class="flex items-center gap-2 md:gap-4">
-      <TokenLogo symbol={tokenSymbol} />
+    <div class="flex items-center gap-2 sm:gap-6">
+      <TokenLogo address={metadata.token} fallbackSymbol={tokenSymbol} />
       <div class="">
         {#if showOwner}
           <p class="text-sm font-medium leading-none">Owner Jane</p>
@@ -36,7 +36,7 @@
         </p>
         <p class="text-xs text-muted-foreground">$2.02 / month</p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-0 sm:gap-1 md:gap-2">
         <ProgressRadial width="w-6" stroke={100} font={200} value={(10 / 200) * 100} />
         <p class="text-sm font-medium leading-none">
           <Tooltip.Root>

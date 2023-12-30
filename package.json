@@ -62,6 +62,7 @@
     "@createz/contracts": "0.0.2-alpha.10",
     "@felte/reporter-svelte": "^1.1.11",
     "@felte/validator-zod": "^1.0.17",
+    "@metamask/contract-metadata": "^2.4.0",
     "@web3-onboard/core": "^2.21.2",
     "@web3-onboard/injected-wallets": "^2.10.10",
     "@zerodevx/svelte-toast": "^0.9.5",

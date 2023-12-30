@@ -14,6 +14,9 @@ dependencies:
   '@felte/validator-zod':
     specifier: ^1.0.17
     version: 1.0.17(zod@3.22.4)
+  '@metamask/contract-metadata':
+    specifier: ^2.4.0
+    version: 2.4.0
   '@web3-onboard/core':
     specifier: ^2.21.2
     version: 2.21.2
@@ -2547,6 +2550,11 @@ packages:
       focus-trap: 7.5.4
       nanoid: 4.0.2
       svelte: 4.2.8
+    dev: false
+
+  /@metamask/contract-metadata@2.4.0:
+    resolution: {integrity: sha512-jSlX7WC6qN+2BBTovtIC5VpsJfLR58vYIuEYaCq3unOnrNY6XsGCgjM3ADE5cqLBFtFXMZ8R9HWpSZWU2JhiuA==}
+    engines: {node: '>=14.0.0'}
     dev: false
 
   /@ndelangen/get-tarball@3.0.9:
