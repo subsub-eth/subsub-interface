@@ -18,8 +18,8 @@
 </script>
 
 <Card.Root>
-  <Card.Content>
-    <div class="flex items-center">
+  <Card.Content class="p-4">
+    <div class="flex items-center gap-2 md:gap-4">
       <TokenLogo symbol={tokenSymbol} />
       <div class="">
         {#if showOwner}
@@ -36,17 +36,22 @@
         </p>
         <p class="text-xs text-muted-foreground">$2.02 / month</p>
       </div>
-      <div>
+      <div class="flex items-center gap-2">
         <ProgressRadial width="w-6" stroke={100} font={200} value={(10 / 200) * 100} />
         <p class="text-sm font-medium leading-none">
-          <span class="text-xl font-bold">10</span> / 200 Subs active
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <span class="text-xl font-bold">10</span> / 200 active
+            </Tooltip.Trigger>
+            <Tooltip.Content>10 out of 200 subscriptions are active</Tooltip.Content>
+          </Tooltip.Root>
         </p>
       </div>
-      <div>
+      <div class="flex items-center flex-auto justify-center">
         {#if metadata.paused}
           <Tooltip.Root>
             <Tooltip.Trigger>
-              <PauseCircle class="h-8 w-8" />
+              <PauseCircle class="h-8 w-8 stroke-red-500" />
             </Tooltip.Trigger>
             <Tooltip.Content>
               Subscription Plan is paused and does not accept renewals
