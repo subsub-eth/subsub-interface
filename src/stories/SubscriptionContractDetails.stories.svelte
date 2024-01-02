@@ -59,6 +59,7 @@
   <SubscriptionContractDetails {...args} />
 </Template>
 
-<Story name="with Owner" args={{ showOwner: true }} />
+<Story name="technicals open" args={{ technicalsOpen: true }} />
+<Story name="technicals closed" args={{ }} />
 
 <Story name="paused" args={{ metadata: { ...testMetadata, paused: true } }} />
