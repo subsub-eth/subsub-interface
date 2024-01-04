@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import ProgressRadial from '$lib/components/ProgressRadial.svelte';
+  import ProgressRadial from '$lib/components/ui/ProgressRadial.svelte';
 
   export const meta = {
     title: 'ProgressRadial',

@@ -6,7 +6,7 @@
   import { Button } from '$lib/components/ui/button';
   import * as Tooltip from '$lib/components/ui/tooltip';
   import { ChevronRight, PauseCircle } from 'lucide-svelte';
-  import ProgressRadial from '../ProgressRadial.svelte';
+  import ProgressRadial from '$lib/components/ui/ProgressRadial.svelte';
 
   export let address: string;
   export let metadata: SubscriptionContractMetadata;
@@ -20,7 +20,7 @@
 <Card.Root>
   <Card.Content class="p-4">
     <div class="flex items-center gap-2 sm:gap-6">
-      <TokenLogo address={metadata.token} fallbackSymbol={tokenSymbol} />
+      <TokenLogo class="mr-2" address={metadata.token} fallbackSymbol={tokenSymbol} />
       <div class="">
         {#if showOwner}
           <p class="text-sm font-medium leading-none">Owner Jane</p>

@@ -27,7 +27,8 @@ export const AddressSchema = z.custom<`0x${string}`>((val) => {
   return ethers.isAddress(val);
 });
 
-export type address = z.infer<typeof AddressSchema>;
+export type Address = z.infer<typeof AddressSchema>;
+export type address = Address;
 
 export const AttributeSchema = z.object({
   trait_type: z.string(),

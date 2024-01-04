@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import PropertyBox from '$lib/components/PropertyBox.svelte';
+  import PropertyBox from '$lib/components/ui/PropertyBox.svelte';
 
   export const meta = {
     title: 'PropertyBox',

@@ -1,15 +1,28 @@
 <script lang="ts">
   import * as Avatar from '$lib/components/ui/avatar';
   import findTokenIcon from '$lib/token-icons';
-  import type { address } from '$lib/web3/contracts/common';
+  import type { Address } from '$lib/web3/contracts/common';
+  import { cn } from '$lib/utils';
 
-  export let address: address;
+  /** address of the token */
+  export let address: Address;
+
+  /** fallback symbol name to show */
   export let fallbackSymbol: string;
+
+  /**
+   * Additional css classes
+   */
+  let clazz: string | undefined = undefined;
+  export { clazz as class };
+
+  const defaultClasses = 'h-16 w-16';
+  const classes = cn(defaultClasses, clazz);
 
   const icon = findTokenIcon(address);
 </script>
 
-<Avatar.Root class="mr-4 h-16 w-16">
+<Avatar.Root class={classes}>
   <Avatar.Image src={icon?.icon} alt={icon?.symbol} />
   <Avatar.Fallback>{fallbackSymbol}</Avatar.Fallback>
 </Avatar.Root>
