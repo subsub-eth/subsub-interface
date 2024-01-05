@@ -1,30 +1,33 @@
 <script lang="ts">
-  import { profileImageFallback } from '$lib/static-content';
+  import * as Avatar from '$lib/components/ui/avatar';
+  import * as Card from '$lib/components/ui/card';
+  import { Button } from '$lib/components/ui/button';
+  import { ChevronRight } from 'lucide-svelte';
   import type { ProfileTokenMetadata } from '$lib/web3/contracts/profile';
-  import Url from '../Url.svelte';
+  import Url from '$lib/components/Url.svelte';
 
+  /** Token id of the profile */
   export let id: bigint;
+
+  /** Profile token metadata */
   export let metadata: ProfileTokenMetadata;
 </script>
 
-<div class="rounded-xl border-2 border-solid p-2">
-  <p>id: {id}</p>
+<Card.Root class="flex flex-row p-4">
+  <Avatar.Root class="mr-4 h-16 w-16">
+    <Avatar.Image src={metadata.image} alt={metadata.name} />
+    <!-- TODO -->
+    <Avatar.Fallback>{metadata.name}</Avatar.Fallback>
+  </Avatar.Root>
+  <div class="col-auto space-y-1.5 self-center justify-self-start">
+    <Card.Title>{metadata.name}</Card.Title>
+    {#if metadata.description}
+      <Card.Description>{metadata.description}</Card.Description>
+    {/if}
+  </div>
   <Url template={`/[network]/p/${id}/`} let:path>
-    <p><a href={path}>Details</a></p>
+    <Button href={path} size="icon" class="ml-auto self-center justify-self-end">
+      <ChevronRight className="h-4 w-4" />
+    </Button>
   </Url>
-
-  {#if metadata.image}
-    <img
-      src={metadata.image}
-      alt={`image of ${metadata.name}`}
-      on:error={() => (metadata.image = profileImageFallback)}
-    />
-  {/if}
-  <p>{metadata.name}</p>
-  {#if metadata.description}
-    <p>{metadata.description}</p>
-  {/if}
-  {#if metadata.external_url}
-    <p><a href={metadata.external_url} target="_blank">External Link</a></p>
-  {/if}
-</div>
+</Card.Root>
