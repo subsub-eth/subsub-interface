@@ -5,13 +5,14 @@
   import type { LayoutData } from './$types';
   import { ethersSigner } from '$lib/web3/ethers';
   import { readonly, writable, type Writable } from 'svelte/store';
-  import { PROFILE_CONTRACT, SUBSCRIPTION_MANAGER_CONTRACT } from '$lib/contexts';
+  import { PROFILE_CONTRACT, SUBSCRIPTION_HANDLE_CONTRACT } from '$lib/contexts';
   import {
-    type ISubscriptionManager,
-    ISubscriptionManager__factory,
     type Profile,
-    Profile__factory
+    Profile__factory,
+    type ISubscriptionHandle,
+    ISubscriptionHandle__factory
   } from '@createz/contracts/types/ethers-contracts';
+  import SubscriptionContractList from '$lib/components/subscription-manager/SubscriptionContractList.svelte';
 
   export let data: LayoutData;
 
@@ -28,20 +29,23 @@
     return store;
   }
 
-  const managerStore = createStore<ISubscriptionManager>(SUBSCRIPTION_MANAGER_CONTRACT);
+  const subHandleStore = createStore<ISubscriptionHandle>(SUBSCRIPTION_HANDLE_CONTRACT);
   const profileStore = createStore<Profile>(PROFILE_CONTRACT);
   $: {
     const signer = $ethersSigner;
     const chain = getChainByName(network);
 
+    console.log(`initializing network layout`, 1, signer, 2, network, 3,  chain?.chainId);
+
     if (signer && chain) {
       const contracts = chain.contracts;
-      const manager = ISubscriptionManager__factory.connect(
-        contracts.subscriptionManager,
+      console.log(`initializing with contracts`, contracts);
+      const subHandle = ISubscriptionHandle__factory.connect(
+        contracts.subscriptionHandle,
         $ethersSigner
       );
-      console.log(`setting sub manager to context: `, manager);
-      managerStore.set(manager);
+      console.log(`setting subscription handle to context: `, subHandle);
+      subHandleStore.set(subHandle);
 
       const profile = Profile__factory.connect(contracts.profile, $ethersSigner);
       console.log(`setting profile contract to context: `, profile);

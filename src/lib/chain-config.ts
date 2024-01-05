@@ -18,7 +18,7 @@ export interface ChainData {
 
 export interface ContractAddresses {
   profile: string,
-  subscriptionManager: string,
+  subscriptionHandle: string,
   testErc20: string,
 }
 
@@ -33,9 +33,9 @@ const chains: Chains = {
     token: 'ETH',
     rpcUrl: 'http://localhost:8545',
     contracts : {
-      profile: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
-      subscriptionManager: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
-      testErc20: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
+      profile: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
+      subscriptionHandle: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
+      testErc20: '0x0B306BF915C4d645ff596e518fAf3F9669b97016',
     }
   },
   polygon: {
@@ -47,7 +47,7 @@ const chains: Chains = {
     rpcUrl: 'https://matic-mainnet.chainstacklabs.com',
     contracts : {
       profile: '',
-      subscriptionManager: '',
+      subscriptionHandle: '',
       testErc20: '',
     }
   },
@@ -60,7 +60,7 @@ const chains: Chains = {
     rpcUrl: 'https://polygon-mumbai-bor.publicnode.com',
     contracts : {
       profile: '',
-      subscriptionManager: '',
+      subscriptionHandle: '',
       testErc20: '',
     }
   }

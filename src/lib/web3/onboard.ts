@@ -4,7 +4,7 @@ import injectedWalletsModule from '@web3-onboard/injected-wallets';
 
 import { onBoardChains as chains } from './chains';
 import { Observable, distinctUntilChanged, map } from 'rxjs';
-import { readonly, writable } from 'svelte/store';
+import { derived, readonly, writable, type Readable } from 'svelte/store';
 
 const injected = injectedWalletsModule();
 
@@ -45,9 +45,11 @@ if (!onboard) {
 
 export default onboard as OnboardAPI;
 
-export const wallets$ = onboard.state.select('wallets');
+const wallets$ = onboard.state.select('wallets');
 
-// Wallet
+// for some reason the primary wallet needs to be set like this by
+// directly subscribing to the rxjs object
+
 const primaryWalletStore = writable<null | WalletState>();
 
 export const primaryWallet$: Observable<WalletState | null> = wallets$.pipe(
@@ -72,65 +74,26 @@ primaryWallet$.subscribe((wallet) => {
 
 export const primaryWallet = readonly(primaryWalletStore);
 
-// is connected
-export const isAccountConnected$ = primaryWallet$.pipe(
-  map((wallet) => {
+export const isAccountConnected: Readable<boolean> = derived(
+  primaryWallet,
+  (wallet) => {
     const value = !!wallet?.accounts[0];
     console.debug(`onboard: isAccountConnected`, value);
     return value;
-  })
+  },
+  false
 );
 
-const accountConnected = writable<boolean>(false);
-
-export const accountConnected$ = primaryWallet$.pipe(
-  map((wallet) => {
-    const value = wallet?.accounts[0];
-    return value;
-  })
-);
-
-accountConnected$.subscribe((isConnected) => {
-  console.debug(`Setting connected wallet to store`, isConnected);
-  accountConnected.set(!!isConnected);
+export const currentAccount: Readable<string | undefined> = derived(primaryWallet, (wallet) => {
+  const account = wallet?.accounts[0]?.address;
+  console.debug(`current account from primary wallet`, account);
+  return account;
 });
 
-export const isAccountConnected = readonly(accountConnected);
-
-// current account
-const currentAccountStore = writable<string | null>();
-
-export const currentAccount$ = primaryWallet$.pipe(
-  map((wallet) => {
-    const account = wallet?.accounts[0]?.address;
-    console.debug(`current account from primary wallet`, account);
-    return account;
-  })
-);
-
-currentAccount$.subscribe((acc) => {
-  console.debug('setting current account to store', acc);
-  currentAccountStore.set(acc);
+export const currentChainId: Readable<number | undefined> = derived(primaryWallet, (wallet) => {
+  if (!wallet) {
+    return undefined;
+  }
+  const [chain] = wallet.chains;
+  return Number(chain.id);
 });
-
-export const currentAccount = readonly(currentAccountStore);
-
-// current chain
-const currentChainIdStore = writable<null | number>();
-
-export const currentChainId$ = primaryWallet$.pipe(
-  map((wallet) => {
-    if (!wallet) {
-      return null;
-    }
-    const [chain] = wallet.chains;
-    return Number(chain.id);
-  })
-);
-
-currentChainId$.subscribe((chainId) => {
-  console.debug(`setting chain id`, chainId);
-  currentChainIdStore.set(chainId);
-});
-
-export const currentChainId = readonly(currentChainIdStore);
