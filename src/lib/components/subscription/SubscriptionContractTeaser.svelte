@@ -7,6 +7,7 @@
   import * as Tooltip from '$lib/components/ui/tooltip';
   import { ChevronRight, PauseCircle } from 'lucide-svelte';
   import ProgressRadial from '$lib/components/ui/ProgressRadial.svelte';
+    import Paused from './Paused.svelte';
 
   export let address: string;
   export let metadata: SubscriptionContractMetadata;
@@ -49,14 +50,7 @@
       </div>
       <div class="flex items-center flex-auto justify-center">
         {#if metadata.paused}
-          <Tooltip.Root>
-            <Tooltip.Trigger>
-              <PauseCircle class="h-8 w-8 stroke-red-500" />
-            </Tooltip.Trigger>
-            <Tooltip.Content>
-              Subscription Plan is paused and does not accept renewals
-            </Tooltip.Content>
-          </Tooltip.Root>
+          <Paused />
         {/if}
       </div>
       <Url template={`/[network]/s/${address}/`} let:path>

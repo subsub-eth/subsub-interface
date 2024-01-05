@@ -16,6 +16,8 @@
   import { Button } from '../ui/button';
   import Url from '../Url.svelte';
   import CollapsibleBox from '../ui/CollapsibleBox.svelte';
+  import Paused from './Paused.svelte';
+    import Warning from './Warning.svelte';
 
   /** Address of the subscription contract */
   export let address: string;
@@ -41,10 +43,19 @@
     </a>
   </Url>
   <!-- header -->
-  <div class="flex items-center gap-2 pt-2">
-    <TokenLogo class="mr-4" address={metadata.token} fallbackSymbol={tokenSymbol} />
-    <div>
-      <h2>{metadata.name}</h2>
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <TokenLogo class="mr-4" address={metadata.token} fallbackSymbol={tokenSymbol} />
+      <div>
+        <h2>{metadata.name}</h2>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      {#if metadata.paused}
+        <Paused />
+      {/if}
+      <!-- TODO -->
+      <Warning text="Contract is not monitored" />
     </div>
   </div>
   <!-- Main Properties -->
