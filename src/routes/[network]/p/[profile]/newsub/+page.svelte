@@ -2,20 +2,21 @@
   import type { PageData } from './$types';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import {
-    CurrentAccountContext,
-    ProfileContractContext,
-    SubscriptionManagerContractContext
-  } from '$lib/components/context/web3';
   import NewSubscriptionContractForm from '$lib/components/subscription-manager/NewSubscriptionContractForm.svelte';
   import { type Profile } from '@createz/contracts/types/ethers-contracts';
   import { toast } from '@zerodevx/svelte-toast';
-  import { createSubscription } from '$lib/web3/contracts/subscription-manager';
+  import { createSubscription } from '$lib/web3/contracts/subscription-handle';
   import { addressEquals } from '$lib/web3/helpers';
+    import { chainEnvironment } from '$lib/chain-context';
+    import { currentAccount } from '$lib/web3/onboard';
 
   export let data: PageData;
 
   const profileId = data.profile;
+
+  let profileContract = $chainEnvironment!.profileContract;
+
+  let currentAcc = $currentAccount!;
 
   const isOwner = async (
     contract: Profile,
@@ -51,10 +52,7 @@
 <a href={`${$page.url.pathname}../`}>back</a>
 <h1>New Subscription Contract</h1>
 
-<SubscriptionManagerContractContext let:managerContract>
-  <ProfileContractContext let:profileContract>
-    <CurrentAccountContext let:currentAccount>
-      {#await isOwner(profileContract, profileId, currentAccount)}
+      {#await isOwner(profileContract, profileId, currentAcc)}
         Loading
       {:then isOwner}
         {#if isOwner}
@@ -70,6 +68,3 @@
       {:catch err}
         Failed to check owner {err}
       {/await}
-    </CurrentAccountContext>
-  </ProfileContractContext>
-</SubscriptionManagerContractContext>

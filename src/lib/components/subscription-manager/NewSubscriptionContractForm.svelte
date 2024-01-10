@@ -4,7 +4,7 @@
   import {
     SubscriptionContractPropsSchema,
     type SubscriptionContractProps
-  } from '$lib/web3/contracts/subscription-manager';
+  } from '$lib/web3/contracts/subscription-handle';
   import { validator } from '@felte/validator-zod';
   import { reporter } from '@felte/reporter-svelte';
   import NumberInput from '../form/NumberInput.svelte';

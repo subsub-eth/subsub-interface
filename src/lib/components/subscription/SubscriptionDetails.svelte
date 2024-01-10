@@ -18,8 +18,8 @@
   import PropertyBox from '$lib/components/ui/PropertyBox.svelte';
   import TokenLogo from '../TokenLogo.svelte';
   import type { address } from '$lib/web3/contracts/common';
-    import CollapsibleBox from '../ui/CollapsibleBox.svelte';
-    import DetailsProperty from '../ui/DetailsProperty.svelte';
+  import CollapsibleBox from '../ui/CollapsibleBox.svelte';
+  import DetailsProperty from '../ui/DetailsProperty.svelte';
 
   /**
    * Address of the contract this token is defined in
@@ -63,11 +63,7 @@
   <div class="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
     <PropertyBox rootClass="border-0" title="Rate" titleLogo={Percent}>
       <div slot="value" class="flex items-center gap-4 pt-2">
-        <TokenLogo
-          class="basis-1/7 h-12 w-12"
-          address={contractAddress}
-          fallbackSymbol="TEST"
-        />
+        <TokenLogo class="basis-1/7 h-12 w-12" address={contractAddress} fallbackSymbol="TEST" />
         <div>
           {#if multiplierActive}
             <h4>Default</h4>
@@ -138,10 +134,6 @@
         </Button>
       </div>
     </DetailsProperty>
-    <DetailsProperty
-      title="TODO"
-      value={'TODO'}
-      help="TODO"
-    />
+    <DetailsProperty title="TODO" value={'TODO'} help="TODO" />
   </CollapsibleBox>
 </div>

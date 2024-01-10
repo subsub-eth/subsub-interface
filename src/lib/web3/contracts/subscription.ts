@@ -9,7 +9,7 @@ import {
 } from './common';
 import {
   Subscription__factory,
-  type Subscription
+  type Subscription,
 } from '@createz/contracts/types/ethers-contracts';
 import type { EventDispatcher } from 'svelte';
 import type {
@@ -60,12 +60,12 @@ const SubscriptionContractExtendedMetadataSchema = z.object({
   rate: z.number(),
   lock: z.number(),
   epochSize: z.number(),
-  ownerContract: AddressSchema,
-  ownerId: BigNumberishSchema,
-  ownerAddress: AddressSchema,
+  maxSupply: BigNumberishSchema,
+  owner: AddressSchema,
   claimable: BigNumberishSchema,
-  totalClaimed: BigNumberishSchema,
-  paused: z.boolean(),
+  depositsClaimed: BigNumberishSchema,
+  tipsClaimed: BigNumberishSchema,
+  flags: BigNumberishSchema,
 });
 
 type SubscriptionContractExtendedMetadata = z.infer<
@@ -88,6 +88,7 @@ export async function contractMetadata(
     const m = AttributesMetadataSchema.parse(decoded);
 
     const a = fromAttributes<SubscriptionContractExtendedMetadata>(m.attributes ?? []);
+    // TODO decode flags
     return {
       name: m.name,
       description: m.description,
@@ -96,13 +97,13 @@ export async function contractMetadata(
       rate: a.number('rate'),
       lock: a.number('lock'),
       epochSize: a.number('epoch_size'),
+      maxSupply: a.bigint('max_supply'),
       token: a.address('token'),
-      ownerId: a.bigint('owner_id'),
-      ownerAddress: a.address('owner_address'),
-      ownerContract: a.address('owner_contract'),
+      owner: a.address('owner'),
       claimable: a.bigint('claimable'),
-      totalClaimed: a.bigint('total_claimed'),
-      paused: a.boolean('paused'),
+      depositsClaimed: a.bigint('deposits_claimed'),
+      tipsClaimed: a.bigint('tips_claimed'),
+      flags: a.bigint('flags'),
     };
   } catch (err) {
     console.error('received subscription contract metadata is malformed', decoded, err);

@@ -1,4 +1,6 @@
 import { dev } from '$app/environment';
+import type { Address } from './web3/contracts/common';
+import { zeroAddress } from './web3/helpers';
 
 export interface Chains {
   localhost: ChainData;
@@ -17,9 +19,11 @@ export interface ChainData {
 }
 
 export interface ContractAddresses {
-  profile: string,
-  subscriptionHandle: string,
-  testErc20: string,
+  profile: Address,
+  subscriptionHandle: Address,
+  erc6551Registry: Address,
+  defaultErc6551Implementation: Address,
+  testErc20: Address,
 }
 
 export type chain = keyof Chains;
@@ -35,6 +39,8 @@ const chains: Chains = {
     contracts : {
       profile: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
       subscriptionHandle: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
+      erc6551Registry: '0x9A676e781A523b5d0C0e43731313A708CB607508',
+      defaultErc6551Implementation: '0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1',
       testErc20: '0x0B306BF915C4d645ff596e518fAf3F9669b97016',
     }
   },
@@ -46,9 +52,11 @@ const chains: Chains = {
     token: 'MATIC',
     rpcUrl: 'https://matic-mainnet.chainstacklabs.com',
     contracts : {
-      profile: '',
-      subscriptionHandle: '',
-      testErc20: '',
+      profile: zeroAddress,
+      subscriptionHandle: zeroAddress,
+      erc6551Registry: zeroAddress,
+      defaultErc6551Implementation: zeroAddress,
+      testErc20: zeroAddress,
     }
   },
   'polygon-mumbai': {
@@ -59,9 +67,11 @@ const chains: Chains = {
     token: 'MATIC',
     rpcUrl: 'https://polygon-mumbai-bor.publicnode.com',
     contracts : {
-      profile: '',
-      subscriptionHandle: '',
-      testErc20: '',
+      profile: zeroAddress,
+      subscriptionHandle: zeroAddress,
+      erc6551Registry: zeroAddress,
+      defaultErc6551Implementation: zeroAddress,
+      testErc20: zeroAddress,
     }
   }
 };

@@ -107,7 +107,7 @@
     <DetailsProperty title="Address" help="The address of this contract">
       <div slot="value" class="flex items-center gap-2">
         <div>
-          {metadata.token}
+          {address}
         </div>
         <Button
           variant="link"

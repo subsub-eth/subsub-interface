@@ -1,13 +1,11 @@
 import { z } from 'zod';
-import { AddressSchema, WritingMetadataSchema } from './common';
-import type { ISubscriptionManager } from '@createz/contracts/types/ethers-contracts';
-import type {
-  MetadataStruct,
-  SubSettingsStruct
-} from '@createz/contracts/types/ethers-contracts/SubscriptionManager';
+import { AddressSchema, WritingMetadataSchema, type Address } from './common';
 import type { EventDispatcher } from 'svelte';
 import type { CreateEvents } from '$lib/components/subscription-manager/action/subscription-manager-events';
 import { findLog } from '../ethers';
+import type { ISubscriptionHandle } from '@createz/contracts/types/ethers-contracts';
+import type { MetadataStructStruct, SubSettingsStruct } from '@createz/contracts/types/ethers-contracts/ISubscriptionHandle.sol/ISubscriptionHandle';
+import { toBeHex } from 'ethers';
 
 export const SubSettingsSchema = z.object({
   token: AddressSchema,
@@ -37,26 +35,38 @@ export const SubscriptionContractPropsSchema = z.object({
 export type SubscriptionContractProps = z.infer<typeof SubscriptionContractPropsSchema>;
 
 export async function getSubscriptionContractAddresses(
-  contract: ISubscriptionManager,
-  profileId: bigint
+  contract: ISubscriptionHandle,
+  owner: Address
 ): Promise<Array<string>> {
-  return contract.getSubscriptionContracts(profileId);
+  const tokenBalance = await contract.balanceOf(owner);
+  const total = await contract.totalSupply()
+
+  console.log('token balance', owner, tokenBalance, await contract.getAddress(), total);
+  // TODO multicall
+  const addresses = new Array<string>();
+  for (let i = 0; i < tokenBalance; i++) {
+    const tokenId = await contract.tokenOfOwnerByIndex(owner, i);
+    const hex = toBeHex(tokenId, 20);
+    console.log("hex", hex);
+    addresses.push(hex);
+  }
+  return addresses;
 }
 
 export function createSubscription(
-  contract: ISubscriptionManager,
+  contract: ISubscriptionHandle,
   profileId: bigint
 ): (
   name: string,
   symbol: string,
-  metadata: MetadataStruct,
+  metadata: MetadataStructStruct,
   subSettings: SubSettingsStruct,
   dispatch: EventDispatcher<CreateEvents>
 ) => Promise<string> {
   return async (
     name: string,
     symbol: string,
-    metadata: MetadataStruct,
+    metadata: MetadataStructStruct,
     subSettings: SubSettingsStruct,
     dispatch: EventDispatcher<CreateEvents>
   ): Promise<string> => {

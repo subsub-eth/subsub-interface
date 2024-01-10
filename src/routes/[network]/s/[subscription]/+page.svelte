@@ -13,26 +13,28 @@
   } from '$lib/web3/contracts/subscription';
   import {
     CurrentAccountContext,
-    EthersContext,
     SubscriptionContractContext,
     SubscriptionContractMetadataContext
   } from '$lib/components/context/web3';
   import SubscriptionContractControl from '$lib/components/subscription/SubscriptionContractControl.svelte';
   import { aflow } from '$lib/helpers';
+    import { chainEnvironment } from '$lib/chain-context';
+  import { currentAccount } from '$lib/web3/onboard';
 
   export let data: PageData;
 
   const addr = data.subscriptionAddr;
   const pageSize = 5;
+
+  $: ethersSigner = $chainEnvironment!.ethersSigner;
+$: currentAcc = $currentAccount!;
 </script>
 
 <h1>Subscription Contract Details page</h1>
 
 Subscription Contract: {addr}
 
-<EthersContext let:ethersSigner>
   <SubscriptionContractContext {ethersSigner} address={addr} let:subscriptionContract>
-    <CurrentAccountContext let:currentAccount>
       <SubscriptionContractMetadataContext contract={subscriptionContract} let:metadata let:update>
         <div class="flex flex-row space-x-4">
           <div class="basis-1/2">
@@ -74,13 +76,13 @@ Subscription Contract: {addr}
                 isDisabled={metadata.paused}
               />
             </div>
-            {#await countUserSubscriptions(subscriptionContract, currentAccount)}
+            {#await countUserSubscriptions(subscriptionContract, currentAcc)}
               Loading...
             {:then count}
               {@const pages = Math.ceil(count / pageSize)}
               {@const loadSubscriptions = listUserSubscriptionsRev(
                 subscriptionContract,
-                currentAccount,
+                currentAcc,
                 pageSize,
                 count
               )}
@@ -91,6 +93,4 @@ Subscription Contract: {addr}
           </div>
         </div>
       </SubscriptionContractMetadataContext>
-    </CurrentAccountContext>
   </SubscriptionContractContext>
-</EthersContext>

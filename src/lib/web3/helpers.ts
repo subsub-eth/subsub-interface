@@ -1,5 +1,6 @@
 import { ZeroAddress } from 'ethers';
 import { AddressSchema } from './contracts/common';
+import type { Address } from '@web3-onboard/core/dist/types';
 
 const dataJsonPrelude = 'data:application/json;base64,';
 

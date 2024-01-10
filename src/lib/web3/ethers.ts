@@ -17,7 +17,7 @@ import {
   type TypedLogDescription
 } from '@createz/contracts/types/ethers-contracts/common';
 import { primaryWallet } from './onboard';
-import { derived } from 'svelte/store';
+import { derived, type Readable } from 'svelte/store';
 
 
 // TODO check that wallet has actually changed
@@ -30,7 +30,7 @@ export const ethersProvider = derived(primaryWallet, (wallet) => {
   return new ethers.BrowserProvider(wallet!.provider);
 });
 
-export const ethersSigner = derived(ethersProvider, (provider, set) => {
+export const ethersSigner: Readable<Signer> = derived(ethersProvider, (provider, set) => {
   if (!provider) {
     console.log('Signer: provider not set!');
     return undefined;
