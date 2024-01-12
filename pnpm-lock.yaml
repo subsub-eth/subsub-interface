@@ -44,6 +44,9 @@ dependencies:
   felte:
     specifier: ^1.2.12
     version: 1.2.12(svelte@4.2.8)
+  loglevelnext:
+    specifier: ^6.0.0
+    version: 6.0.0
   lucide-svelte:
     specifier: ^0.303.0
     version: 0.303.0(svelte@4.2.8)
@@ -8313,6 +8316,11 @@ packages:
       chalk: 4.1.2
       is-unicode-supported: 0.1.0
     dev: true
+
+  /loglevelnext@6.0.0:
+    resolution: {integrity: sha512-FDl1AI2sJGjHHG3XKJd6sG3/6ncgiGCQ0YkW46nxe7SfqQq6hujd9CvFXIXtkGBUN83KPZ2KSOJK8q5P0bSSRQ==}
+    engines: {node: '>= 18'}
+    dev: false
 
   /loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}

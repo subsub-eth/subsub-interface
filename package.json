@@ -72,6 +72,7 @@
     "clsx": "^2.0.0",
     "ethers": "^6.9.1",
     "felte": "^1.2.12",
+    "loglevelnext": "^6.0.0",
     "lucide-svelte": "^0.303.0",
     "rxjs": "^7.8.1",
     "tailwind-merge": "^2.2.0",
