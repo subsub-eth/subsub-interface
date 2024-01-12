@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@createz/contracts':
-    specifier: 0.0.2-alpha.10
-    version: 0.0.2-alpha.10
+    specifier: 0.2.0-alpha.11
+    version: 0.2.0-alpha.11
   '@felte/reporter-svelte':
     specifier: ^1.1.11
     version: 1.1.11(svelte@4.2.8)
@@ -17,6 +17,9 @@ dependencies:
   '@metamask/contract-metadata':
     specifier: ^2.4.0
     version: 2.4.0
+  '@tanstack/svelte-query':
+    specifier: ^5.17.9
+    version: 5.17.9(svelte@4.2.8)
   '@web3-onboard/core':
     specifier: ^2.21.2
     version: 2.21.2
@@ -1473,8 +1476,8 @@ packages:
     dev: true
     optional: true
 
-  /@createz/contracts@0.0.2-alpha.10:
-    resolution: {integrity: sha512-lyTizIz+p0cRyKwaJJlG9PVv3zEF94oZsW4jKP4qtf+uSb83Na/191LbIaVvsI8E9FOhXK8jZ5INHF3NK1lsWg==}
+  /@createz/contracts@0.2.0-alpha.11:
+    resolution: {integrity: sha512-vfQDe8+pjI0R0dDETNC0k7D+DFlFs6AudrHUkTXNon+yJs/peaWWfpsL/TvMC5gxDw/aiI4rIdex7uU32ZRg9Q==}
     dev: false
 
   /@discoveryjs/json-ext@0.5.7:
@@ -4226,6 +4229,19 @@ packages:
     resolution: {integrity: sha512-FaruWX6KdudYloq1AHD/4nU+UsMTdNE8CKyrseXWEcgjDAbvkwJg2QGPAnfIJLIWsjZOSPLOAykK6fuYp4vp4A==}
     dependencies:
       tslib: 2.6.2
+    dev: false
+
+  /@tanstack/query-core@5.17.9:
+    resolution: {integrity: sha512-8xcvpWIPaRMDNLMvG9ugcUJMgFK316ZsqkPPbsI+TMZsb10N9jk0B6XgPk4/kgWC2ziHyWR7n7wUhxmD0pChQw==}
+    dev: false
+
+  /@tanstack/svelte-query@5.17.9(svelte@4.2.8):
+    resolution: {integrity: sha512-Ji0FITYiUiUEIfKvv2ZG4mXX06DYz8ULCrWMoFtqW42/ds4Itdwz1r8VNHzm1Svh04YhBBsFeoCmvM4+9bo1oA==}
+    peerDependencies:
+      svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
+    dependencies:
+      '@tanstack/query-core': 5.17.9
+      svelte: 4.2.8
     dev: false
 
   /@testing-library/dom@9.3.3:

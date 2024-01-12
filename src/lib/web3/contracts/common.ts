@@ -79,10 +79,10 @@ function getValue(attributes: Array<Attribute>, name: string): unknown {
 }
 
 export type AttributeExtractor<T> = {
-  bigint: (name: KeyOfType<T, BigNumberish>) => BigNumberish;
+  bigint: (name: KeyOfType<T, BigNumberish>) => bigint;
   string: (name: KeyOfType<T, string>) => string;
   number: (name: KeyOfType<T, number>) => number;
-  address: (name: KeyOfType<T, address>) => address;
+  address: (name: KeyOfType<T, address>) => Address;
   boolean: (name: KeyOfType<T, boolean>) => boolean;
 };
 

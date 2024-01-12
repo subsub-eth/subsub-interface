@@ -5,15 +5,17 @@ import {
   type AttributesMetadata,
   AddressSchema,
   fromAttributes,
-  BigNumberishSchema
+  BigNumberishSchema,
+  type Address,
+  type BigNumberish
 } from './common';
 import {
   Subscription__factory,
-  type Subscription,
+  type Subscription
 } from '@createz/contracts/types/ethers-contracts';
 import type { EventDispatcher } from 'svelte';
 import type {
-    ClaimEvents,
+  ClaimEvents,
   DepositEvents,
   DescriptionChangeEvents,
   ExternalUrlChangeEvents,
@@ -25,6 +27,7 @@ import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
 import { ZeroAddress, type Signer } from 'ethers';
 import type { PauseEvents, UnpauseEvents } from '$lib/components/common-events';
+import { getCreateAddress } from 'ethers';
 
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
@@ -55,6 +58,9 @@ export const SubscriptionTokenMetadataSchema = AttributesMetadataSchema.extend({
 
 export type SubscriptionTokenMetadata = z.infer<typeof SubscriptionTokenMetadataSchema>;
 
+/**
+ * Metadata structure returned from the contract
+ */
 const SubscriptionContractExtendedMetadataSchema = z.object({
   token: AddressSchema,
   rate: z.number(),
@@ -65,7 +71,7 @@ const SubscriptionContractExtendedMetadataSchema = z.object({
   claimable: BigNumberishSchema,
   depositsClaimed: BigNumberishSchema,
   tipsClaimed: BigNumberishSchema,
-  flags: BigNumberishSchema,
+  flags: BigNumberishSchema
 });
 
 type SubscriptionContractExtendedMetadata = z.infer<
@@ -78,9 +84,51 @@ export const SubscriptionContractMetadataSchema = MetadataSchema.and(
 
 export type SubscriptionContractMetadata = z.infer<typeof SubscriptionContractMetadataSchema>;
 
+/**
+ * Translated Subscription contract data
+ */
+const SubscriptionContractDataSchema = z.object({
+  address: AddressSchema,
+  name: z.string(),
+  description: z.string().optional(),
+  image: z.string().url().optional(),
+  externalUrl: z.string().url().optional(),
+  token: AddressSchema,
+  rate: z.number(),
+  lock: z.number(),
+  epochSize: z.number(),
+  maxSupply: BigNumberishSchema,
+  owner: AddressSchema,
+  claimable: BigNumberishSchema,
+  depositsClaimed: BigNumberishSchema,
+  tipsClaimed: BigNumberishSchema,
+  mintingPaused: z.boolean(),
+  renewalPaused: z.boolean(),
+  tippingPaused: z.boolean()
+});
+
+/**
+ * Translated Subscription contract data
+ */
+export type SubscriptionContractData = z.infer<typeof SubscriptionContractDataSchema>;
+
+export const FLAG_MINTING_PAUSED = 1;
+export const FLAG_RENEWAL_PAUSED = 2;
+export const FLAG_TIPPING_PAUSED = 4;
+
+export function isFlagSet(flags: BigNumberish, flag: number): boolean {
+  const bFlag = BigInt(flag);
+  const bFlags = BigInt(flags);
+  return (bFlag & bFlags) === bFlag;
+}
+
+export function createSubscriptionContract(address: Address, signer: Signer): Subscription {
+  return Subscription__factory.connect(address, signer);
+}
+
 export async function contractMetadata(
   contract: Subscription
-): Promise<SubscriptionContractMetadata> {
+): Promise<SubscriptionContractData> {
   const encoded = await contract.contractURI();
   const decoded = decodeDataJsonTokenURI<AttributesMetadata>(encoded);
 
@@ -88,12 +136,13 @@ export async function contractMetadata(
     const m = AttributesMetadataSchema.parse(decoded);
 
     const a = fromAttributes<SubscriptionContractExtendedMetadata>(m.attributes ?? []);
-    // TODO decode flags
+    const flags = a.bigint('flags');
     return {
+      address: await contract.getAddress() as Address,
       name: m.name,
       description: m.description,
       image: m.image,
-      external_url: m.external_url,
+      externalUrl: m.external_url,
       rate: a.number('rate'),
       lock: a.number('lock'),
       epochSize: a.number('epoch_size'),
@@ -103,7 +152,9 @@ export async function contractMetadata(
       claimable: a.bigint('claimable'),
       depositsClaimed: a.bigint('deposits_claimed'),
       tipsClaimed: a.bigint('tips_claimed'),
-      flags: a.bigint('flags'),
+      mintingPaused: isFlagSet(flags, FLAG_MINTING_PAUSED),
+      renewalPaused: isFlagSet(flags, FLAG_RENEWAL_PAUSED),
+      tippingPaused: isFlagSet(flags, FLAG_TIPPING_PAUSED)
     };
   } catch (err) {
     console.error('received subscription contract metadata is malformed', decoded, err);
@@ -225,19 +276,11 @@ export function mint(
 
 export function unpause(
   contract: Subscription
-): (
-  dispatch: EventDispatcher<UnpauseEvents>
-) => Promise<void> {
-  return async (
-    dispatch: EventDispatcher<UnpauseEvents>
-  ): Promise<void> => {
+): (dispatch: EventDispatcher<UnpauseEvents>) => Promise<void> {
+  return async (dispatch: EventDispatcher<UnpauseEvents>): Promise<void> => {
     const tx = await contract.unpause();
     dispatch('unpauseTxSubmitted', tx.hash);
-    const unpauseEvent = await findLog(
-      tx,
-      contract,
-      contract.filters.Unpaused()
-    );
+    const unpauseEvent = await findLog(tx, contract, contract.filters.Unpaused());
     if (!unpauseEvent) {
       throw new Error('Transaction Log not found');
     }
@@ -247,19 +290,11 @@ export function unpause(
 
 export function pause(
   contract: Subscription
-): (
-  dispatch: EventDispatcher<PauseEvents>
-) => Promise<void> {
-  return async (
-    dispatch: EventDispatcher<PauseEvents>
-  ): Promise<void> => {
+): (dispatch: EventDispatcher<PauseEvents>) => Promise<void> {
+  return async (dispatch: EventDispatcher<PauseEvents>): Promise<void> => {
     const tx = await contract.pause();
     dispatch('pauseTxSubmitted', tx.hash);
-    const pauseEvent = await findLog(
-      tx,
-      contract,
-      contract.filters.Paused()
-    );
+    const pauseEvent = await findLog(tx, contract, contract.filters.Paused());
     if (!pauseEvent) {
       throw new Error('Transaction Log not found');
     }
@@ -269,25 +304,17 @@ export function pause(
 
 export function claim(
   contract: Subscription
-): (
-  dispatch: EventDispatcher<ClaimEvents>
-) => Promise<void> {
-  return async (
-    dispatch: EventDispatcher<ClaimEvents>
-  ): Promise<void> => {
+): (dispatch: EventDispatcher<ClaimEvents>) => Promise<void> {
+  return async (dispatch: EventDispatcher<ClaimEvents>): Promise<void> => {
     // we increase the gas estimate as `claim` iterates over epochs which
     // might require more gas between estimate and actual execution
     const gasEstimate = await contract.claim.estimateGas();
 
     // increase to 110% of original estimate
     const increasedGas = (gasEstimate * 11n) / 10n;
-    const tx = await contract.claim({gasLimit: increasedGas});
+    const tx = await contract.claim({ gasLimit: increasedGas });
     dispatch('claimTxSubmitted', tx.hash);
-    const claimEvent = await findLog(
-      tx,
-      contract,
-      contract.filters.FundsClaimed()
-    );
+    const claimEvent = await findLog(tx, contract, contract.filters.FundsClaimed());
     if (!claimEvent) {
       throw new Error('Transaction Log not found');
     }
@@ -297,10 +324,7 @@ export function claim(
 
 export function setDescription(
   contract: Subscription
-): (
-  description: string,
-  dispatch: EventDispatcher<DescriptionChangeEvents>
-) => Promise<string> {
+): (description: string, dispatch: EventDispatcher<DescriptionChangeEvents>) => Promise<string> {
   return async (
     description: string,
     dispatch: EventDispatcher<DescriptionChangeEvents>
@@ -315,14 +339,8 @@ export function setDescription(
 
 export function setImage(
   contract: Subscription
-): (
-  image: string,
-  dispatch: EventDispatcher<ImageChangeEvents>
-) => Promise<string> {
-  return async (
-    image: string,
-    dispatch: EventDispatcher<ImageChangeEvents>
-  ): Promise<string> => {
+): (image: string, dispatch: EventDispatcher<ImageChangeEvents>) => Promise<string> {
+  return async (image: string, dispatch: EventDispatcher<ImageChangeEvents>): Promise<string> => {
     const tx = await contract.setImage(image);
     dispatch('imageTxSubmitted', tx.hash);
     await tx.wait();
@@ -333,10 +351,7 @@ export function setImage(
 
 export function setExternalUrl(
   contract: Subscription
-): (
-  externalUrl: string,
-  dispatch: EventDispatcher<ExternalUrlChangeEvents>
-) => Promise<string> {
+): (externalUrl: string, dispatch: EventDispatcher<ExternalUrlChangeEvents>) => Promise<string> {
   return async (
     externalUrl: string,
     dispatch: EventDispatcher<ExternalUrlChangeEvents>
@@ -391,7 +406,9 @@ export function listSubscriptionContracts(
   pageSize: number
 ): (page: number) => Promise<[string, SubscriptionContractMetadata | undefined][]> {
   // TODO multicall
-  const func = async (page: number): Promise<[string, SubscriptionContractMetadata | undefined][]> => {
+  const func = async (
+    page: number
+  ): Promise<[string, SubscriptionContractMetadata | undefined][]> => {
     const index = page * pageSize;
     const totalItems = addresses.length;
     const count = Math.max(Math.min(totalItems - index, pageSize), 0);
