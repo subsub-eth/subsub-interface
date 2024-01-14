@@ -6,6 +6,7 @@ import { findLog } from '../ethers';
 import type { ISubscriptionHandle } from '@createz/contracts/types/ethers-contracts';
 import type { MetadataStructStruct, SubSettingsStruct } from '@createz/contracts/types/ethers-contracts/ISubscriptionHandle.sol/ISubscriptionHandle';
 import { toBeHex } from 'ethers';
+import { log } from '$lib/logger';
 
 export const SubSettingsSchema = z.object({
   token: AddressSchema,
@@ -37,18 +38,17 @@ export type SubscriptionContractProps = z.infer<typeof SubscriptionContractProps
 export async function getSubscriptionContractAddresses(
   contract: ISubscriptionHandle,
   owner: Address
-): Promise<Array<string>> {
+): Promise<Array<Address>> {
   const tokenBalance = await contract.balanceOf(owner);
   const total = await contract.totalSupply()
 
-  console.log('token balance', owner, tokenBalance, await contract.getAddress(), total);
+  log.debug('token balance', owner, tokenBalance, await contract.getAddress(), total);
   // TODO multicall
-  const addresses = new Array<string>();
+  const addresses = new Array<Address>();
   for (let i = 0; i < tokenBalance; i++) {
     const tokenId = await contract.tokenOfOwnerByIndex(owner, i);
     const hex = toBeHex(tokenId, 20);
-    console.log("hex", hex);
-    addresses.push(hex);
+    addresses.push(AddressSchema.parse(hex));
   }
   return addresses;
 }

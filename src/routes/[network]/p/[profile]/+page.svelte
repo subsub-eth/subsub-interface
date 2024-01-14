@@ -1,17 +1,20 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { page } from '$app/stores';
-  import SubscriptionContractList from '$lib/components/subscription-manager/SubscriptionContractList.svelte';
+  import SubscriptionContractTeaser from '$lib/components/subscription/SubscriptionContractTeaser.svelte';
   import { addressEquals } from '$lib/web3/helpers';
   import ProfileDetails from '$lib/components/profile/ProfileDetails.svelte';
   import Button from '$lib/components/Button.svelte';
-  import { EthersContext } from '$lib/components/context/web3';
   import ProfileMetadataContext from '$lib/components/context/web3/ProfileMetadataContext.svelte';
   import { getSubscriptionContractAddresses } from '$lib/web3/contracts/subscription-handle';
   import { listSubscriptionContracts } from '$lib/web3/contracts/subscription';
   import { chainEnvironment } from '$lib/chain-context';
   import { currentAccount } from '$lib/web3/onboard';
-  import { findErc6551Account } from '$lib/web3/contracts/erc6551';
+  import { findDefaultProfileErc6551Account } from '$lib/web3/contracts/erc6551';
+  import { createQuery } from '@tanstack/svelte-query';
+  import { derived } from 'svelte/store';
+  import type { Address } from '$lib/web3/contracts/common';
+  import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
 
   export let data: PageData;
 
@@ -21,22 +24,29 @@
 
   $: ethersSigner = $chainEnvironment!.ethersSigner;
   $: profileContract = $chainEnvironment!.profileContract;
-  $: handleContract = $chainEnvironment!.subscriptionHandleContract;
   $: currentAcc = $currentAccount!;
 
-  const findOwnerAccount = async () => {
-    const acc = await findErc6551Account(
-      $chainEnvironment!.erc6551Registry,
-      $chainEnvironment!.chainData.contracts.defaultErc6551Implementation,
-      new Uint8Array(32),
-      // '0x0000000000000000000000000000000000000000000000000000000000000000',
-      $chainEnvironment!.chainData.chainId,
-      $chainEnvironment!.chainData.contracts.profile,
-      tokenId
-    );
+  const ownerAccount = createQuery<Address>(
+    derived(chainEnvironment, (chainEnvironment) => ({
+      queryKey: ['profileAccount', tokenId.toString()],
+      queryFn: async () => {
+        const acc = await findDefaultProfileErc6551Account(chainEnvironment!, tokenId);
+        return acc!;
+      }
+    }))
+  );
 
-    return acc;
-  };
+  const subscriptionContractAddresses = createQuery<Array<Address>>(
+    derived([chainEnvironment, ownerAccount], ([chainEnvironment, ownerAccount]) => ({
+      queryKey: ['subContractAddresses', ownerAccount],
+      queryFn: async () =>
+        await getSubscriptionContractAddresses(
+          chainEnvironment!.subscriptionHandleContract,
+          ownerAccount.data!
+        ),
+      enabled: ownerAccount.isFetched && !!ownerAccount.data
+    }))
+  );
 </script>
 
 <h1>Profile Details</h1>
@@ -65,19 +75,30 @@
     {/await}
     <div />
     <!-- TODO FIXME -->
-    {#await findOwnerAccount()}
-      Loading...
-    {:then owner}
-      {#await getSubscriptionContractAddresses(handleContract, owner)}
-        Loading ...
-      {:then addresses}
-        {@const pages = Math.ceil(addresses.length / pageSize)}
-        {@const load = listSubscriptionContracts(ethersSigner, addresses, pageSize)}
+    {#if $subscriptionContractAddresses.isPending }
+      Loading ...
+    {/if}
+    {#if $subscriptionContractAddresses.isError}
+      Failed to load {$subscriptionContractAddresses.error}
+    {/if}
+    {#if $subscriptionContractAddresses.isSuccess}
+      {@const load = listSubscriptionContracts(
+        ethersSigner,
+        $subscriptionContractAddresses.data,
+        pageSize
+      )}
 
-        <SubscriptionContractList {load} {pages} />
-      {:catch err}
-        Failed to load {err}
-      {/await}
-    {/await}
+      <PaginatedLoadedList
+        {load}
+        queryKey="profiles"
+        let:items
+        totalItems={$subscriptionContractAddresses.data.length}
+        {pageSize}
+      >
+        {#each items as [address, metadata]}
+          <SubscriptionContractTeaser {address} {metadata} />
+        {/each}
+      </PaginatedLoadedList>
+    {/if}
   </div>
 </div>

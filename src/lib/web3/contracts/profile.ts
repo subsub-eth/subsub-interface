@@ -5,13 +5,14 @@ import { decodeDataJsonTokenURI } from '../helpers';
 import type { EventDispatcher } from 'svelte';
 import type { MintEvents } from '$lib/components/profile/action/profile-events';
 import { findLog } from '../ethers';
+import {log} from '$lib/logger';
 
 export const ProfileTokenMetadataSchema = AttributesMetadataSchema.extend({});
 
 export type ProfileTokenMetadata = z.infer<typeof ProfileTokenMetadataSchema>;
 
 export async function countUserProfiles(contract: Profile, account: string): Promise<number> {
-  console.log("profile: ", contract);
+  log.debug("profile: ", contract);
   const count = await contract.balanceOf(account);
   return Number(count);
 }
