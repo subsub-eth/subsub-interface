@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
-  import { rangeArray } from '$lib/helpers';
+  import { rangeArray, waitFor } from '$lib/helpers';
 
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -11,8 +11,10 @@
     }
   });
 
-  const loadWithPageSize = (pageSize: number) => (page: number) =>
-    rangeArray(page * pageSize, (page + 1) * pageSize);
+  const loadWithPageSize = (pageSize: number) => async (page: number) => {
+    await waitFor(1000);
+    return rangeArray(page * pageSize, (page + 1) * pageSize);
+  };
   const pageSize = 5;
   const totalItems = 100;
 
@@ -31,13 +33,15 @@
 
 <script lang="ts">
   import { Story, Template } from '@storybook/addon-svelte-csf';
+  import { cn } from '$lib/utils';
 </script>
 
 <Template let:args>
   <QueryClientProvider client={queryClient}>
-    <PaginatedLoadedList {...args} let:items>
+    <PaginatedLoadedList {...args} let:items let:isLoading>
+      {@const loading = isLoading ? 'text-red-500' : ''}
       {#each items as item}
-        <div class="text-xl font-bold text-foreground">{item}</div>
+        <div class={cn('text-xl font-bold text-foreground', loading)}>{item}</div>
       {/each}
       <div slot="error">Error</div>
       <div slot="loading">Loading</div>

@@ -5,6 +5,7 @@
   interface $$Slots /* eslint-disable-line @typescript-eslint/no-unused-vars */ {
     default: {
       items: Array<T> /* eslint-disable-line no-undef */;
+      isLoading: boolean;
     };
     loading: Record<string, never>;
     error: Record<string, never>;
@@ -14,6 +15,10 @@
    */
   export let load: (page: number) => Promise<Array<T>>; /* eslint-disable-line no-undef */
 
+  /**
+   * page to display
+   */
+  export let page: number = 1;
   /**
    * total number of items in result set
    */
@@ -28,34 +33,37 @@
    * query key for the cache
    */
   export let queryKey: string = 'list';
+
+  $: currPage = page;
 </script>
 
-<Pagination.Root count={totalItems} perPage={pageSize} let:pages let:currentPage>
-  {@const currPage = currentPage ? currentPage : 1}
+<div>
   <Container {load} {queryKey} page={currPage - 1}>
     <slot name="loading" slot="loading" />
     <slot name="error" slot="error" />
-    <slot slot="content" let:items {items} />
+    <slot slot="content" let:items {items} let:isLoading {isLoading} />
   </Container>
-  <Pagination.Content class="text-foreground">
-    <Pagination.Item>
-      <Pagination.PrevButton />
-    </Pagination.Item>
-    {#each pages as page (page.key)}
-      {#if page.type === 'ellipsis'}
-        <Pagination.Item>
-          <Pagination.Ellipsis />
-        </Pagination.Item>
-      {:else}
-        <Pagination.Item isVisible={currentPage == page.value}>
-          <Pagination.Link {page} isActive={currentPage == page.value}>
-            {page.value}
-          </Pagination.Link>
-        </Pagination.Item>
-      {/if}
-    {/each}
-    <Pagination.Item>
-      <Pagination.NextButton />
-    </Pagination.Item>
-  </Pagination.Content>
-</Pagination.Root>
+  <Pagination.Root count={totalItems} perPage={pageSize} let:pages let:currentPage bind:page={currPage}>
+    <Pagination.Content class="text-foreground">
+      <Pagination.Item>
+        <Pagination.PrevButton />
+      </Pagination.Item>
+      {#each pages as page (page.key)}
+        {#if page.type === 'ellipsis'}
+          <Pagination.Item>
+            <Pagination.Ellipsis />
+          </Pagination.Item>
+        {:else}
+          <Pagination.Item isVisible={currentPage == page.value}>
+            <Pagination.Link {page} isActive={currentPage == page.value}>
+              {page.value}
+            </Pagination.Link>
+          </Pagination.Item>
+        {/if}
+      {/each}
+      <Pagination.Item>
+        <Pagination.NextButton />
+      </Pagination.Item>
+    </Pagination.Content>
+  </Pagination.Root>
+</div>

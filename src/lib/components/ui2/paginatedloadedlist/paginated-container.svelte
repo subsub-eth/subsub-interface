@@ -1,6 +1,8 @@
 <script lang="ts" generics="T">
-  import { createQuery } from '@tanstack/svelte-query';
+  import { writable, derived } from 'svelte/store';
 
+  import { log } from '$lib/logger';
+  import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
 
   /**
    * Load function that retrieves a list of items based on the page number
@@ -17,12 +19,26 @@
    */
   export let page: number;
 
-  const list = createQuery({
-    queryKey: [queryKey, page],
-    queryFn: async () => await load(page)
-  });
+  const p = writable(page);
 
-  $: items = $list.data! // for the type!
+  $: {
+    p.set(page);
+  }
+
+  // we need to keep the query so it can find its previous data
+  const list = createQuery(
+    derived(p, (p) => ({
+      queryKey: [queryKey, p],
+      queryFn: async () => {
+        log.debug('Loading page from list', p);
+        return await load(p);
+      },
+      staleTime: 3 * 60 * 1000,
+      placeholderData: keepPreviousData
+    }))
+  );
+
+  $: items = $list.data!; // for the type!
 </script>
 
 {#if $list.isPending}
@@ -31,6 +47,6 @@
 {#if $list.isError}
   <slot name="error" />
 {/if}
-{#if $list.isFetched}
-  <slot name="content" items={items}/>
+{#if $list.isSuccess}
+  <slot name="content" {items} isLoading={$list.isPlaceholderData}/>
 {/if}
