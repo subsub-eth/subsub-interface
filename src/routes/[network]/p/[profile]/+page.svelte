@@ -1,11 +1,9 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import { page } from '$app/stores';
   import SubscriptionContractTeaser from '$lib/components/subscription/SubscriptionContractTeaser.svelte';
   import { addressEquals } from '$lib/web3/helpers';
   import ProfileDetails from '$lib/components/profile/ProfileDetails.svelte';
   import Button from '$lib/components/Button.svelte';
-  import ProfileMetadataContext from '$lib/components/context/web3/ProfileMetadataContext.svelte';
   import { getSubscriptionContractAddresses } from '$lib/web3/contracts/subscription-handle';
   import { listSubscriptionContracts } from '$lib/web3/contracts/subscription';
   import { chainEnvironment } from '$lib/chain-context';
@@ -15,9 +13,10 @@
   import { derived } from 'svelte/store';
   import type { Address } from '$lib/web3/contracts/common';
   import { findProfile } from '$lib/web3/contracts/profile';
+  import Url from '$lib/components/Url.svelte';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
-    import type { ProfileData } from '$lib/web3/contracts/profile';
-    import { log } from '$lib/logger';
+  import type { ProfileData } from '$lib/web3/contracts/profile';
+  import { log } from '$lib/logger';
 
   export let data: PageData;
 
@@ -32,7 +31,7 @@
     derived(chainEnvironment, (chainEnvironment) => ({
       queryKey: ['profile', tokenId.toString()],
       queryFn: async () => {
-        log.debug("find profile", chainEnvironment);
+        log.debug('find profile', chainEnvironment);
         const profile = await findProfile(chainEnvironment!.profileContract, tokenId);
         return profile!;
       }
@@ -66,35 +65,31 @@
 
 <div class="flex flex-row space-x-4">
   <div class="basis-1/2">
-      <h2>Profile</h2>
-      {#if $profile.isPending}
+    <h2>Profile</h2>
+    {#if $profile.isPending}
       Loading...
-      {/if}
-      {#if $profile.isError}
+    {/if}
+    {#if $profile.isError}
       Failed to load Profile
-      {/if}
-      {#if $profile.isSuccess}
+    {/if}
+    {#if $profile.isSuccess}
       <ProfileDetails profile={$profile.data} />
-      {/if}
+    {/if}
   </div>
 
   <div class="basis-1/2">
     <!-- TODO Subscription Contracts -->
     <h2>Subscription Contracts</h2>
-    {#await $chainEnvironment.profileContract.ownerOf(tokenId)}
-      Loading...
-    {:then owner}
-      {#if addressEquals(currentAcc, owner)}
-        <Button
-          primary={true}
-          label="New Subscription Contract"
-          href={`${$page.url.pathname}newsub/`}
-        />
+    {#if $profile.isSuccess}
+      {#if addressEquals(currentAcc, $profile.data.owner)}
+        <Url template={`/[network]/p/${tokenId}/newsub/`} let:path>
+          <Button primary={true} label="New Subscription Contract" href={path} />
+        </Url>
       {/if}
-    {/await}
+    {/if}
     <div />
     <!-- TODO FIXME -->
-    {#if $subscriptionContractAddresses.isPending }
+    {#if $subscriptionContractAddresses.isPending}
       Loading ...
     {/if}
     {#if $subscriptionContractAddresses.isError}
