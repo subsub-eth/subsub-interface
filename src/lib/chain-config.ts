@@ -15,6 +15,7 @@ export interface ChainData {
   chainId: number;
   token: string;
   rpcUrl: string;
+  explorerUrl: string;
   contracts: ContractAddresses;
 }
 
@@ -36,6 +37,7 @@ const chains: Chains = {
     chainId: 31337,
     token: 'ETH',
     rpcUrl: 'http://localhost:8545',
+    explorerUrl: 'https://etherscan.io',
     contracts : {
       profile: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
       subscriptionHandle: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
@@ -51,6 +53,7 @@ const chains: Chains = {
     chainId: 137,
     token: 'MATIC',
     rpcUrl: 'https://matic-mainnet.chainstacklabs.com',
+    explorerUrl: 'https://polygonscan.com',
     contracts : {
       profile: zeroAddress,
       subscriptionHandle: zeroAddress,
@@ -66,6 +69,7 @@ const chains: Chains = {
     chainId: 80001,
     token: 'MATIC',
     rpcUrl: 'https://polygon-mumbai-bor.publicnode.com',
+    explorerUrl: 'https://mumbai.polygonscan.com/',
     contracts : {
       profile: zeroAddress,
       subscriptionHandle: zeroAddress,

@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { AttributesMetadataSchema } from './common';
+import { AddressSchema, AttributesMetadataSchema, ExternalUrlSchema, ImageUrlSchema } from './common';
 import type { Profile } from '@createz/contracts/types/ethers-contracts';
-import { decodeDataJsonTokenURI } from '../helpers';
+import { decodeDataJsonTokenURI, zeroAddress } from '../helpers';
 import type { EventDispatcher } from 'svelte';
 import type { MintEvents } from '$lib/components/profile/action/profile-events';
 import { findLog } from '../ethers';
@@ -10,6 +10,18 @@ import {log} from '$lib/logger';
 export const ProfileTokenMetadataSchema = AttributesMetadataSchema.extend({});
 
 export type ProfileTokenMetadata = z.infer<typeof ProfileTokenMetadataSchema>;
+
+export const ProfileDataSchema = z.object({
+  address: AddressSchema,
+  tokenId: z.bigint(),
+  owner: AddressSchema,
+  name: z.string().min(3, 'Name must be at least 3 chars'),
+  description: z.string().optional(),
+  image: ImageUrlSchema.catch(''),
+  externalUrl: ExternalUrlSchema.catch('')
+});
+
+export type ProfileData = z.infer<typeof ProfileDataSchema>;
 
 export async function countUserProfiles(contract: Profile, account: string): Promise<number> {
   log.debug("profile: ", contract);
@@ -20,6 +32,26 @@ export async function countUserProfiles(contract: Profile, account: string): Pro
 export async function totalSupply(contract: Profile): Promise<number> {
   const count = await contract.totalSupply();
   return Number(count);
+}
+
+export async function findProfile(contract: Profile, tokenId: bigint): Promise<ProfileData> {
+    const encoded = await contract.tokenURI(tokenId);
+    const metadata = decodeDataJsonTokenURI<ProfileTokenMetadata>(encoded);
+
+    // TODO do multicall / on-chain
+    const owner = AddressSchema.parse(await contract.ownerOf(tokenId));
+
+    log.debug("Found profile", contract, tokenId, owner, metadata);
+
+    return {
+      address: AddressSchema.parse(await contract.getAddress()),
+      tokenId: tokenId,
+      owner: owner,
+      name: metadata.name,
+      description: metadata.description,
+      image: metadata.image,
+      externalUrl: metadata.external_url,
+    };
 }
 
 export function mint(

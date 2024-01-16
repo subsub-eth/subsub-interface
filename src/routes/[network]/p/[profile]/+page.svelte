@@ -14,7 +14,10 @@
   import { createQuery } from '@tanstack/svelte-query';
   import { derived } from 'svelte/store';
   import type { Address } from '$lib/web3/contracts/common';
+  import { findProfile } from '$lib/web3/contracts/profile';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
+    import type { ProfileData } from '$lib/web3/contracts/profile';
+    import { log } from '$lib/logger';
 
   export let data: PageData;
 
@@ -23,8 +26,18 @@
   const pageSize = 5;
 
   $: ethersSigner = $chainEnvironment!.ethersSigner;
-  $: profileContract = $chainEnvironment!.profileContract;
   $: currentAcc = $currentAccount!;
+
+  const profile = createQuery<ProfileData>(
+    derived(chainEnvironment, (chainEnvironment) => ({
+      queryKey: ['profile', tokenId.toString()],
+      queryFn: async () => {
+        log.debug("find profile", chainEnvironment);
+        const profile = await findProfile(chainEnvironment!.profileContract, tokenId);
+        return profile!;
+      }
+    }))
+  );
 
   const ownerAccount = createQuery<Address>(
     derived(chainEnvironment, (chainEnvironment) => ({
@@ -53,16 +66,22 @@
 
 <div class="flex flex-row space-x-4">
   <div class="basis-1/2">
-    <ProfileMetadataContext {tokenId} contract={profileContract} let:metadata>
       <h2>Profile</h2>
-      <ProfileDetails id={tokenId} {metadata} />
-    </ProfileMetadataContext>
+      {#if $profile.isPending}
+      Loading...
+      {/if}
+      {#if $profile.isError}
+      Failed to load Profile
+      {/if}
+      {#if $profile.isSuccess}
+      <ProfileDetails profile={$profile.data} />
+      {/if}
   </div>
 
   <div class="basis-1/2">
     <!-- TODO Subscription Contracts -->
     <h2>Subscription Contracts</h2>
-    {#await profileContract.ownerOf(tokenId)}
+    {#await $chainEnvironment.profileContract.ownerOf(tokenId)}
       Loading...
     {:then owner}
       {#if addressEquals(currentAcc, owner)}
