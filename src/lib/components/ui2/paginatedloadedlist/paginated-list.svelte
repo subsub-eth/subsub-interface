@@ -1,15 +1,18 @@
 <script lang="ts" generics="T">
-  import Container from './paginated-container.svelte';
+  import { writable, derived } from 'svelte/store';
+  import { log } from '$lib/logger';
+  import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
+
   import * as Pagination from '$lib/components/ui/pagination';
 
-  interface $$Slots /* eslint-disable-line @typescript-eslint/no-unused-vars */ {
-    default: {
-      items: Array<T> /* eslint-disable-line no-undef */;
-      isLoading: boolean;
-    };
-    loading: Record<string, never>;
-    error: Record<string, never>;
-  }
+  // interface $$Slots /* eslint-disable-line @typescript-eslint/no-unused-vars */ {
+  //   default: {
+  //     items: Array<T> /* eslint-disable-line no-undef */;
+  //     isLoading: boolean;
+  //   };
+  //   loading: Record<string, never>;
+  //   error: Record<string, never>;
+  // }
   /**
    * Load function that retrieves a list of items based on the page number
    */
@@ -34,16 +37,45 @@
    */
   export let queryKey: string = 'list';
 
-  $: currPage = page;
+  const p = writable(page);
+
+  $: {
+    p.set(page);
+  }
+
+  // we need to keep the query so it can find its previous data
+  const list = createQuery(
+    derived(p, (p) => {
+      // convert to 0 based calls
+      const page = p - 1;
+      return {
+        queryKey: [queryKey, page],
+        queryFn: async () => {
+          log.debug('Loading page from list', page);
+          return await load(page);
+        },
+        staleTime: 3 * 60 * 1000,
+        placeholderData: keepPreviousData
+      };
+    })
+  );
+
+  $: items = $list.data!; // for the type!
 </script>
 
 <div>
-  <Container {load} {queryKey} page={currPage - 1}>
-    <slot name="loading" slot="loading" />
-    <slot name="error" slot="error" />
-    <slot slot="content" let:items {items} let:isLoading {isLoading} />
-  </Container>
-  <Pagination.Root count={totalItems} perPage={pageSize} let:pages let:currentPage bind:page={currPage}>
+  <div>
+    {#if $list.isPending}
+      <slot name="loading" />
+    {/if}
+    {#if $list.isError}
+      <slot name="error" />
+    {/if}
+    {#if $list.isSuccess}
+      <slot {items} isLoading={$list.isPlaceholderData} />
+    {/if}
+  </div>
+  <Pagination.Root count={totalItems} perPage={pageSize} let:pages let:currentPage bind:page={$p}>
     <Pagination.Content class="text-foreground">
       <Pagination.Item>
         <Pagination.PrevButton />
