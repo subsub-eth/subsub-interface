@@ -1,12 +1,12 @@
 <script lang="ts">
   import { matchEvents } from '$lib/web3/ethers';
-  import { toast } from '@zerodevx/svelte-toast';
   import { createForm } from 'felte';
   import { validator } from '@felte/validator-zod';
   import { reporter, ValidationMessage } from '@felte/reporter-svelte';
   import { MetadataSchema, type Metadata } from '$lib/web3/contracts/common';
   import type { EventDispatcher } from 'svelte';
   import type { MintEvents } from '$lib/components/profile/action/profile-events';
+  import toast from '$lib/toast';
 
   export let mint: (
     name: string,
@@ -30,7 +30,7 @@
           values.image ?? '',
           values.external_url ?? ''
         );
-        toast.push(`Transaction submitted: ${tx.hash}`, { pausable: true });
+        toast.info(`Transaction submitted: ${tx.hash}`);
 
         const receipt = await tx.wait();
 
@@ -43,19 +43,12 @@
           );
           if (res[0]) {
             const newTokenId = res[0].args.tokenId;
-            toast.push(`New token ID: ${newTokenId}`, { pausable: true });
+            toast.info(`New token ID: ${newTokenId}`);
             onSuccess(newTokenId);
           }
         }
       } catch (err) {
-        toast.push('Transaction failed', {
-          pausable: true,
-          theme: {
-            '--toastBackground': 'red',
-            '--toastColor': 'white',
-            '--toastBarBackground': 'fuchsia'
-          }
-        });
+        toast.error('Transaction failed');
         console.error('Transaction failed', err);
       } finally {
         formDisabled = false;

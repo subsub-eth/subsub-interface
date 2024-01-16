@@ -2,10 +2,8 @@
   import '../app.css';
   import { browser } from '$app/environment';
   import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query';
+  import { Toaster } from '$lib/components/ui/sonner';
   import HeaderWallet from '$lib/HeaderWallet.svelte';
-  import { SvelteToast } from '@zerodevx/svelte-toast';
-
-  const toastOptions = {};
 
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -34,6 +32,5 @@
   <footer>
     <a href="https://github.com/createz-eth" target="_blank">GitHub</a>
   </footer>
-
-  <SvelteToast options={toastOptions} />
+  <Toaster richColors/>
 </QueryClientProvider>

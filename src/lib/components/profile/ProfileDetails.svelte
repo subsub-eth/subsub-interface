@@ -7,9 +7,15 @@
   import { ClipboardCopy, ExternalLink } from 'lucide-svelte';
   import { truncateAddress } from '$lib/helpers';
   import { copyTextToClipboard } from '$lib/clipboard';
+  import toast from "$lib/toast";
 
   /** profile data */
   export let profile: ProfileData;
+
+  const toClipboard = async (text: string) => {
+    await copyTextToClipboard(text);
+    toast.info(['Copied to clipboard:', text]);
+  }
 </script>
 
 <Card.Root class="p-4">
@@ -56,7 +62,7 @@
           size="iconSm"
           variant="ghost"
           class="ml-2 self-center"
-          on:click={() => copyTextToClipboard(profile.owner)}
+          on:click={() => toClipboard(profile.owner)}
         >
           <ClipboardCopy className="h-4 w-4" />
         </Button>

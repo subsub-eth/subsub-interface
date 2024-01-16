@@ -4,11 +4,11 @@
   import { page } from '$app/stores';
   import NewSubscriptionContractForm from '$lib/components/subscription-manager/NewSubscriptionContractForm.svelte';
   import { type Profile } from '@createz/contracts/types/ethers-contracts';
-  import { toast } from '@zerodevx/svelte-toast';
   import { createSubscription } from '$lib/web3/contracts/subscription-handle';
   import { addressEquals } from '$lib/web3/helpers';
     import { chainEnvironment } from '$lib/chain-context';
     import { currentAccount } from '$lib/web3/onboard';
+    import toast from '$lib/toast';
 
   export let data: PageData;
 
@@ -29,23 +29,16 @@
   };
 
   const onTxSubmitted = (event: CustomEvent<string>) => {
-    toast.push(`Transaction submitted: ${event.detail}`, { pausable: true });
+    toast.info(`Transaction submitted: ${event.detail}`);
   };
 
   const onContractCreated = (event: CustomEvent<[string, string]>) => {
-    toast.push(`New Contract address: ${event.detail[0]}`, { pausable: true });
+    toast.info(`New Contract address: ${event.detail[0]}`);
     goto(`/${$page.params.network}/s/${event.detail[0]}/`);
   };
 
   const onTxFailed = () => {
-    toast.push('Transaction failed', {
-      pausable: true,
-      theme: {
-        '--toastBackground': 'red',
-        '--toastColor': 'white',
-        '--toastBarBackground': 'fuchsia'
-      }
-    });
+    toast.error('Transaction failed');
   };
 </script>
 

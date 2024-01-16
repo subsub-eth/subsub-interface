@@ -2,7 +2,6 @@
   import type { PageData } from './$types';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { toast } from '@zerodevx/svelte-toast';
   import {
     CurrentAccountContext,
     ERC20AllowanceContext,
@@ -15,6 +14,7 @@
   import MintSubscriptionForm from '$lib/components/subscription/action/MintSubscriptionForm.svelte';
   import { mint } from '$lib/web3/contracts/subscription';
   import { approveFunc } from '$lib/web3/contracts/erc20';
+  import toast from '$lib/toast';
 
   export let data: PageData;
 
@@ -22,11 +22,11 @@
 
   const onMinted = async (ev: CustomEvent<[bigint, string]>) => {
     const [id, hash] = ev.detail;
-    toast.push(`New Subscription minted: ${id} in ${hash}`, { pausable: true });
+    toast.info(`New Subscription minted: ${id} in ${hash}`);
     goto($page.url.pathname + '../' + id);
   };
 
-  const toastMessage = (message: string) => toast.push(message, { pausable: true });
+  const toastMessage = (message: string) => toast.info(message);
 </script>
 
 <h1>Mint new Subscription Token</h1>
@@ -61,18 +61,11 @@
                 {update}
                 on:minted={onMinted}
                 on:approved={(ev) => toastMessage(`Amount approved`)}
-                on:mintTxSubmitted={(ev) => toast.push(`Mint Transaction submitted: ${ev.detail}`)}
+                on:mintTxSubmitted={(ev) => toast.info(`Mint Transaction submitted: ${ev.detail}`)}
                 on:approvalTxSubmitted={(ev) =>
-                  toast.push(`Approval Transaction submitted: ${ev.detail}`)}
+                  toast.info(`Approval Transaction submitted: ${ev.detail}`)}
                 on:txFailed={(ev) =>
-                  toast.push(`Transaction failed: ${ev.detail}`, {
-                    pausable: true,
-                    theme: {
-                      '--toastBackground': 'red',
-                      '--toastColor': 'white',
-                      '--toastBarBackground': 'fuchsia'
-                    }
-                  })}
+                  toast.error(`Transaction failed: ${ev.detail}`)}
               ></MintSubscriptionForm>
             </ERC20BalanceContext>
           </ERC20AllowanceContext>

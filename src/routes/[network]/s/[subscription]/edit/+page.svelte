@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { goto } from '$app/navigation';
-  import { toast } from '@zerodevx/svelte-toast';
   import {
     EthersContext,
     SubscriptionContractContext,
