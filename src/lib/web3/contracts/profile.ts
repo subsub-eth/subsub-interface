@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AddressSchema, AttributesMetadataSchema, ExternalUrlSchema, ImageUrlSchema } from './common';
+import { AddressSchema, AttributesMetadataSchema, ExternalUrlSchema, ImageUrlSchema, type Address } from './common';
 import type { Profile } from '@createz/contracts/types/ethers-contracts';
 import { decodeDataJsonTokenURI, zeroAddress } from '../helpers';
 import type { EventDispatcher } from 'svelte';
@@ -23,6 +23,19 @@ export const ProfileDataSchema = z.object({
 
 export type ProfileData = z.infer<typeof ProfileDataSchema>;
 
+async function mapProfileData(contract: Profile, tokenId: bigint, metadata: ProfileTokenMetadata, owner: Address): ProfileData {
+    return {
+      address: AddressSchema.parse(await contract.getAddress()),
+      tokenId: tokenId,
+      owner: owner,
+      name: metadata.name,
+      description: metadata.description,
+      image: metadata.image,
+      externalUrl: metadata.external_url,
+    };
+
+}
+
 export async function countUserProfiles(contract: Profile, account: string): Promise<number> {
   log.debug("profile: ", contract);
   const count = await contract.balanceOf(account);
@@ -43,15 +56,7 @@ export async function findProfile(contract: Profile, tokenId: bigint): Promise<P
 
     log.debug("Found profile", contract, tokenId, owner, metadata);
 
-    return {
-      address: AddressSchema.parse(await contract.getAddress()),
-      tokenId: tokenId,
-      owner: owner,
-      name: metadata.name,
-      description: metadata.description,
-      image: metadata.image,
-      externalUrl: metadata.external_url,
-    };
+    return mapProfileData(contract, tokenId, metadata, owner);
 }
 
 export function mint(
@@ -89,18 +94,19 @@ export function listUserProfilesRev(
   account: string,
   pageSize: number,
   totalItems: number
-): (page: number) => Promise<[bigint, ProfileTokenMetadata][]> {
+): (page: number) => Promise<Array<ProfileData>> {
   // TODO multicall
-  const func = async (page: number): Promise<[bigint, ProfileTokenMetadata][]> => {
+  const func = async (page: number): Promise<Array<ProfileData>> => {
+    const owner = AddressSchema.parse(account);
     const index = page * pageSize;
     const size = Math.max(Math.min(totalItems - index, pageSize), 0);
 
-    const load = async (i: number): Promise<[bigint, ProfileTokenMetadata]> => {
+    const load = async (i: number): Promise<ProfileData> => {
       // reverse index here
-      const id = await contract.tokenOfOwnerByIndex(account, totalItems - 1 - (i + index));
+      const id = await contract.tokenOfOwnerByIndex(owner, totalItems - 1 - (i + index));
       const encoded = await contract.tokenURI(id);
       const data = decodeDataJsonTokenURI<ProfileTokenMetadata>(encoded);
-      return [id, data];
+      return mapProfileData(contract, id, data, owner);
     };
 
     const data = [...Array(size).keys()].map((i) => load(i));
@@ -114,18 +120,19 @@ export function listAllProfilesRev(
   contract: Profile,
   pageSize: number,
   totalItems: number
-): (page: number) => Promise<[bigint, ProfileTokenMetadata][]> {
+): (page: number) => Promise<Array<ProfileData>> {
   // TODO multicall
-  const func = async (page: number): Promise<[bigint, ProfileTokenMetadata][]> => {
+  const func = async (page: number): Promise<Array<ProfileData>> => {
     const index = page * pageSize;
     const size = Math.max(Math.min(totalItems - index, pageSize), 0);
 
-    const load = async (i: number): Promise<[bigint, ProfileTokenMetadata]> => {
+    const load = async (i: number): Promise<ProfileData> => {
       // reverse index here
       const id = await contract.tokenByIndex(totalItems - 1 - (i + index));
+      const owner = AddressSchema.parse(await contract.ownerOf(id));
       const encoded = await contract.tokenURI(id);
       const data = decodeDataJsonTokenURI<ProfileTokenMetadata>(encoded);
-      return [id, data];
+      return mapProfileData(contract, id, data, owner);
     };
 
     const data = [...Array(size).keys()].map((i) => load(i));
