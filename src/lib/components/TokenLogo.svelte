@@ -10,6 +10,10 @@
   /** fallback symbol name to show */
   export let fallbackSymbol: string;
 
+  /** show loading state indicator */
+  // TODO
+  export let isLoading: boolean = false;
+
   /**
    * Additional css classes
    */

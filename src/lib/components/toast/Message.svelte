@@ -2,7 +2,6 @@
 
   /** message strings to print */
   export let message: Array<string>;
-  console.log(message)
 
 </script>
 

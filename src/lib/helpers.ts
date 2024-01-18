@@ -41,3 +41,20 @@ export function aflow<A extends ReadonlyArray<unknown>, B, C, D>(
 export function rangeArray(start: number, stop: number, step: number = 1): Array<number> {
   return Array.from({ length: (stop - start) / step + 1 }, (_, index) => start + index * step);
 }
+
+export function prettyNumber(num: number): string {
+  if (num >= 1000) {
+    return Math.round(num).toString();
+  }
+
+  let decimals = 2;
+  let limit = 0.01;
+  while (num < limit) {
+    limit /= 100;
+    decimals += 2;
+  }
+  // fix the rounding in toFixed
+  return Number(Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(
+    decimals
+  );
+}

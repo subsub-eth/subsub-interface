@@ -94,7 +94,7 @@ const SubscriptionContractDataSchema = z.object({
   image: z.string().url().optional(),
   externalUrl: z.string().url().optional(),
   token: AddressSchema,
-  rate: z.number(),
+  rate: z.bigint(),
   lock: z.number(),
   epochSize: z.number(),
   maxSupply: BigNumberishSchema,
@@ -122,6 +122,10 @@ export function isFlagSet(flags: BigNumberish, flag: number): boolean {
   return (bFlag & bFlags) === bFlag;
 }
 
+export function monthlyRate(rate: bigint): bigint {
+  return rate * BigInt(60 * 60 * 24 * 30);
+}
+
 export function createSubscriptionContract(address: Address, signer: Signer): Subscription {
   return Subscription__factory.connect(address, signer);
 }
@@ -143,7 +147,7 @@ export async function contractMetadata(
       description: m.description,
       image: m.image,
       externalUrl: m.external_url,
-      rate: a.number('rate'),
+      rate: a.bigint('rate'),
       lock: a.number('lock'),
       epochSize: a.number('epoch_size'),
       maxSupply: a.bigint('max_supply'),
@@ -404,24 +408,24 @@ export function listSubscriptionContracts(
   ethers: Signer,
   addresses: string[],
   pageSize: number
-): (page: number) => Promise<[string, SubscriptionContractMetadata | undefined][]> {
+): (page: number) => Promise<Array<SubscriptionContractData>> {
   // TODO multicall
   const func = async (
     page: number
-  ): Promise<[string, SubscriptionContractMetadata | undefined][]> => {
+  ): Promise<Array<SubscriptionContractData>> => {
     const index = page * pageSize;
     const totalItems = addresses.length;
     const count = Math.max(Math.min(totalItems - index, pageSize), 0);
 
-    const load = async (i: number): Promise<[string, SubscriptionContractMetadata | undefined]> => {
+    const load = async (i: number): Promise<SubscriptionContractData> => {
       const address = addresses[i + index];
       const contract = Subscription__factory.connect(address, ethers);
       try {
         const data = await contractMetadata(contract);
-        return [address, data];
+        return data;
       } catch (err) {
         console.debug(`Failed to load Subscription contract: ${address}`, err);
-        return [address, undefined];
+        throw err;
       }
     };
 

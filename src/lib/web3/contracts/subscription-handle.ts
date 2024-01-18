@@ -40,12 +40,12 @@ export async function getSubscriptionContractAddresses(
   owner: Address
 ): Promise<Array<Address>> {
   const tokenBalance = await contract.balanceOf(owner);
-  const total = await contract.totalSupply()
 
-  log.debug('token balance', owner, tokenBalance, await contract.getAddress(), total);
+  log.debug('token balance', owner, tokenBalance, await contract.getAddress());
   // TODO multicall
   const addresses = new Array<Address>();
   for (let i = 0; i < tokenBalance; i++) {
+    // TODO add paging, move this on chain
     const tokenId = await contract.tokenOfOwnerByIndex(owner, i);
     const hex = toBeHex(tokenId, 20);
     addresses.push(AddressSchema.parse(hex));

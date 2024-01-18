@@ -43,7 +43,7 @@ const chains: Chains = {
       subscriptionHandle: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
       erc6551Registry: '0x9A676e781A523b5d0C0e43731313A708CB607508',
       defaultErc6551Implementation: '0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1',
-      testErc20: '0x0B306BF915C4d645ff596e518fAf3F9669b97016',
+      testErc20: '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE',
     }
   },
   polygon: {

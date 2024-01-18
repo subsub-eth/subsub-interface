@@ -17,6 +17,7 @@
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { log } from '$lib/logger';
+  import { erc20Contract, erc20Data, type Erc20Data } from '$lib/web3/contracts/erc20';
 
   export let data: PageData;
 
@@ -59,6 +60,11 @@
       enabled: ownerAccount.isFetched && !!ownerAccount.data
     }))
   );
+
+  $: loadErc20Data = async (address: Address): Promise<Erc20Data> => {
+    const contract = erc20Contract(address, $chainEnvironment!.ethersSigner);
+    return erc20Data(contract);
+  };
 </script>
 
 <h1>Profile Details</h1>
@@ -79,7 +85,7 @@
 
   <div class="basis-1/2">
     <!-- TODO Subscription Contracts -->
-    <h2>Subscription Contracts</h2>
+    <h2>Subscription Plans</h2>
     {#if $profile.isSuccess}
       {#if addressEquals(currentAcc, $profile.data.owner)}
         <Url template={`/[network]/p/${tokenId}/newsub/`} let:path>
@@ -109,8 +115,8 @@
         totalItems={$subscriptionContractAddresses.data.length}
         {pageSize}
       >
-        {#each items as [address, metadata]}
-          <SubscriptionContractTeaser {address} {metadata} />
+        {#each items as plan}
+          <SubscriptionContractTeaser contractData={plan} getErc20Data={loadErc20Data} />
         {/each}
       </PaginatedLoadedList>
     {/if}
