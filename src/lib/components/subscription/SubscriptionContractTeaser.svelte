@@ -27,6 +27,13 @@
 
   const rawRate = formatEther(monthlyRate(contractData.rate));
   const rate = prettyNumber(Number(rawRate));
+
+  // for simplicity: convert active subs but max out at totalSupply
+  const totalSupply = Number(contractData.totalSupply);
+  const activeSubs = Math.max(
+    Math.floor(Number(BigInt(contractData.activeShares) / BigInt(100))),
+    totalSupply
+  );
 </script>
 
 <Card.Root>
@@ -76,13 +83,20 @@
         <p class="text-xs text-muted-foreground">$2.02 / month</p>
       </div>
       <div class="flex items-center gap-0 sm:gap-1 md:gap-2">
-        <ProgressRadial width="w-6" stroke={100} font={200} value={(10 / 200) * 100} />
+        <ProgressRadial
+          width="w-6"
+          stroke={100}
+          font={200}
+          value={(activeSubs / totalSupply) * 100}
+        />
         <p class="text-sm font-medium leading-none">
           <Tooltip.Root>
             <Tooltip.Trigger>
-              <span class="text-xl font-bold">10</span> / 200 active
+              <span class="text-xl font-bold">{activeSubs}</span> / {totalSupply} active
             </Tooltip.Trigger>
-            <Tooltip.Content>10 out of 200 subscriptions are active</Tooltip.Content>
+            <Tooltip.Content
+              >{activeSubs} out of {totalSupply} subscriptions are active</Tooltip.Content
+            >
           </Tooltip.Root>
         </p>
       </div>

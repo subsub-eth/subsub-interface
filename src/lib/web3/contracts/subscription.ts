@@ -27,7 +27,6 @@ import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
 import { ZeroAddress, type Signer } from 'ethers';
 import type { PauseEvents, UnpauseEvents } from '$lib/components/common-events';
-import { getCreateAddress } from 'ethers';
 
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
@@ -67,6 +66,8 @@ const SubscriptionContractExtendedMetadataSchema = z.object({
   lock: z.number(),
   epochSize: z.number(),
   maxSupply: BigNumberishSchema,
+  totalSupply: BigNumberishSchema,
+  activeShares: BigNumberishSchema,
   owner: AddressSchema,
   claimable: BigNumberishSchema,
   depositsClaimed: BigNumberishSchema,
@@ -98,6 +99,8 @@ const SubscriptionContractDataSchema = z.object({
   lock: z.number(),
   epochSize: z.number(),
   maxSupply: BigNumberishSchema,
+  totalSupply: BigNumberishSchema,
+  activeShares: BigNumberishSchema,
   owner: AddressSchema,
   claimable: BigNumberishSchema,
   depositsClaimed: BigNumberishSchema,
@@ -151,6 +154,8 @@ export async function contractMetadata(
       lock: a.number('lock'),
       epochSize: a.number('epoch_size'),
       maxSupply: a.bigint('max_supply'),
+      totalSupply: a.bigint('total_supply'),
+      activeShares: a.bigint('active_shares'),
       token: a.address('token'),
       owner: a.address('owner'),
       claimable: a.bigint('claimable'),

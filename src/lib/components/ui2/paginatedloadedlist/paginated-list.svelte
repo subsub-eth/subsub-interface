@@ -35,7 +35,7 @@
   /**
    * query key for the cache
    */
-  export let queryKey: string = 'list';
+  export let queryKeys: string[] = ['list'];
 
   const p = writable(page);
 
@@ -49,7 +49,7 @@
       // convert to 0 based calls
       const page = p - 1;
       return {
-        queryKey: [queryKey, page],
+        queryKey: queryKeys.concat([String(page)]),
         queryFn: async () => {
           log.debug('Loading page from list', page);
           return await load(page);

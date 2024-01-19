@@ -110,7 +110,7 @@
 
       <PaginatedLoadedList
         {load}
-        queryKey="profiles"
+        queryKeys={["profiles", tokenId.toString()]}
         let:items
         totalItems={$subscriptionContractAddresses.data.length}
         {pageSize}

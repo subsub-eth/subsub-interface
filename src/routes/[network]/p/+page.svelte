@@ -68,7 +68,7 @@
         )}
         <PaginatedLoadedList
           {load}
-          queryKey="userProfiles"
+          queryKeys={["userProfiles", currentAcc]}
           let:items
           totalItems={$userProfileBalance.data}
           {pageSize}
@@ -90,7 +90,7 @@
       {@const load = listAllProfilesRev(profileContract, pageSize, $profileTotalSupply.data)}
       <PaginatedLoadedList
         {load}
-        queryKey="allProfiles"
+        queryKeys={["allProfiles"]}
         let:items
         totalItems={$profileTotalSupply.data}
         {pageSize}
