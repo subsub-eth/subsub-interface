@@ -11,13 +11,28 @@
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import type { Address } from '$lib/web3/contracts/common';
   import { createQuery } from '@tanstack/svelte-query';
-  import { formatEther } from 'ethers';
+  import { formatEther, formatUnits } from 'ethers';
   import { prettyNumber } from '$lib/helpers';
+  import type { Price } from '$lib/web3/contracts/oracle';
 
+  /**
+   * Data of the subscription plan
+   */
   export let contractData: SubscriptionContractData;
 
+  /**
+   * Function to load erc20 token data from
+   */
   export let getErc20Data: (address: Address) => Promise<Erc20Data>;
 
+  /**
+   *  Function to load price data for the underlying erc20 token from
+   */
+  export let getPriceData: (address: Address) => Promise<Price | undefined>;
+
+  /**
+   * show owner in teaser
+   */
   export let showOwner = false;
 
   const token = createQuery<Erc20Data>({
@@ -25,7 +40,14 @@
     queryFn: async () => getErc20Data(contractData.token)
   });
 
-  const rawRate = formatEther(monthlyRate(contractData.rate));
+  const price = createQuery<Price | false>({
+    queryKey: ['price', contractData.token],
+    queryFn: async () => {
+      return (await getPriceData(contractData.token)) ?? false;
+    }
+  });
+
+  const rawRate = formatEther(monthlyRate(BigInt(contractData.rate)));
   const rate = prettyNumber(Number(rawRate));
 
   // for simplicity: convert active subs but max out at totalSupply
@@ -34,6 +56,13 @@
     Math.floor(Number(BigInt(contractData.activeShares) / BigInt(100))),
     totalSupply
   );
+
+  const ratePrice = (price: Price): string => {
+    const rate = Number(rawRate);
+    const p = Number(formatUnits(price.price, price.decimals));
+
+    return prettyNumber(rate * p);
+  };
 </script>
 
 <Card.Root>
@@ -80,7 +109,15 @@
           {/if}
           / month
         </p>
-        <p class="text-xs text-muted-foreground">$2.02 / month</p>
+        {#if $price.isPending}
+          ...
+        {/if}
+        {#if $price.isError}
+          ???
+        {/if}
+        {#if $price.isSuccess && $price.data}
+          <p class="text-xs text-muted-foreground">${ratePrice($price.data)} / month</p>
+        {/if}
       </div>
       <div class="flex items-center gap-0 sm:gap-1 md:gap-2">
         <ProgressRadial

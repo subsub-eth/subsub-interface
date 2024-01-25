@@ -18,6 +18,7 @@
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { log } from '$lib/logger';
   import { erc20Contract, erc20Data, type Erc20Data } from '$lib/web3/contracts/erc20';
+  import { findPrice, type Price } from '$lib/web3/contracts/oracle';
 
   export let data: PageData;
 
@@ -65,6 +66,14 @@
     const contract = erc20Contract(address, $chainEnvironment!.ethersSigner);
     return erc20Data(contract);
   };
+
+  $: loadPrice = async (address: Address): Promise<Price | undefined> => {
+    return findPrice(
+      address,
+      $chainEnvironment!.chainData.contracts.priceFeeds,
+      $chainEnvironment!.ethersSigner
+    );
+  };
 </script>
 
 <h1>Profile Details</h1>
@@ -110,13 +119,17 @@
 
       <PaginatedLoadedList
         {load}
-        queryKeys={["profiles", tokenId.toString()]}
+        queryKeys={['profiles', tokenId.toString()]}
         let:items
         totalItems={$subscriptionContractAddresses.data.length}
         {pageSize}
       >
         {#each items as plan}
-          <SubscriptionContractTeaser contractData={plan} getErc20Data={loadErc20Data} />
+          <SubscriptionContractTeaser
+            contractData={plan}
+            getErc20Data={loadErc20Data}
+            getPriceData={loadPrice}
+          />
         {/each}
       </PaginatedLoadedList>
     {/if}

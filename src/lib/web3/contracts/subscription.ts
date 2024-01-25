@@ -95,7 +95,7 @@ const SubscriptionContractDataSchema = z.object({
   image: z.string().url().optional(),
   externalUrl: z.string().url().optional(),
   token: AddressSchema,
-  rate: z.bigint(),
+  rate: BigNumberishSchema,
   lock: z.number(),
   epochSize: z.number(),
   maxSupply: BigNumberishSchema,

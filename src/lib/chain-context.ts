@@ -27,7 +27,7 @@ export type ChainEnvironment = {
 
 const networkSegment: Readable<string | undefined> = derived(page, (page) => {
   console.log(`Extracting navigation segment from page params`, page);
-  const network = page.params?.network;
+  const network = page?.params?.network;
   console.log(`network segment is`, network);
   return network;
 });

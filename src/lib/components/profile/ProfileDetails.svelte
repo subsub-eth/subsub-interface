@@ -30,7 +30,7 @@
     <div class="basis-3/4 space-y-3 self-center justify-self-start">
       <div class="flex">
         <Card.Title>{profile.name}</Card.Title>
-        <ExplorerNftUrl contract={profile.address} tokenId={profile.tokenId} let:url>
+        <ExplorerNftUrl contract={profile.address} tokenId={BigInt(profile.tokenId)} let:url>
           <Button
             size="iconSm"
             variant="ghost"

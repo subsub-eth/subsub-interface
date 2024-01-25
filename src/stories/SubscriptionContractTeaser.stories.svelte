@@ -1,24 +1,50 @@
 <script lang="ts" context="module">
+  import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query';
   import SubscriptionContractTeaser from '$lib/components/subscription/SubscriptionContractTeaser.svelte';
-  import type { SubscriptionContractMetadata } from '$lib/web3/contracts/subscription';
+  import type { SubscriptionContractData } from '$lib/web3/contracts/subscription';
   import { contractDummy } from '$lib/static-content';
   import { zeroAddress } from '$lib/web3/helpers';
 
-  const testMetadata: SubscriptionContractMetadata = {
-    name: 'Tier 1 Sub to Jane',
-    description: 'This awesome subscription gives you access to nothing',
-    image: contractDummy,
-    external_url: 'http://example.com',
-    token: zeroAddress,
-    rate: 100,
-    lock: 100,
-    epochSize: 3600,
-    ownerContract: zeroAddress,
-    ownerId: 1234,
-    ownerAddress: zeroAddress,
-    claimable: 30000,
-    totalClaimed: 700000,
-    paused: false
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        enabled: true
+      }
+    }
+  });
+
+  const testData: SubscriptionContractData = {
+      name: 'Tier 1 Sub to Jane',
+      description: 'This awesome subscription gives you access to nothing',
+      image: contractDummy,
+      externalUrl: 'http://example.com',
+      token: zeroAddress,
+      rate: 100,
+      lock: 100,
+      epochSize: 3600,
+      claimable: 30000,
+      address: zeroAddress,
+      maxSupply: 10_000,
+      totalSupply: 100,
+      activeShares: 1000,
+      owner: zeroAddress,
+      depositsClaimed: 200,
+      tipsClaimed: 400,
+      mintingPaused: false,
+      renewalPaused: false,
+      tippingPaused: false
+  };
+
+  const getErc20 = async (addr: Address): Promise<Erc20Data> => {
+    return {
+      name: "Test Token",
+      symbol: 'TT',
+      decimals: 18,
+      address: addr
+    }
+  };
+  const getPriceData = async (addr: Address): Promise<Price> => {
+    return {price: 12n * (10n ** 7n), decimals: 8};
   };
 
   export const meta = {
@@ -26,39 +52,26 @@
     component: SubscriptionContractTeaser,
     tags: ['autodocs'],
     args: {
-      address: zeroAddress,
-      metadata: testMetadata
+      contractData: testData,
+      getErc20Data: getErc20,
+      getPriceData: getPriceData,
     },
-    argTypes: {
-      address: {
-        control: 'text',
-        description: 'Address of the subscription contract',
-        type: {
-          required: true,
-          name: 'string'
-        }
-      },
-      metadata: {
-        control: 'object',
-        description: 'Metadata object provided by Contract contractURI method',
-        type: {
-          required: true,
-          name: 'object',
-          value: {}
-        }
-      }
-    }
   };
 </script>
 
 <script lang="ts">
   import { Story, Template } from '@storybook/addon-svelte-csf';
+    import type { Address } from '$lib/web3/contracts/common';
+    import type { Price } from '$lib/web3/contracts/oracle';
+    import type { Erc20Data } from '$lib/web3/contracts/erc20';
 </script>
 
 <Template let:args>
-  <SubscriptionContractTeaser {...args} />
+  <QueryClientProvider client={queryClient}>
+  <SubscriptionContractTeaser {...args} getPriceData={getPriceData} getErc20Data={getErc20} />
+  </QueryClientProvider>
 </Template>
 
 <Story name="with Owner" args={{ showOwner: true }} />
 
-<Story name="paused" args={{ metadata: { ...testMetadata, paused: true } }} />
+<Story name="paused" args={{ metadata: { ...testData, mintingPaused: true } }} />

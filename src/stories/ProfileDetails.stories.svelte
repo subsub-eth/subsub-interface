@@ -1,12 +1,17 @@
 <script lang="ts" context="module">
   import ProfileDetails from '$lib/components/profile/ProfileDetails.svelte';
-  import type { ProfileTokenMetadata } from '$lib/web3/contracts/profile';
+  import { EXPLORER_URL } from '$lib/contexts';
+  import type { ProfileData } from '$lib/web3/contracts/profile';
+  import { zeroAddress } from '$lib/web3/helpers';
 
-  const metadata: ProfileTokenMetadata = {
+  const profileData: ProfileData = {
     name: 'Johnny',
     description: 'A very cool guy',
-    external_url: 'https://example.com/johnny',
-    image: 'https://github.com/shadcn.png'
+    externalUrl: 'https://example.com/johnny',
+    image: 'https://github.com/shadcn.png',
+    address: zeroAddress,
+    tokenId: 10,
+    owner: zeroAddress
   };
 
   export const meta = {
@@ -14,8 +19,7 @@
     component: ProfileDetails,
     tags: ['autodocs'],
     args: {
-      id: 12345,
-      metadata: metadata
+      profile: profileData
     },
     argTypes: {}
   };
@@ -23,6 +27,9 @@
 
 <script lang="ts">
   import { Story, Template } from '@storybook/addon-svelte-csf';
+  import { setContext } from 'svelte';
+
+  setContext(EXPLORER_URL, 'https://example.com');
 </script>
 
 <Template let:args>
@@ -33,11 +40,11 @@
 
 <Story
   name="Image not found"
-  args={{ metadata: { ...metadata, image: 'https://localhost/nothing.jpg' } }}
+  args={{ profile: { ...profileData, image: 'https://localhost/nothing.jpg' } }}
 />
 
-<Story name="Missing image" args={{ metadata: { ...metadata, image: undefined } }} />
+<Story name="Missing image" args={{ profile: { ...profileData, image: undefined } }} />
 
-<Story name="No description" args={{ metadata: { ...metadata, description: undefined } }} />
+<Story name="No description" args={{ profile: { ...profileData, description: undefined } }} />
 
-<Story name="No external url" args={{ metadata: { ...metadata, external_url: undefined } }} />
+<Story name="No external url" args={{ profile: { ...profileData, external_url: undefined } }} />

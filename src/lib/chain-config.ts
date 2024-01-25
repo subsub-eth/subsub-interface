@@ -19,12 +19,15 @@ export interface ChainData {
   contracts: ContractAddresses;
 }
 
+export type PriceFeeds = Record<Address, Address>;
+
 export interface ContractAddresses {
   profile: Address,
   subscriptionHandle: Address,
   erc6551Registry: Address,
   defaultErc6551Implementation: Address,
   testErc20: Address,
+  priceFeeds: PriceFeeds,
 }
 
 export type chain = keyof Chains;
@@ -44,6 +47,9 @@ const chains: Chains = {
       erc6551Registry: '0x9A676e781A523b5d0C0e43731313A708CB607508',
       defaultErc6551Implementation: '0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1',
       testErc20: '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE',
+      priceFeeds: {
+        '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE': '0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44',
+      },
     }
   },
   polygon: {
@@ -60,6 +66,7 @@ const chains: Chains = {
       erc6551Registry: zeroAddress,
       defaultErc6551Implementation: zeroAddress,
       testErc20: zeroAddress,
+      priceFeeds: {},
     }
   },
   'polygon-mumbai': {
@@ -76,6 +83,7 @@ const chains: Chains = {
       erc6551Registry: zeroAddress,
       defaultErc6551Implementation: zeroAddress,
       testErc20: zeroAddress,
+      priceFeeds: {},
     }
   }
 };

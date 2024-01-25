@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ethers } from 'ethers';
+import { ethers, getAddress as ethersGetAddress } from 'ethers';
 
 type RemoveUnderscoreFirstLetter<S extends string> = S extends `${infer FirstLetter}${infer U}`
   ? `${FirstLetter extends '_' ? U : `${FirstLetter}${U}`}`
@@ -29,6 +29,8 @@ export const AddressSchema = z.custom<`0x${string}`>((val) => {
 
 export type Address = z.infer<typeof AddressSchema>;
 export type address = Address;
+
+export const asChecksumAddress = (addr: string) => AddressSchema.parse(ethersGetAddress(addr));
 
 export const AttributeSchema = z.object({
   trait_type: z.string(),
@@ -104,8 +106,9 @@ function getString(attributes: Array<Attribute>, name: string): string {
   return z.string().parse(getValue(attributes, name));
 }
 
-function getAddress(attributes: Array<Attribute>, name: string): address {
-  return AddressSchema.parse(getValue(attributes, name));
+function getAddress(attributes: Array<Attribute>, name: string): Address {
+  // TODO Fixme
+  return asChecksumAddress(AddressSchema.parse(getValue(attributes, name)));
 }
 
 function getNumber(attributes: Array<Attribute>, name: string): number {

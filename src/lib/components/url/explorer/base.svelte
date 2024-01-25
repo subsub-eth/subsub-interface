@@ -1,31 +1,29 @@
 <script lang="ts">
-  import type { Address } from '$lib/web3/contracts/common';
   import { chainEnvironment } from '$lib/chain-context';
-  import { nftUrl } from '$lib/web3/blockexplorer';
   import { getContext } from 'svelte';
   import { log } from '$lib/logger';
   import { EXPLORER_URL } from '$lib/contexts';
 
-  /** address to link to */
-  export let contract: Address;
+  type CreateUrl = (explorerUrl: string) => string;
 
-  /** id of the NFT */
-  export let tokenId: bigint;
+  /** Function to create a URL given a block explorer base URL */
+  export let createUrl: CreateUrl;
 
   /** override explorerUrl getting the url from the context */
   export let explorerUrl: string | undefined = undefined;
 
-  const createUrl = (addr: Address, tokenId: bigint, explorerUrl: string | undefined) => {
+  const handleCreateUrl = (createUrl: CreateUrl, explorerUrl: string | undefined) => {
     const explorer = explorerUrl ?? getContext(EXPLORER_URL);
     if (!explorer) {
       const msg = 'Explorer Url not defined';
-      log.error(msg, contract, tokenId);
+      log.error(msg);
       throw new Error(msg);
     }
-    return nftUrl(explorer, addr, tokenId);
+    return createUrl(explorer);
   };
 
-  $: url = createUrl(contract, tokenId, explorerUrl ?? $chainEnvironment?.chainData.explorerUrl);
+  $: url = handleCreateUrl(createUrl, explorerUrl ?? $chainEnvironment?.chainData.explorerUrl);
 </script>
 
 <slot {url} />
+

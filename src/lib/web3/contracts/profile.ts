@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { AddressSchema, AttributesMetadataSchema, ExternalUrlSchema, ImageUrlSchema, type Address } from './common';
+import { AddressSchema, AttributesMetadataSchema, ExternalUrlSchema, ImageUrlSchema, type Address, BigNumberishSchema } from './common';
 import type { Profile } from '@createz/contracts/types/ethers-contracts';
-import { decodeDataJsonTokenURI, zeroAddress } from '../helpers';
+import { decodeDataJsonTokenURI } from '../helpers';
 import type { EventDispatcher } from 'svelte';
 import type { MintEvents } from '$lib/components/profile/action/profile-events';
 import { findLog } from '../ethers';
@@ -13,7 +13,7 @@ export type ProfileTokenMetadata = z.infer<typeof ProfileTokenMetadataSchema>;
 
 export const ProfileDataSchema = z.object({
   address: AddressSchema,
-  tokenId: z.bigint(),
+  tokenId: BigNumberishSchema,
   owner: AddressSchema,
   name: z.string().min(3, 'Name must be at least 3 chars'),
   description: z.string().optional(),

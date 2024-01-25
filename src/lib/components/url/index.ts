@@ -1,4 +1,3 @@
-import ExplorerAccountUrl from './ExplorerAccountUrl.svelte';
-import ExplorerNftUrl from './ExplorerNftUrl.svelte';
+import { ExplorerAccountUrl, ExplorerNftUrl } from './explorer';
 
 export { ExplorerAccountUrl, ExplorerNftUrl };
