@@ -17,7 +17,7 @@
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { log } from '$lib/logger';
-  import { erc20Contract, erc20Data, type Erc20Data } from '$lib/web3/contracts/erc20';
+  import { getErc20Contract, getErc20Data, type Erc20Data } from '$lib/web3/contracts/erc20';
   import { findPrice, type Price } from '$lib/web3/contracts/oracle';
 
   export let data: PageData;
@@ -63,8 +63,8 @@
   );
 
   $: loadErc20Data = async (address: Address): Promise<Erc20Data> => {
-    const contract = erc20Contract(address, $chainEnvironment!.ethersSigner);
-    return erc20Data(contract);
+    const contract = getErc20Contract(address, $chainEnvironment!.ethersSigner);
+    return getErc20Data(contract);
   };
 
   $: loadPrice = async (address: Address): Promise<Price | undefined> => {

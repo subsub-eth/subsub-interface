@@ -1,13 +1,17 @@
 import { ZeroAddress } from 'ethers';
 import { AddressSchema } from './contracts/common';
-import type { Address } from '@web3-onboard/core/dist/types';
+import type { ZodType } from 'zod';
+import { log } from '$lib/logger';
 
 const dataJsonPrelude = 'data:application/json;base64,';
 
 function jsonEscape(str: string): string {
   return str.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
 }
-export function decodeDataJsonTokenURI<T>(encodedJson: string): T {
+
+export function decodeDataJsonTokenURI<
+  T extends ZodType<any, any, any> /* eslint-disable-line @typescript-eslint/no-explicit-any */
+>(encodedJson: string, schema: T): T['_output'] {
   if (!encodedJson.startsWith(dataJsonPrelude)) {
     throw new Error(`Encoded JSON string does not include prelude: ${encodedJson}`);
   }
@@ -15,8 +19,14 @@ export function decodeDataJsonTokenURI<T>(encodedJson: string): T {
 
   // escape the payload as string might contain invalid values JSON cannot handle
   const escaped = jsonEscape(payload);
-  console.log('payload', escaped);
-  return JSON.parse(escaped) as T;
+
+  try {
+    const json = JSON.parse(escaped);
+    return schema.parse(json);
+  } catch (error) {
+    log.error('Failed to parse decoded JSON payload', escaped, schema, error);
+    throw error;
+  }
 }
 
 export function addressEquals(a: string | null | undefined, b: string | null | undefined): boolean {

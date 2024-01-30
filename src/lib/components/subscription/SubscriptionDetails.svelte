@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SubscriptionTokenMetadata } from '$lib/web3/contracts/subscription';
+  import type { SubscriptionData } from '$lib/web3/contracts/subscription';
   import * as Card from '$lib/components/ui/card';
   import * as Tooltip from '$lib/components/ui/tooltip';
   import { Button } from '$lib/components/ui/button';
@@ -17,20 +17,12 @@
   import TrafficLight from '../TrafficLight.svelte';
   import PropertyBox from '$lib/components/ui/PropertyBox.svelte';
   import TokenLogo from '../TokenLogo.svelte';
-  import type { address } from '$lib/web3/contracts/common';
+  import type { Address } from '$lib/web3/contracts/common';
   import CollapsibleBox from '../ui/CollapsibleBox.svelte';
   import DetailsProperty from '../ui/DetailsProperty.svelte';
 
-  /**
-   * Address of the contract this token is defined in
-   */
-  export let contractAddress: address;
-
-  /** Id of the subscription token */
-  export let tokenId: bigint;
-
   /** Metadata of the subscription */
-  export let metadata: SubscriptionTokenMetadata;
+  export let subscriptionData: SubscriptionData;
 
   /** open the technical details collapsible */
   export let technicalsOpen = false;
@@ -46,8 +38,8 @@
   <div class="flex items-center gap-4 pt-2">
     <TrafficLight />
     <div>
-      <h2>{metadata.name}</h2>
-      <p class="text-muted-foreground">{metadata.description}</p>
+      <h2>{subscriptionData.name}</h2>
+      <p class="text-muted-foreground">{subscriptionData.description}</p>
     </div>
   </div>
 
@@ -63,7 +55,7 @@
   <div class="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
     <PropertyBox rootClass="border-0" title="Rate" titleLogo={Percent}>
       <div slot="value" class="flex items-center gap-4 pt-2">
-        <TokenLogo class="basis-1/7 h-12 w-12" address={contractAddress} fallbackSymbol="TEST" />
+        <TokenLogo class="basis-1/7 h-12 w-12" address={subscriptionData.address} fallbackSymbol="TEST" />
         <div>
           {#if multiplierActive}
             <h4>Default</h4>
@@ -107,12 +99,12 @@
     <DetailsProperty title="Address" help="The address of this contract">
       <div slot="value" class="flex items-center gap-2">
         <div>
-          {contractAddress}
+          {subscriptionData.address}
         </div>
         <Button
           variant="link"
           target="_blank"
-          href={'https://example.com/' + contractAddress}
+          href={'https://example.com/' + subscriptionData.address}
           class="h-0 px-0 py-0"
         >
           <ExternalLink class="h-4 w-4" />
@@ -122,12 +114,12 @@
     <DetailsProperty title="Token Id" help="Id of the token">
       <div slot="value" class="flex items-center gap-2">
         <div>
-          {tokenId}
+          {subscriptionData.tokenId}
         </div>
         <Button
           variant="link"
           target="_blank"
-          href={'https://example.com/' + tokenId}
+          href={'https://example.com/' + subscriptionData.tokenId}
           class="h-0 px-0 py-0"
         >
           <ExternalLink class="h-4 w-4" />

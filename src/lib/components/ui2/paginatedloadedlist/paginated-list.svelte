@@ -66,10 +66,14 @@
 <div>
   <div>
     {#if $list.isPending}
-      <slot name="loading" />
+      <slot name="loading" >
+        Loading list data
+      </slot>
     {/if}
     {#if $list.isError}
-      <slot name="error" />
+      <slot name="error" >
+        Failed to load list: {$list.error.message}
+      </slot>
     {/if}
     {#if $list.isSuccess}
       <slot {items} isLoading={$list.isPlaceholderData} />

@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
 import { ethers } from 'ethers';
+import { asChecksumAddress } from '$lib/web3/contracts/common';
 
 export const prerender = false;
 
@@ -13,6 +14,6 @@ export const load = (({ params }) => {
   }
 
   return {
-    subscriptionAddr: subAddr
+    subscriptionAddr: asChecksumAddress(subAddr)
   };
 }) satisfies LayoutLoad;

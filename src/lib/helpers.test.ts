@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { prettyNumber } from './helpers';
+import { convertDecimals, prettyNumber } from './helpers';
 
 describe('prettyNumber', () => {
   it('should keep 2 decimals for small numbers', () => {
@@ -37,3 +37,24 @@ describe('prettyNumber', () => {
   });
 });
 
+describe('convertDecimals', () => {
+  it('should not convert if current and target match', () => {
+    const value = BigInt(100000000);
+
+    expect(convertDecimals(value, 2, 2)).toBe(value);
+    expect(convertDecimals(value, 5, 5)).toBe(value);
+    expect(convertDecimals(value, 10, 10)).toBe(value);
+  });
+
+  it('should convert to more precise representation', () => {
+    expect(convertDecimals(100n, 2, 4)).toBe(10000n);
+    expect(convertDecimals(100_000n, 5, 6)).toBe(1_000_000n);
+    expect(convertDecimals(1n, 10, 18)).toBe(100_000_000n);
+  });
+
+  it('should convert to less precise representation', () => {
+    expect(convertDecimals(100n, 4, 2)).toBe(1n);
+    expect(convertDecimals(100_000n, 5, 4)).toBe(10_000n);
+    expect(convertDecimals(1n, 18, 10)).toBe(0n);
+  });
+})

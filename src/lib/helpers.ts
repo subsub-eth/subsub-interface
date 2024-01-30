@@ -58,3 +58,25 @@ export function prettyNumber(num: number): string {
     decimals
   );
 }
+
+/**
+ * converts a value represented in currentDecimals into a representation based on targetDecimals
+ */
+export function convertDecimals(
+  value: bigint,
+  currentDecimals: number,
+  targetDecimals: number
+): bigint {
+  if (currentDecimals === targetDecimals) {
+    return value;
+  }
+
+  if (currentDecimals > targetDecimals) {
+    const diff = currentDecimals - targetDecimals;
+    return value / BigInt(Math.pow(10, diff));
+  }
+  // currentDecimals < targetDecimals
+
+  const diff = targetDecimals - currentDecimals;
+  return value * BigInt(Math.pow(10, diff));
+}

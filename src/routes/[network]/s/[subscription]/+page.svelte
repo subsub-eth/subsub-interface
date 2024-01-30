@@ -1,9 +1,10 @@
 <script lang="ts">
   import type { PageData } from './$types';
+  import { derived } from 'svelte/store';
   import SubscriptionContractDetails from '$lib/components/subscription/SubscriptionContractDetails.svelte';
-  import SubscriptionList from '$lib/components/subscription/SubscriptionList.svelte';
   import { page } from '$app/stores';
   import Button from '$lib/components/Button.svelte';
+  import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import {
     claim,
     countUserSubscriptions,
@@ -11,44 +12,65 @@
     listUserSubscriptionsRev,
     pause,
     unpause,
-    type SubscriptionContractMetadata,
-    contractMetadata,
-
+    getContractData,
     type SubscriptionContractData
-
   } from '$lib/web3/contracts/subscription';
+  import SubscriptionTeaser from '$lib/components/subscription/SubscriptionTeaser.svelte';
   import SubscriptionContractControl from '$lib/components/subscription/SubscriptionContractControl.svelte';
   import { aflow } from '$lib/helpers';
   import { chainEnvironment } from '$lib/chain-context';
-  import { currentAccount } from '$lib/web3/onboard';
   import { createQuery } from '@tanstack/svelte-query';
-  import SubscriptionTeaser from '$lib/components/subscription/SubscriptionTeaser.svelte';
+  import { type Subscription } from '@createz/contracts/types/ethers-contracts';
+  import { log } from '$lib/logger';
+  import { currentAccount } from '$lib/web3/onboard';
+  import { type Erc20Data, getErc20Contract, getErc20Data } from '$lib/web3/contracts/erc20';
 
   export let data: PageData;
 
   const addr = data.subscriptionAddr;
   const pageSize = 5;
 
-  $: ethersSigner = $chainEnvironment!.ethersSigner;
-  $: currentAcc = $currentAccount!;
-  $: subscriptionContract = createSubscriptionContract(addr, ethersSigner);
+  const subscriptionContract = createQuery<Subscription>(
+    derived(chainEnvironment, (chainEnvironment) => ({
+      queryKey: ['subscription', addr],
+      queryFn: () => createSubscriptionContract(addr, chainEnvironment!.ethersSigner)
+    }))
+  );
 
-  const owner = createQuery<string>({
-    queryKey: ['subContractOwner', addr],
-    queryFn: async () => {
-      console.log('query for owner', addr, subscriptionContract);
-      return await subscriptionContract.owner();
-    }
-  });
-  const metadata = createQuery<SubscriptionContractData>({
-    queryKey: ['subContractMetadata', addr, currentAcc],
-    queryFn: async () => {
-      console.log('query for sub contract metadata', addr, subscriptionContract);
-      const data = await contractMetadata(subscriptionContract);
-      console.log('sub contract metadata', data);
-      return data;
-    }
-  });
+  const subscriptionData = createQuery<SubscriptionContractData>(
+    derived(subscriptionContract, (subscriptionContract) => ({
+      queryKey: ['subContractMetadata', addr],
+      queryFn: async () => {
+        log.debug('query for sub contract metadata', addr, subscriptionContract);
+        const data = await getContractData(subscriptionContract.data!);
+        log.debug('sub contract metadata', data);
+        return data;
+      },
+      enabled: subscriptionContract.isSuccess
+    }))
+  );
+
+  const userSubsCount = createQuery<number>(
+    derived([subscriptionContract, currentAccount], ([subscriptionContract, currentAccount]) => ({
+      queryKey: ['userSubsCount', addr, currentAccount],
+      queryFn: async () => countUserSubscriptions(subscriptionContract.data!, currentAccount!),
+      enabled: subscriptionContract.isSuccess && !!currentAccount
+    }))
+  );
+
+  const erc20Data = createQuery<Erc20Data>(
+    derived([subscriptionData, chainEnvironment], ([subscriptionData, chainEnvironment]) => ({
+      queryKey: ['erc20', subscriptionData.data?.token],
+      queryFn: async () => {
+        const contract = getErc20Contract(
+          subscriptionData.data!.token,
+          chainEnvironment!.ethersSigner
+        );
+        return getErc20Data(contract);
+      },
+      enabled: subscriptionData.isSuccess
+    }))
+  );
 
   const update = async () => {};
 </script>
@@ -57,37 +79,28 @@
 
 Subscription Contract: {addr}
 
-{#if $metadata.isPending}
+{#if $subscriptionData.isPending || $erc20Data.isPending}
   Loading contract data...
 {/if}
-{#if $metadata.isError}
+{#if $subscriptionData.isError || $erc20Data.isError}
   Failed to load contract data
 {/if}
-{#if $metadata.isSuccess}
+{#if $subscriptionData.isSuccess && $subscriptionContract.isSuccess && $erc20Data.isSuccess}
   <div class="flex flex-row space-x-4">
     <div class="basis-1/2">
       <!-- LEFT -->
       <div class="rounded-xl border-2 border-solid p-2">
         <!-- profile teaser -->
-        TODO
-        {#if $owner.isPending}
-          Loading...
-        {/if}
-        {#if $owner.isError}
-          Failed to load owner
-        {/if}
-        {#if $owner.isSuccess}
-          owner: {$owner.data}
-        {/if}
+        owner: {$subscriptionData.data.owner}
       </div>
       <div class="rounded-xl border-2 border-solid p-2">
         <!-- sub details -->
-        <SubscriptionContractDetails address={addr} metadata={$metadata.data} />
+        <SubscriptionContractDetails address={addr} metadata={$subscriptionData.data} />
         <SubscriptionContractControl
-          metadata={$metadata.data}
-          pause={aflow(pause(subscriptionContract), update)}
-          unpause={aflow(unpause(subscriptionContract), update)}
-          claim={aflow(claim(subscriptionContract), update)}
+          metadata={$subscriptionData.data}
+          pause={aflow(pause($subscriptionContract.data), update)}
+          unpause={aflow(unpause($subscriptionContract.data), update)}
+          claim={aflow(claim($subscriptionContract.data), update)}
         />
       </div>
     </div>
@@ -102,23 +115,38 @@ Subscription Contract: {addr}
           primary={true}
           label="Mint new Subscription"
           href={$page.url.pathname + 'new/'}
-          isDisabled={$metadata.data.paused}
+          isDisabled={$subscriptionData.data.mintingPaused}
         />
       </div>
-      {#await countUserSubscriptions(subscriptionContract, currentAcc)}
+      {#if $userSubsCount.isPending}
         Loading...
-      {:then count}
-        {@const pages = Math.ceil(count / pageSize)}
-        {@const loadSubscriptions = listUserSubscriptionsRev(
-          subscriptionContract,
-          currentAcc,
+      {/if}
+      {#if $userSubsCount.isError}
+        Failed to load subscriptions
+      {/if}
+      {#if $userSubsCount.isSuccess && $currentAccount}
+        {@const load = listUserSubscriptionsRev(
+          $subscriptionContract.data,
+          $currentAccount,
           pageSize,
-          count
+          $userSubsCount.data
         )}
-        <SubscriptionList {pages} {loadSubscriptions} />
-      {:catch err}
-        error occurred {err}
-      {/await}
+        <PaginatedLoadedList
+          {load}
+          queryKeys={['subs', addr, $currentAccount]}
+          totalItems={$userSubsCount.data}
+          {pageSize}
+          let:items
+        >
+          {#each items as item}
+            <SubscriptionTeaser
+              subscriptionData={item}
+              paymentToken={$erc20Data.data}
+              rate={BigInt($subscriptionData.data.rate)}
+            />
+          {/each}
+        </PaginatedLoadedList>
+      {/if}
     </div>
   </div>
 {/if}

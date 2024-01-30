@@ -20,12 +20,12 @@ const Erc20DataSchema = z.object({
 
 export type Erc20Data = z.infer<typeof Erc20DataSchema>;
 
-export function erc20Contract(address: Address, signer: Signer): ERC20 {
+export function getErc20Contract(address: Address, signer: Signer): ERC20 {
   log.debug("Created ERC20 contract for", address, signer);
   return ERC20__factory.connect(address, signer);
 }
 
-export async function erc20Data(contract: ERC20): Promise<Erc20Data> {
+export async function getErc20Data(contract: ERC20): Promise<Erc20Data> {
   log.debug("Retrieving ERC20 Data from contract", contract);
   const address = AddressSchema.parse(await contract.getAddress());
 

@@ -49,7 +49,7 @@ export async function totalSupply(contract: Profile): Promise<number> {
 
 export async function findProfile(contract: Profile, tokenId: bigint): Promise<ProfileData> {
     const encoded = await contract.tokenURI(tokenId);
-    const metadata = decodeDataJsonTokenURI<ProfileTokenMetadata>(encoded);
+    const metadata = decodeDataJsonTokenURI(encoded, ProfileTokenMetadataSchema);
 
     // TODO do multicall / on-chain
     const owner = AddressSchema.parse(await contract.ownerOf(tokenId));
@@ -105,7 +105,7 @@ export function listUserProfilesRev(
       // reverse index here
       const id = await contract.tokenOfOwnerByIndex(owner, totalItems - 1 - (i + index));
       const encoded = await contract.tokenURI(id);
-      const data = decodeDataJsonTokenURI<ProfileTokenMetadata>(encoded);
+      const data = decodeDataJsonTokenURI(encoded, ProfileTokenMetadataSchema);
       return mapProfileData(contract, id, data, owner);
     };
 
@@ -131,7 +131,7 @@ export function listAllProfilesRev(
       const id = await contract.tokenByIndex(totalItems - 1 - (i + index));
       const owner = AddressSchema.parse(await contract.ownerOf(id));
       const encoded = await contract.tokenURI(id);
-      const data = decodeDataJsonTokenURI<ProfileTokenMetadata>(encoded);
+      const data = decodeDataJsonTokenURI(encoded, ProfileTokenMetadataSchema);
       return mapProfileData(contract, id, data, owner);
     };
 
