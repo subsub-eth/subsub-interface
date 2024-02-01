@@ -1,10 +1,13 @@
 import { z } from 'zod';
 import { AddressSchema, WritingMetadataSchema, type Address } from './common';
 import type { EventDispatcher } from 'svelte';
-import type { CreateEvents } from '$lib/components/subscription-manager/action/subscription-manager-events';
+import type { CreateEvents } from '$lib/components/subscription/action/subscription-handle-events';
 import { findLog } from '../ethers';
 import type { ISubscriptionHandle } from '@createz/contracts/types/ethers-contracts';
-import type { MetadataStructStruct, SubSettingsStruct } from '@createz/contracts/types/ethers-contracts/ISubscriptionHandle.sol/ISubscriptionHandle';
+import type {
+  MetadataStructStruct,
+  SubSettingsStruct
+} from '@createz/contracts/types/ethers-contracts/ISubscriptionHandle.sol/ISubscriptionHandle';
 import { toBeHex } from 'ethers';
 import { log } from '$lib/logger';
 
@@ -15,7 +18,8 @@ export const SubSettingsSchema = z.object({
     .number()
     .gte(0, 'Lock has to be at least 0')
     .lte(10_000, 'Lock has to be less or equal to 10000'),
-  epochSize: z.bigint()
+  epochSize: z.bigint(),
+  maxSupply: z.bigint()
 });
 
 export const SubscriptionContractPropsSchema = z.object({
@@ -53,35 +57,33 @@ export async function getSubscriptionContractAddresses(
   return addresses;
 }
 
-export function createSubscription(
-  contract: ISubscriptionHandle,
-  profileId: bigint
-): (
+export type CreateSubscriptionFunc = (
   name: string,
   symbol: string,
   metadata: MetadataStructStruct,
   subSettings: SubSettingsStruct,
-  dispatch: EventDispatcher<CreateEvents>
-) => Promise<string> {
-  return async (
-    name: string,
-    symbol: string,
-    metadata: MetadataStructStruct,
-    subSettings: SubSettingsStruct,
-    dispatch: EventDispatcher<CreateEvents>
-  ): Promise<string> => {
-    const tx = await contract.createSubscription(name, symbol, metadata, subSettings, profileId);
-    dispatch('createTxSubmitted', tx.hash);
+  events?: {
+    onCreateTxSubmitted?: (hash: string) => void;
+    onCreated?: (address: string, hash: string) => void;
+  }
+) => Promise<string>;
+
+export function createSubscription(
+  contract: ISubscriptionHandle,
+): CreateSubscriptionFunc {
+  return async (name, symbol, metadata, subSettings, events) => {
+    const tx = await contract.mint(name, symbol, metadata, subSettings);
+    if (events?.onCreateTxSubmitted) events.onCreateTxSubmitted(tx.hash);
     const createEvent = await findLog(
       tx,
       contract,
-      contract.filters.SubscriptionContractCreated(profileId)
+      contract.filters.SubscriptionContractCreated()
     );
     if (!createEvent) {
       throw new Error('Transaction Log not found');
     }
     const address = createEvent?.args.contractAddress;
-    dispatch('created', [address, tx.hash]);
+    if (events?.onCreated) events.onCreated(address, tx.hash);
     return address;
   };
 }

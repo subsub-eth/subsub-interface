@@ -1,11 +1,18 @@
 import { z } from 'zod';
-import { AddressSchema, AttributesMetadataSchema, ExternalUrlSchema, ImageUrlSchema, type Address, BigNumberishSchema } from './common';
+import {
+  AddressSchema,
+  AttributesMetadataSchema,
+  ExternalUrlSchema,
+  ImageUrlSchema,
+  type Address,
+  BigNumberishSchema
+} from './common';
 import type { Profile } from '@createz/contracts/types/ethers-contracts';
 import { decodeDataJsonTokenURI } from '../helpers';
 import type { EventDispatcher } from 'svelte';
 import type { MintEvents } from '$lib/components/profile/action/profile-events';
 import { findLog } from '../ethers';
-import {log} from '$lib/logger';
+import { log } from '$lib/logger';
 
 export const ProfileTokenMetadataSchema = AttributesMetadataSchema.extend({});
 
@@ -23,21 +30,25 @@ export const ProfileDataSchema = z.object({
 
 export type ProfileData = z.infer<typeof ProfileDataSchema>;
 
-async function mapProfileData(contract: Profile, tokenId: bigint, metadata: ProfileTokenMetadata, owner: Address): ProfileData {
-    return {
-      address: AddressSchema.parse(await contract.getAddress()),
-      tokenId: tokenId,
-      owner: owner,
-      name: metadata.name,
-      description: metadata.description,
-      image: metadata.image,
-      externalUrl: metadata.external_url,
-    };
-
+async function mapProfileData(
+  contract: Profile,
+  tokenId: bigint,
+  metadata: ProfileTokenMetadata,
+  owner: Address
+): Promise<ProfileData> {
+  return {
+    address: AddressSchema.parse(await contract.getAddress()),
+    tokenId: tokenId,
+    owner: owner,
+    name: metadata.name,
+    description: metadata.description,
+    image: metadata.image,
+    externalUrl: metadata.external_url
+  };
 }
 
 export async function countUserProfiles(contract: Profile, account: string): Promise<number> {
-  log.debug("profile: ", contract);
+  log.debug('profile: ', contract);
   const count = await contract.balanceOf(account);
   return Number(count);
 }
@@ -47,16 +58,21 @@ export async function totalSupply(contract: Profile): Promise<number> {
   return Number(count);
 }
 
+export async function ownerOf(contract: Profile, tokenId: bigint): Promise<Address> {
+  const owner = AddressSchema.parse(await contract.ownerOf(tokenId));
+  return owner;
+}
+
 export async function findProfile(contract: Profile, tokenId: bigint): Promise<ProfileData> {
-    const encoded = await contract.tokenURI(tokenId);
-    const metadata = decodeDataJsonTokenURI(encoded, ProfileTokenMetadataSchema);
+  const encoded = await contract.tokenURI(tokenId);
+  const metadata = decodeDataJsonTokenURI(encoded, ProfileTokenMetadataSchema);
 
-    // TODO do multicall / on-chain
-    const owner = AddressSchema.parse(await contract.ownerOf(tokenId));
+  // TODO do multicall / on-chain
+  const owner = await ownerOf(contract, tokenId);
 
-    log.debug("Found profile", contract, tokenId, owner, metadata);
+  log.debug('Found profile', contract, tokenId, owner, metadata);
 
-    return mapProfileData(contract, tokenId, metadata, owner);
+  return mapProfileData(contract, tokenId, metadata, owner);
 }
 
 export function mint(

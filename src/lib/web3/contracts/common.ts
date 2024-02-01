@@ -52,7 +52,8 @@ export const ExternalUrlSchema = z
   .union([z.literal(''), z.string().trim().url('External link must be a URL')])
   .optional();
 
-export const WritingMetadataSchema = BaseMetadataSchema.extend({
+export const WritingMetadataSchema = z.object({
+  description: z.string().optional(),
   image: ImageUrlSchema,
   external_url: ExternalUrlSchema
 });
