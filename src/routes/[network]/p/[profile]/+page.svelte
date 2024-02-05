@@ -19,6 +19,7 @@
   import { log } from '$lib/logger';
   import { getErc20Contract, getErc20Data, type Erc20Data } from '$lib/web3/contracts/erc20';
   import { findPrice, type Price } from '$lib/web3/contracts/oracle';
+    import { PROFILE, SUBSCRIPTION } from '$lib/query/keys';
 
   export let data: PageData;
 
@@ -111,7 +112,7 @@
 
       <PaginatedLoadedList
         {load}
-        queryKeys={['profiles', tokenId.toString()]}
+        queryKeys={[SUBSCRIPTION, PROFILE, tokenId.toString()]}
         let:items
         totalItems={$subscriptionContractAddresses.data.length}
         {pageSize}

@@ -4,7 +4,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import NewSubscriptionContractForm from '$lib/components/subscription/NewSubscriptionContractForm.svelte';
-  import { createSubscription } from '$lib/web3/contracts/subscription-handle';
+  import { erc6551CreateSubscription } from '$lib/web3/contracts/subscription-handle';
   import Url from '$lib/components/Url.svelte';
   import { addressEquals } from '$lib/web3/helpers';
   import { chainEnvironment } from '$lib/chain-context';
@@ -22,7 +22,8 @@
     type TokenBoundAccount
   } from '$lib/web3/contracts/erc6551';
   import type { Address } from '$lib/web3/contracts/common';
-  import { ERC6551_ACCOUNT, ERC6551_REGISTRY } from '$lib/query/keys';
+  import { ERC6551_ACCOUNT, ERC6551_REGISTRY, PROFILE, SUBSCRIPTION } from '$lib/query/keys';
+  import { queryClient } from '$lib/query/config';
 
   export let data: PageData;
 
@@ -51,7 +52,7 @@
       queryKey: [ERC6551_ACCOUNT, chainEnvironment!.chainData.chainId, addr.data],
       queryFn: async () => {
         const signer = chainEnvironment!.ethersSigner;
-        const account = getErc6551Account(addr.data!, signer);
+        const account = await getErc6551Account(addr.data!, signer);
         return account;
       },
       enabled: addr.isSuccess && !!addr.data
@@ -73,6 +74,7 @@
 
   const onContractCreated = (event: CustomEvent<[string, string]>) => {
     toast.info(`New Contract address: ${event.detail[0]}`);
+    queryClient.invalidateQueries({ queryKey: [SUBSCRIPTION, PROFILE, profileId.toString()] });
     goto(`/${$page.params.network}/s/${event.detail[0]}/`);
   };
 
@@ -102,7 +104,7 @@
       <NewAccount create={createAccount} />
     {:else}
       <NewSubscriptionContractForm
-        create={createSubscription(subHandle)}
+        create={erc6551CreateSubscription(erc6551Account[1], subHandle)}
         on:txFailed={onTxFailed}
         on:createTxSubmitted={onTxSubmitted}
         on:created={onContractCreated}

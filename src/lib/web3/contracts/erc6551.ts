@@ -11,6 +11,13 @@ import { log } from '$lib/logger';
 import type { Signer } from 'ethers';
 import { findLog } from '../ethers';
 import { zero32Bytes } from '../helpers';
+import type { ContractTransactionResponse } from 'ethers';
+import type { BaseContract } from 'ethers';
+import type {
+  StateMutability,
+  TypedContractMethod
+} from '@createz/contracts/types/ethers-contracts/common';
+import { never } from 'zod';
 
 async function findErc6551Account(
   registry: IERC6551Registry,
@@ -83,7 +90,13 @@ export async function createErc6551Account(
 ): Promise<Address> {
   let tx;
   try {
-    tx = await registry.createAccount(accountImplementation, zero32Bytes, chainId, contract, tokenId);
+    tx = await registry.createAccount(
+      accountImplementation,
+      zero32Bytes,
+      chainId,
+      contract,
+      tokenId
+    );
   } catch (error) {
     log.error('Failed to create ERC6551 Account', error);
     throw error;
@@ -99,4 +112,27 @@ export async function createErc6551Account(
   const account = createEvent.args.account;
 
   return asChecksumAddress(account);
+}
+
+export async function execute<
+  C extends BaseContract,
+  F extends {
+    [P in keyof C]: C[P] extends TypedContractMethod<infer _A, any, any> ? P : never;
+  }[keyof C],
+  ARGS extends C[F] extends TypedContractMethod<infer A, any, any> ? A : never
+>(
+  account: IERC6551Executable,
+  contract: C,
+  func: F,
+  params: ARGS,
+  value: bigint = 0n
+): Promise<ContractTransactionResponse> {
+  const contractAddress = await contract.getAddress();
+  log.debug('ERC6551Execute:', account, contract, contractAddress, func, params, value);
+
+  // TODO remove 'as string'
+  const encoded = contract.interface.encodeFunctionData(func as string, params);
+  log.debug('ERC6551Execute: encoded', contract, contractAddress, func, params, encoded);
+
+  return await account.execute(contractAddress, value, encoded, 0n);
 }

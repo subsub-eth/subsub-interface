@@ -20,8 +20,6 @@
   import { MaxUint256 } from 'ethers';
   import { log } from '$lib/logger';
   import { createMutation } from '@tanstack/svelte-query';
-  import { queryClient } from '$lib/query/config';
-  import { ERC6551_ACCOUNT } from '$lib/query/keys';
 
   export let create: CreateSubscriptionFunc;
 
