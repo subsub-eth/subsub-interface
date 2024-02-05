@@ -3,7 +3,7 @@ import type { TxFailedEvents } from '$lib/components/common-events';
 
 export type MintEvents = {
   mintTxSubmitted: Hash;
-  minted: [bigint, Hash];
+  minted: bigint;
 };
 
 export type MintProfileEvents = MintEvents & TxFailedEvents;

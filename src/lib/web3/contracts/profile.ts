@@ -5,7 +5,8 @@ import {
   ExternalUrlSchema,
   ImageUrlSchema,
   type Address,
-  BigNumberishSchema
+  BigNumberishSchema,
+  type Hash
 } from './common';
 import type { Profile } from '@createz/contracts/types/ethers-contracts';
 import { decodeDataJsonTokenURI } from '../helpers';
@@ -75,31 +76,34 @@ export async function findProfile(contract: Profile, tokenId: bigint): Promise<P
   return mapProfileData(contract, tokenId, metadata, owner);
 }
 
-export function mint(
-  contract: Profile,
-  account: string
-): (
+export type MintFunc = (
   name: string,
   description: string,
   image: string,
   externalUrl: string,
-  dispatch: EventDispatcher<MintEvents>
-) => Promise<bigint> {
+  events?: {
+    onMintTxSubmitted?: (hash: Hash) => void,
+  }
+) => Promise<bigint>
+
+export function mint(
+  contract: Profile,
+  account: string
+): MintFunc {
   return async (
-    name: string,
-    description: string,
-    image: string,
-    externalUrl: string,
-    dispatch: EventDispatcher<MintEvents>
+    name,
+    description,
+    image,
+    externalUrl,
+    events
   ): Promise<bigint> => {
     const tx = await contract.mint(name, description, image, externalUrl);
-    dispatch('mintTxSubmitted', tx.hash);
+    events?.onMintTxSubmitted?.(tx.hash);
     const mintEvent = await findLog(tx, contract, contract.filters.Minted(account));
     if (!mintEvent) {
       throw new Error('Transaction Log not found');
     }
     const tokenId = mintEvent?.args.tokenId;
-    dispatch('minted', [tokenId, tx.hash]);
 
     return tokenId;
   };

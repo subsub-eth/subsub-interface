@@ -12,9 +12,7 @@
   import type {} from '@createz/contracts/types/ethers-contracts';
   import { createEventDispatcher } from 'svelte';
   import Button from '../Button.svelte';
-  import {
-    type CreateSubscriptionContractEvents,
-  } from '$lib/components/subscription/action/subscription-handle-events';
+  import { type CreateSubscriptionContractEvents } from '$lib/components/subscription/action/subscription-handle-events';
   import type {
     MetadataStructStruct,
     SubSettingsStruct
@@ -22,6 +20,8 @@
   import { MaxUint256 } from 'ethers';
   import { log } from '$lib/logger';
   import { createMutation } from '@tanstack/svelte-query';
+  import { queryClient } from '$lib/query/config';
+  import { ERC6551_ACCOUNT } from '$lib/query/keys';
 
   export let create: CreateSubscriptionFunc;
 
@@ -32,7 +32,9 @@
       create(name, symbol, metadata, subSettings, events),
     onError: (error) => dispatch('txFailed', error),
     // TODO pass hash and address?
-    onSuccess: (res) => dispatch('created', [res, res])
+    onSuccess: (res) => {
+      dispatch('created', [res, res]);
+    }
   });
 
   // TODO check for any errors

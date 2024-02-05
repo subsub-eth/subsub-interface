@@ -3,36 +3,38 @@
   import { validator } from '@felte/validator-zod';
   import { reporter, ValidationMessage } from '@felte/reporter-svelte';
   import { MetadataSchema, type Metadata } from '$lib/web3/contracts/common';
-  import { createEventDispatcher, type EventDispatcher } from 'svelte';
-  import type { MintEvents, MintProfileEvents } from './action/profile-events';
+  import { createEventDispatcher } from 'svelte';
+  import type { MintProfileEvents } from './action/profile-events';
+  import type { MintFunc } from '$lib/web3/contracts/profile';
+  import { log } from '$lib/logger';
+  import { createMutation } from '@tanstack/svelte-query';
 
-  export let mint: (
-    name: string,
-    description: string,
-    image: string,
-    externalUrl: string,
-    dispatch: EventDispatcher<MintEvents>
-  ) => Promise<bigint>;
+  export let mint: MintFunc;
 
   const dispatch = createEventDispatcher<MintProfileEvents>();
-  let formDisabled = false;
+
+  const mintProfile = createMutation({
+    mutationFn: async ([name, description, image, externalUrl, events]: Parameters<typeof mint>) =>
+      mint(name, description, image, externalUrl, events),
+    onError: (error) => dispatch('txFailed', error),
+    onSuccess: (profileId) => dispatch('minted', profileId)
+  });
 
   const { form } = createForm<Metadata>({
     async onSubmit(values) {
-      formDisabled = true;
       try {
-        await mint(
+        return await $mintProfile.mutateAsync([
           values.name,
-          '' + values.description,
-          '' + values.image,
-          '' + values.external_url,
-          dispatch
-        );
+          values.description ?? '',
+          values.image ?? '',
+          values.external_url ?? '',
+          {
+            onMintTxSubmitted: (hash) => dispatch('mintTxSubmitted', hash)
+          }
+        ]);
       } catch (err) {
-        console.error('Transaction failed', err);
-        dispatch('txFailed', err)
-      } finally {
-        formDisabled = false;
+        log.error('Profile mint failed', err);
+        throw err;
       }
     },
     extend: [validator({ schema: MetadataSchema }), reporter]
@@ -52,7 +54,7 @@
           id="name"
           name="name"
           placeholder="Your name"
-          disabled={formDisabled}
+          disabled={$mintProfile.isPending}
           required
           minlength="2"
           class="bg-gray-500"
@@ -68,7 +70,7 @@
         <textarea
           id="description"
           name="description"
-          disabled={formDisabled}
+          disabled={$mintProfile.isPending}
           placeholder="Some text for people to recognize you"
           class="bg-gray-500"
         />
@@ -83,7 +85,7 @@
         <input
           id="image"
           name="image"
-          disabled={formDisabled}
+          disabled={$mintProfile.isPending}
           placeholder="https://example.com/my-image.png"
           class="bg-gray-500"
         />
@@ -98,7 +100,7 @@
         <input
           id="external_url"
           name="external_url"
-          disabled={formDisabled}
+          disabled={$mintProfile.isPending}
           placeholder="https://www.my-website.com"
           class="bg-gray-500"
         />
@@ -109,7 +111,7 @@
         </ValidationMessage>
       </div>
       <div>
-        <button type="submit" disabled={formDisabled}>create</button>
+        <button type="submit" disabled={$mintProfile.isPending}>create</button>
       </div>
     </fieldset>
   </form>

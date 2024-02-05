@@ -1,15 +1,6 @@
 <script lang="ts" context="module">
-  import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import { rangeArray, waitFor } from '$lib/helpers';
-
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        enabled: true
-      }
-    }
-  });
 
   const loadWithPageSize = (pageSize: number) => async (page: number) => {
     await waitFor(1000);
@@ -34,10 +25,11 @@
 <script lang="ts">
   import { Story, Template } from '@storybook/addon-svelte-csf';
   import { cn } from '$lib/utils';
+  import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
 </script>
 
 <Template let:args>
-  <QueryClientProvider client={queryClient}>
+  <QueryClientContext>
     <PaginatedLoadedList {...args} let:items let:isLoading>
       {@const loading = isLoading ? 'text-red-500' : ''}
       {#each items as item}
@@ -46,7 +38,7 @@
       <div slot="error">Error</div>
       <div slot="loading">Loading</div>
     </PaginatedLoadedList>
-  </QueryClientProvider>
+  </QueryClientContext>
 </Template>
 
 <Story name="Default" args={{}} />

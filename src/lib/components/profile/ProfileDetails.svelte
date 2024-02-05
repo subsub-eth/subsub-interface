@@ -74,4 +74,5 @@
       </p>
     </div>
   </div>
+  <!-- TODO add tokenbound account -->
 </Card.Root>

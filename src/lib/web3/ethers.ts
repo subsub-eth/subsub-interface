@@ -1,4 +1,3 @@
-import { filter, map, from, concatMap, distinctUntilChanged } from 'rxjs';
 import {
   ethers,
   EventLog,
@@ -20,6 +19,7 @@ import { primaryWallet } from './onboard';
 import { derived, type Readable } from 'svelte/store';
 
 
+// TODO figure out correct relation between signer and provider
 // TODO check that wallet has actually changed
 export const ethersProvider = derived(primaryWallet, (wallet) => {
   if (!wallet) {

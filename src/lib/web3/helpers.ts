@@ -37,3 +37,4 @@ export function addressEquals(a: string | null | undefined, b: string | null | u
 }
 
 export const zeroAddress = AddressSchema.parse(ZeroAddress);
+export const zero32Bytes = new Uint8Array(32);

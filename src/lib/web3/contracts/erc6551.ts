@@ -1,7 +1,16 @@
-import type { IERC6551Registry } from '@createz/contracts/types/ethers-contracts';
-import { AddressSchema, type Address } from './common';
+import {
+  IERC6551Account__factory,
+  type IERC6551Account,
+  type IERC6551Executable,
+  type IERC6551Registry,
+  IERC6551Executable__factory
+} from '@createz/contracts/types/ethers-contracts';
+import { AddressSchema, type Address, type Hash, asChecksumAddress } from './common';
 import type { ChainEnvironment } from '$lib/chain-context';
 import { log } from '$lib/logger';
+import type { Signer } from 'ethers';
+import { findLog } from '../ethers';
+import { zero32Bytes } from '../helpers';
 
 async function findErc6551Account(
   registry: IERC6551Registry,
@@ -35,5 +44,59 @@ export async function findDefaultProfileErc6551Account(
 
   log.debug('Default ERC6551 Account for tokenId', chainEnv, tokenId, acc);
 
-  return acc
+  return acc;
+}
+
+export type TokenBoundAccount = [IERC6551Account, IERC6551Executable];
+
+export async function getErc6551Account(
+  address: Address,
+  signer: Signer
+): Promise<TokenBoundAccount | null> {
+  const acc = IERC6551Account__factory.connect(address, signer.provider);
+
+  try {
+    await acc.state();
+  } catch (error) {
+    log.debug(
+      'Could not call state() from account, there is no account deployed at address',
+      address
+    );
+    return null;
+  }
+
+  const exec = IERC6551Executable__factory.connect(address, signer);
+  log.debug('Created ERC6551 contracts for address', address);
+
+  return [acc, exec];
+}
+
+export async function createErc6551Account(
+  registry: IERC6551Registry,
+  accountImplementation: Address,
+  chainId: number,
+  contract: Address,
+  tokenId: bigint,
+  events?: {
+    onTxSubmitted?: (hash: string) => void;
+  }
+): Promise<Address> {
+  let tx;
+  try {
+    tx = await registry.createAccount(accountImplementation, zero32Bytes, chainId, contract, tokenId);
+  } catch (error) {
+    log.error('Failed to create ERC6551 Account', error);
+    throw error;
+  }
+  if (events?.onTxSubmitted) events.onTxSubmitted(tx.hash);
+
+  const createEvent = await findLog(tx, registry, registry.filters.ERC6551AccountCreated());
+  if (!createEvent) {
+    const msg = 'Transaction Log not found';
+    log.error(msg);
+    throw new Error(msg);
+  }
+  const account = createEvent.args.account;
+
+  return asChecksumAddress(account);
 }
