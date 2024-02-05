@@ -79,7 +79,7 @@
       <slot {items} isLoading={$list.isPlaceholderData} />
     {/if}
   </div>
-  <Pagination.Root count={totalItems} perPage={pageSize} let:pages let:currentPage bind:page={$p}>
+  <Pagination.Root count={totalItems == 0 ? 1 : totalItems} perPage={pageSize} let:pages let:currentPage bind:page={$p}>
     <Pagination.Content class="text-foreground">
       <Pagination.Item>
         <Pagination.PrevButton />
@@ -90,7 +90,7 @@
             <Pagination.Ellipsis />
           </Pagination.Item>
         {:else}
-          <Pagination.Item isVisible={currentPage == page.value}>
+          <Pagination.Item>
             <Pagination.Link {page} isActive={currentPage == page.value}>
               {page.value}
             </Pagination.Link>
