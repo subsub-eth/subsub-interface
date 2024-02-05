@@ -117,21 +117,20 @@ export async function createErc6551Account(
 export async function execute<
   C extends BaseContract,
   F extends {
-    [P in keyof C]: C[P] extends TypedContractMethod<infer _A, any, any> ? P : never;
+    [P in keyof C]: C[P] extends TypedContractMethod<infer _A, infer _B, infer _C> ? P : never;
   }[keyof C],
-  ARGS extends C[F] extends TypedContractMethod<infer A, any, any> ? A : never
+  ARGS extends C[F] extends TypedContractMethod<infer A, infer _B, infer _C> ? A : never
 >(
   account: IERC6551Executable,
   contract: C,
-  func: F,
+  func: F & string,
   params: ARGS,
   value: bigint = 0n
 ): Promise<ContractTransactionResponse> {
   const contractAddress = await contract.getAddress();
   log.debug('ERC6551Execute:', account, contract, contractAddress, func, params, value);
 
-  // TODO remove 'as string'
-  const encoded = contract.interface.encodeFunctionData(func as string, params);
+  const encoded = contract.interface.encodeFunctionData(func, params);
   log.debug('ERC6551Execute: encoded', contract, contractAddress, func, params, encoded);
 
   return await account.execute(contractAddress, value, encoded, 0n);
