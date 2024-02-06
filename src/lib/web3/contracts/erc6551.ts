@@ -5,7 +5,7 @@ import {
   type IERC6551Registry,
   IERC6551Executable__factory
 } from '@createz/contracts/types/ethers-contracts';
-import { AddressSchema, type Address, type Hash, asChecksumAddress } from './common';
+import { AddressSchema, type Address, asChecksumAddress } from './common';
 import type { ChainEnvironment } from '$lib/chain-context';
 import { log } from '$lib/logger';
 import type { Signer } from 'ethers';
@@ -14,10 +14,8 @@ import { zero32Bytes } from '../helpers';
 import type { ContractTransactionResponse } from 'ethers';
 import type { BaseContract } from 'ethers';
 import type {
-  StateMutability,
   TypedContractMethod
 } from '@createz/contracts/types/ethers-contracts/common';
-import { never } from 'zod';
 
 async function findErc6551Account(
   registry: IERC6551Registry,

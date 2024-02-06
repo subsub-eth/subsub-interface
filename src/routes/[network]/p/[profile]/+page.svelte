@@ -8,7 +8,6 @@
   import { listSubscriptionContracts } from '$lib/web3/contracts/subscription';
   import { chainEnvironment } from '$lib/chain-context';
   import { currentAccount } from '$lib/web3/onboard';
-  import { profileErc6551AccountAddress} from '$lib/query/erc6551-queries';
   import { createQuery } from '@tanstack/svelte-query';
   import { derived } from 'svelte/store';
   import type { Address } from '$lib/web3/contracts/common';
@@ -19,7 +18,8 @@
   import { log } from '$lib/logger';
   import { getErc20Contract, getErc20Data, type Erc20Data } from '$lib/web3/contracts/erc20';
   import { findPrice, type Price } from '$lib/web3/contracts/oracle';
-    import { PROFILE, SUBSCRIPTION } from '$lib/query/keys';
+  import { ERC6551_REGISTRY, PROFILE, SUBSCRIPTION } from '$lib/query/keys';
+  import { findDefaultProfileErc6551Account } from '$lib/web3/contracts/erc6551';
 
   export let data: PageData;
 
@@ -41,7 +41,12 @@
     }))
   );
 
-  const ownerAccount = profileErc6551AccountAddress(tokenId);
+  const ownerAccount = createQuery<Address>(
+    derived(chainEnvironment, (chainEnvironment) => ({
+      queryKey: [ERC6551_REGISTRY, chainEnvironment!.chainData.chainId, tokenId.toString()],
+      queryFn: async () => (await findDefaultProfileErc6551Account(chainEnvironment!, tokenId))!
+    }))
+  );
 
   const subscriptionContractAddresses = createQuery<Array<Address>>(
     derived([chainEnvironment, ownerAccount], ([chainEnvironment, ownerAccount]) => ({
