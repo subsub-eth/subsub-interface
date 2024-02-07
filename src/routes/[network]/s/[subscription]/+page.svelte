@@ -8,67 +8,45 @@
   import {
     claim,
     countUserSubscriptions,
-    createSubscriptionContract,
     listUserSubscriptionsRev,
     pause,
     unpause,
-    getContractData,
-    type SubscriptionContractData
+    type SubscriptionContractData,
+    type SubscriptionContainer
   } from '$lib/web3/contracts/subscription';
   import SubscriptionTeaser from '$lib/components/subscription/SubscriptionTeaser.svelte';
   import SubscriptionContractControl from '$lib/components/subscription/SubscriptionContractControl.svelte';
   import { aflow } from '$lib/helpers';
-  import { chainEnvironment } from '$lib/chain-context';
   import { createQuery } from '@tanstack/svelte-query';
-  import { type Subscription } from '@createz/contracts/types/ethers-contracts';
-  import { log } from '$lib/logger';
   import { currentAccount } from '$lib/web3/onboard';
-  import { type Erc20Data, getErc20Contract, getErc20Data } from '$lib/web3/contracts/erc20';
+  import { type Erc20Data } from '$lib/web3/contracts/erc20';
+  import { getContext } from 'svelte';
+  import type { QueryResult } from '$lib/query/config';
+  import {
+    ERC20_DATA_CTX,
+    SUBSCRIPTION_CONTRACT_CTX,
+    SUBSCRIPTION_DATA_CTX
+  } from './+layout.svelte';
+  import { BALANCE, SUBSCRIPTION } from '$lib/query/keys';
 
   export let data: PageData;
 
   const addr = data.subscriptionAddr;
   const pageSize = 5;
 
-  const subscriptionContract = createQuery<Subscription>(
-    derived(chainEnvironment, (chainEnvironment) => ({
-      queryKey: ['subscription', addr],
-      queryFn: () => createSubscriptionContract(addr, chainEnvironment!.ethersSigner)
-    }))
-  );
+  const subscriptionContract =
+    getContext<QueryResult<SubscriptionContainer>>(SUBSCRIPTION_CONTRACT_CTX);
 
-  const subscriptionData = createQuery<SubscriptionContractData>(
-    derived(subscriptionContract, (subscriptionContract) => ({
-      queryKey: ['subContractMetadata', addr],
-      queryFn: async () => {
-        log.debug('query for sub contract metadata', addr, subscriptionContract);
-        const data = await getContractData(subscriptionContract.data!);
-        log.debug('sub contract metadata', data);
-        return data;
-      },
-      enabled: subscriptionContract.isSuccess
-    }))
-  );
+  const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
+
+  const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
 
   const userSubsCount = createQuery<number>(
     derived([subscriptionContract, currentAccount], ([subscriptionContract, currentAccount]) => ({
-      queryKey: ['userSubsCount', addr, currentAccount],
-      queryFn: async () => countUserSubscriptions(subscriptionContract.data!, currentAccount!),
+      queryKey: [SUBSCRIPTION, addr, currentAccount, BALANCE],
+      queryFn: async () =>
+        countUserSubscriptions(subscriptionContract.data!.contract, currentAccount!),
       enabled: subscriptionContract.isSuccess && !!currentAccount
-    }))
-  );
-
-  const erc20Data = createQuery<Erc20Data>(
-    derived([subscriptionData, chainEnvironment], ([subscriptionData, chainEnvironment]) => ({
-      queryKey: ['erc20', subscriptionData.data?.token],
-      queryFn: async () => {
-        const contract = getErc20Contract(
-          subscriptionData.data!.token,
-          chainEnvironment!.ethersSigner
-        );
-        return getErc20Data(contract);
-      },
-      enabled: subscriptionData.isSuccess
     }))
   );
 
@@ -126,7 +104,7 @@ Subscription Contract: {addr}
       {/if}
       {#if $userSubsCount.isSuccess && $currentAccount}
         {@const load = listUserSubscriptionsRev(
-          $subscriptionContract.data,
+          $subscriptionContract.data.contract,
           $currentAccount,
           pageSize,
           $userSubsCount.data

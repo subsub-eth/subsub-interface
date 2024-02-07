@@ -65,15 +65,17 @@ const SubscriptionContractBaseAttributesSchema = z.object({
   owner: AddressSchema,
   claimable: BigNumberishSchema,
   depositsClaimed: BigNumberishSchema,
-  tipsClaimed: BigNumberishSchema,
-})
+  tipsClaimed: BigNumberishSchema
+});
 
 /**
  * Metadata structure returned from the contract
  */
-const SubscriptionContractExtendedMetadataSchema = z.object({
-  flags: BigNumberishSchema
-}).and(SubscriptionContractBaseAttributesSchema);
+const SubscriptionContractExtendedMetadataSchema = z
+  .object({
+    flags: BigNumberishSchema
+  })
+  .and(SubscriptionContractBaseAttributesSchema);
 
 type SubscriptionContractExtendedMetadata = z.infer<
   typeof SubscriptionContractExtendedMetadataSchema
@@ -88,16 +90,18 @@ export type SubscriptionContractMetadata = z.infer<typeof SubscriptionContractMe
 /**
  * Translated Subscription contract data
  */
-const SubscriptionContractDataSchema = z.object({
-  address: AddressSchema,
-  name: z.string(),
-  description: z.string().optional(),
-  image: z.string().url().optional(),
-  externalUrl: z.string().url().optional(),
-  mintingPaused: z.boolean(),
-  renewalPaused: z.boolean(),
-  tippingPaused: z.boolean()
-}).and(SubscriptionContractBaseAttributesSchema);
+const SubscriptionContractDataSchema = z
+  .object({
+    address: AddressSchema,
+    name: z.string(),
+    description: z.string().optional(),
+    image: z.string().url().optional(),
+    externalUrl: z.string().url().optional(),
+    mintingPaused: z.boolean(),
+    renewalPaused: z.boolean(),
+    tippingPaused: z.boolean()
+  })
+  .and(SubscriptionContractBaseAttributesSchema);
 
 /**
  * Translated Subscription contract data
@@ -111,10 +115,12 @@ const SubscriptionTokenMetadataAttributesSchema = z.object({
   withdrawable: BigNumberishSchema,
   tips: BigNumberishSchema,
   isActive: z.boolean(),
-  expiresAt: BigNumberishSchema,
-})
+  expiresAt: BigNumberishSchema
+});
 
-type SubscriptionTokenMetadataAttributes = z.infer<typeof SubscriptionTokenMetadataAttributesSchema>;
+type SubscriptionTokenMetadataAttributes = z.infer<
+  typeof SubscriptionTokenMetadataAttributesSchema
+>;
 
 export const SubscriptionTokenMetadataSchema = AttributesMetadataSchema.extend({});
 export type SubscriptionTokenMetadata = z.infer<typeof SubscriptionTokenMetadataSchema>;
@@ -122,14 +128,16 @@ export type SubscriptionTokenMetadata = z.infer<typeof SubscriptionTokenMetadata
 /**
  * Translated Subscription token data
  */
-const SubscriptionDataSchema = z.object({
-  tokenId: BigNumberishSchema,
-  address: AddressSchema,
-  name: z.string(),
-  description: z.string().optional(),
-  image: z.string().url().optional(),
-  externalUrl: z.string().url().optional(),
-}).and(SubscriptionTokenMetadataAttributesSchema);
+const SubscriptionDataSchema = z
+  .object({
+    tokenId: BigNumberishSchema,
+    address: AddressSchema,
+    name: z.string(),
+    description: z.string().optional(),
+    image: z.string().url().optional(),
+    externalUrl: z.string().url().optional()
+  })
+  .and(SubscriptionTokenMetadataAttributesSchema);
 
 export type SubscriptionData = z.infer<typeof SubscriptionDataSchema>;
 
@@ -147,13 +155,15 @@ export function monthlyRate(rate: bigint): bigint {
   return rate * BigInt(60 * 60 * 24 * 30);
 }
 
-export function createSubscriptionContract(address: Address, signer: Signer): Subscription {
-  return Subscription__factory.connect(address, signer);
+export type SubscriptionContainer = { address: Address; contract: Subscription };
+export function createSubscriptionContract(
+  address: Address,
+  signer: Signer
+): SubscriptionContainer {
+  return { address: address, contract: Subscription__factory.connect(address, signer) };
 }
 
-export async function getContractData(
-  contract: Subscription
-): Promise<SubscriptionContractData> {
+export async function getContractData(contract: Subscription): Promise<SubscriptionContractData> {
   const encoded = await contract.contractURI();
   const decoded = decodeDataJsonTokenURI(encoded, AttributesMetadataSchema);
 
@@ -213,7 +223,7 @@ export async function getSubscriptionData(
       withdrawable: a.bigint('withdrawable'),
       tips: a.bigint('tips'),
       isActive: a.boolean('is_active'),
-      expiresAt: a.bigint('expires_at'),
+      expiresAt: a.bigint('expires_at')
     };
   } catch (err) {
     log.error('received subscription token metadata is malformed', decoded, err);
@@ -462,9 +472,7 @@ export function listSubscriptionContracts(
   pageSize: number
 ): (page: number) => Promise<Array<SubscriptionContractData>> {
   // TODO multicall
-  const func = async (
-    page: number
-  ): Promise<Array<SubscriptionContractData>> => {
+  const func = async (page: number): Promise<Array<SubscriptionContractData>> => {
     const index = page * pageSize;
     const totalItems = addresses.length;
     const count = Math.max(Math.min(totalItems - index, pageSize), 0);

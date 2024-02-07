@@ -1,5 +1,7 @@
-import { QueryClient } from '@tanstack/svelte-query';
+import { QueryClient, type CreateQueryResult } from '@tanstack/svelte-query';
 import { browser } from '$app/environment';
+
+export type QueryResult<T> = CreateQueryResult<T>
 
 const qc = new QueryClient({
   defaultOptions: {

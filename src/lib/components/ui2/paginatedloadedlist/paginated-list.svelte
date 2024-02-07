@@ -1,4 +1,6 @@
 <script lang="ts" generics="T">
+  import { LIST } from '$lib/query/keys';
+
   import { writable, derived } from 'svelte/store';
   import { log } from '$lib/logger';
   import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
@@ -35,7 +37,7 @@
   /**
    * query key for the cache
    */
-  export let queryKeys: string[] = ['list'];
+  export let queryKeys: string[] = [];
 
   const p = writable(page);
 
@@ -49,7 +51,7 @@
       // convert to 0 based calls
       const page = p - 1;
       return {
-        queryKey: queryKeys.concat([String(page)]),
+        queryKey: queryKeys.concat([LIST, String(page)]),
         queryFn: async () => {
           log.debug('Loading page from list', page);
           return await load(page);
@@ -66,12 +68,10 @@
 <div>
   <div>
     {#if $list.isPending}
-      <slot name="loading" >
-        Loading list data
-      </slot>
+      <slot name="loading">Loading list data</slot>
     {/if}
     {#if $list.isError}
-      <slot name="error" >
+      <slot name="error">
         Failed to load list: {$list.error.message}
       </slot>
     {/if}
@@ -79,7 +79,13 @@
       <slot {items} isLoading={$list.isPlaceholderData} />
     {/if}
   </div>
-  <Pagination.Root count={totalItems == 0 ? 1 : totalItems} perPage={pageSize} let:pages let:currentPage bind:page={$p}>
+  <Pagination.Root
+    count={totalItems == 0 ? 1 : totalItems}
+    perPage={pageSize}
+    let:pages
+    let:currentPage
+    bind:page={$p}
+  >
     <Pagination.Content class="text-foreground">
       <Pagination.Item>
         <Pagination.PrevButton />

@@ -12,11 +12,11 @@
     type SubscriptionContractData,
     getContractData,
     type SubscriptionData,
-    getSubscriptionData
+    getSubscriptionData,
+    type SubscriptionContainer
   } from '$lib/web3/contracts/subscription';
   import { approveFunc } from '$lib/web3/contracts/erc20';
   import { createQuery } from '@tanstack/svelte-query';
-  import { type Subscription } from '@createz/contracts/types/ethers-contracts';
   import { chainEnvironment } from '$lib/chain-context';
   import { derived } from 'svelte/store';
   import { log } from '$lib/logger';
@@ -26,7 +26,7 @@
   const addr = data.subscriptionAddr;
   const tokenId = data.tokenId;
 
-  const subscriptionContract = createQuery<Subscription>(
+  const subscriptionContract = createQuery<SubscriptionContainer>(
     derived(chainEnvironment, (chainEnvironment) => ({
       queryKey: ['subscription', addr],
       queryFn: () => createSubscriptionContract(addr, chainEnvironment!.ethersSigner)
@@ -38,7 +38,7 @@
       queryKey: ['subContractMetadata', addr],
       queryFn: async () => {
         log.debug('query for sub contract metadata', addr, subscriptionContract);
-        const data = await getContractData(subscriptionContract.data!);
+        const data = await getContractData(subscriptionContract.data!.contract);
         log.debug('sub contract metadata', data);
         return data;
       },
@@ -51,7 +51,7 @@
       queryKey: ['subscriptionData', addr, tokenId.toString()],
       queryFn: async () => {
         log.debug('Loading sub data', addr, tokenId);
-        const data = await getSubscriptionData(subscriptionContract.data!, tokenId);
+        const data = await getSubscriptionData(subscriptionContract.data!.contract, tokenId);
         return data;
       },
       enabled: subscriptionContract.isSuccess

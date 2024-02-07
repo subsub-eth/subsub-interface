@@ -5,6 +5,7 @@ import injectedWalletsModule from '@web3-onboard/injected-wallets';
 import { onBoardChains as chains } from './chains';
 import { Observable, distinctUntilChanged, map } from 'rxjs';
 import { derived, readonly, writable, type Readable } from 'svelte/store';
+import { asChecksumAddress, type Address } from './contracts/common';
 
 const injected = injectedWalletsModule();
 
@@ -84,10 +85,10 @@ export const isAccountConnected: Readable<boolean> = derived(
   false
 );
 
-export const currentAccount: Readable<string | undefined> = derived(primaryWallet, (wallet) => {
+export const currentAccount: Readable<Address | undefined> = derived(primaryWallet, (wallet) => {
   const account = wallet?.accounts[0]?.address;
   console.debug(`current account from primary wallet`, account);
-  return account;
+  return account ? asChecksumAddress(account) : undefined;
 });
 
 export const currentChainId: Readable<number | undefined> = derived(primaryWallet, (wallet) => {

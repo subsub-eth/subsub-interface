@@ -61,7 +61,7 @@
   );
 
   $: loadErc20Data = async (address: Address): Promise<Erc20Data> => {
-    const contract = getErc20Contract(address, $chainEnvironment!.ethersSigner);
+    const { contract } = getErc20Contract(address, $chainEnvironment!.ethersSigner);
     return getErc20Data(contract);
   };
 
