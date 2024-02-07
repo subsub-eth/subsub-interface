@@ -26,8 +26,10 @@
   const dispatch = createEventDispatcher<CreateSubscriptionContractEvents>();
 
   const createContract = createMutation({
-    mutationFn: async ([name, symbol, metadata, subSettings, events]: Parameters<typeof create>) =>
-      create(name, symbol, metadata, subSettings, events),
+    mutationFn: async ([name, symbol, metadata, subSettings]: Parameters<typeof create>) =>
+      create(name, symbol, metadata, subSettings, {
+        onCreateTxSubmitted: (hash) => dispatch('createTxSubmitted', hash)
+      }),
     onError: (error) => dispatch('txFailed', error),
     // TODO pass hash and address?
     onSuccess: (res) => {
@@ -54,15 +56,7 @@
       };
 
       log.debug('creating new subscription plan', val.name, val.symbol, metadata, subSettings);
-      await $createContract.mutateAsync([
-        val.name,
-        val.symbol,
-        metadata,
-        subSettings,
-        {
-          onCreateTxSubmitted: (hash) => dispatch('createTxSubmitted', hash)
-        }
-      ]);
+      await $createContract.mutateAsync([val.name, val.symbol, metadata, subSettings]);
     },
     transform: (value: any) => {
       if (value.subSettings.rate) value.subSettings.rate = BigInt(value.subSettings.rate);

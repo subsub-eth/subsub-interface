@@ -111,7 +111,7 @@ Subscription Contract: {addr}
         )}
         <PaginatedLoadedList
           {load}
-          queryKeys={['subs', addr, $currentAccount]}
+          queryKeys={[SUBSCRIPTION, addr, $currentAccount]}
           totalItems={$userSubsCount.data}
           {pageSize}
           let:items

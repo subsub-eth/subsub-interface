@@ -7,7 +7,8 @@ import {
   BigNumberishSchema,
   type Address,
   type BigNumberish,
-  asChecksumAddress
+  asChecksumAddress,
+  type Hash
 } from './common';
 import {
   Subscription__factory,
@@ -311,23 +312,19 @@ export function tip(
   };
 }
 
-export function mint(
-  contract: Subscription,
-  currentAccount: string
-): (
+export type MintFunc = (
   amount: bigint,
   multiplier: number,
   message: string,
-  dispatch: EventDispatcher<MintEvents>
-) => Promise<[bigint, bigint, string]> {
-  return async (
-    amount: bigint,
-    multiplier: number,
-    message: string,
-    dispatch: EventDispatcher<MintEvents>
-  ): Promise<[bigint, bigint, string]> => {
+  events?: {
+    onMintTxSubmitted?: (hash: Hash) => void;
+  }
+) => Promise<[bigint, bigint, string, Hash]>;
+
+export function mint(contract: Subscription, currentAccount: string): MintFunc {
+  return async (amount, multiplier, message, events) => {
     const tx = await contract.mint(amount, multiplier, message);
-    dispatch('mintTxSubmitted', tx.hash);
+    events?.onMintTxSubmitted?.(tx.hash);
     const mintEvent = await findLog(
       tx,
       contract,
@@ -337,9 +334,8 @@ export function mint(
       throw new Error('Transaction Log not found');
     }
     const tokenId = mintEvent?.args.tokenId;
-    dispatch('minted', [tokenId, tx.hash]);
 
-    return [tokenId, amount, message];
+    return [tokenId, amount, message, tx.hash];
   };
 }
 

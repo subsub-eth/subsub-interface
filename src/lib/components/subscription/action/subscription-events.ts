@@ -1,6 +1,6 @@
 import type { BigNumberish, Hash } from '$lib/web3/contracts/common';
 import type { PauseEvents, TxFailedEvents, UnpauseEvents } from '$lib/components/common-events';
-export { TxFailedEvents };
+export { type TxFailedEvents };
 
 export type ApprovalEvents = {
   approvalTxSubmitted: Hash;

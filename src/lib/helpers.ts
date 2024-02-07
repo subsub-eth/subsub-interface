@@ -43,6 +43,10 @@ export function rangeArray(start: number, stop: number, step: number = 1): Array
 }
 
 export function prettyNumber(num: number): string {
+  if (num == 0) {
+    return '0';
+  }
+
   if (num >= 1000) {
     return Math.round(num).toString();
   }

@@ -75,6 +75,7 @@
   const onContractCreated = (event: CustomEvent<[string, string]>) => {
     toast.info(`New Contract address: ${event.detail[0]}`);
     queryClient.invalidateQueries({ queryKey: [SUBSCRIPTION, PROFILE, profileId.toString()] });
+    // TODO FIXME
     goto(`/${$page.params.network}/s/${event.detail[0]}/`);
   };
 

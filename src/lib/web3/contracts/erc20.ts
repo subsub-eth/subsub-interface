@@ -5,11 +5,6 @@ import { z } from 'zod';
 import type { Signer } from 'ethers';
 import { log } from '$lib/logger';
 
-export type ApprovalEvents = {
-  approvalTxSubmitted: Hash;
-  approved: [bigint, Hash];
-};
-
 const Erc20DataSchema = z.object({
   address: AddressSchema,
   name: z.string(),
@@ -19,11 +14,8 @@ const Erc20DataSchema = z.object({
 
 export type Erc20Data = z.infer<typeof Erc20DataSchema>;
 
-export type Erc20Container = {address: Address, contract: ERC20};
-export function getErc20Contract(
-  address: Address,
-  signer: Signer
-): Erc20Container {
+export type Erc20Container = { address: Address; contract: ERC20 };
+export function getErc20Contract(address: Address, signer: Signer): Erc20Container {
   log.debug('Created ERC20 contract for', address, signer);
   return { address: address, contract: ERC20__factory.connect(address, signer) };
 }
@@ -79,14 +71,18 @@ export async function getAllowance(
   return allowance;
 }
 
-export function approveFunc(token: ERC20, spender: string) {
-  return async (amount: bigint, dispatch: EventDispatcher<ApprovalEvents>): Promise<bigint> => {
+export type ApproveFunc = (
+  amount: bigint,
+  events?: { onApprovalTxSubmitted?: (hash: Hash) => void }
+) => Promise<[bigint, Hash]>;
+
+export function approveFunc(token: ERC20, spender: string): ApproveFunc {
+  return async (amount, events) => {
     if (amount > 0 && token) {
       const apprTx = await token.approve(spender, amount);
-      dispatch('approvalTxSubmitted', apprTx.hash);
-      const receipt = await apprTx.wait();
-      dispatch('approved', [amount, receipt?.hash ?? apprTx.hash]);
-      return amount;
+      events?.onApprovalTxSubmitted?.(apprTx.hash);
+      await apprTx.wait();
+      return [amount, apprTx.hash];
     } else {
       throw new Error('Approval of 0 amount or token not found');
     }

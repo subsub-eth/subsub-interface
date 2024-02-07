@@ -2,6 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { convertDecimals, prettyNumber } from './helpers';
 
 describe('prettyNumber', () => {
+  it('should keep 0 as 0', () => {
+
+    expect(prettyNumber(0)).toBe('0');
+  });
+
   it('should keep 2 decimals for small numbers', () => {
 
     // below 4 digits, keep 2 decimals
