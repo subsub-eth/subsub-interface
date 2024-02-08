@@ -66,7 +66,6 @@ export type CreateSubscriptionFunc = (
   subSettings: SubSettingsStruct,
   events?: {
     onCreateTxSubmitted?: (hash: string) => void;
-    onCreated?: (address: string, hash: string) => void;
   }
 ) => Promise<string>;
 

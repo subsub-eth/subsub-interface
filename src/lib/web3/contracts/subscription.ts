@@ -29,6 +29,7 @@ import { decodeDataJsonTokenURI } from '../helpers';
 import { ZeroAddress, type Signer } from 'ethers';
 import type { PauseEvents, UnpauseEvents } from '$lib/components/common-events';
 import { log } from '$lib/logger';
+import { ContractTransactionResponse } from 'ethers';
 
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
@@ -387,45 +388,45 @@ export function claim(
   };
 }
 
-export function setDescription(
-  contract: Subscription
-): (description: string, dispatch: EventDispatcher<DescriptionChangeEvents>) => Promise<string> {
-  return async (
-    description: string,
-    dispatch: EventDispatcher<DescriptionChangeEvents>
-  ): Promise<string> => {
-    const tx = await contract.setDescription(description);
-    dispatch('descriptionTxSubmitted', tx.hash);
-    await tx.wait();
-    dispatch('descriptionChanged', [description, tx.hash]);
-    return description;
+export type UpdateDescription = (
+  description: string,
+  events?: { onDescriptionTxSubmitted?: (hash: Hash) => void }
+) => Promise<[string, Hash]>;
+export type UpdateImage = (
+  image: string,
+  events?: { onImageTxSubmitted?: (hash: Hash) => void }
+) => Promise<[string, Hash]>;
+export type UpdateExternalUrl = (
+  externalUrl: string,
+  events?: { onExternalUrlTxSubmitted?: (hash: Hash) => void }
+) => Promise<[string, Hash]>;
+
+async function setProperty(
+  func: (s: string) => Promise<ContractTransactionResponse>,
+  value: string,
+  onSubmitted?: (hash: Hash) => void
+): Promise<[string, Hash]> {
+  const tx = await func(value);
+  onSubmitted?.(tx.hash);
+  await tx.wait();
+  return [value, tx.hash];
+}
+
+export function setDescription(contract: Subscription): UpdateDescription {
+  return async (description, events) => {
+    return setProperty(contract.setDescription, description, events?.onDescriptionTxSubmitted);
   };
 }
 
-export function setImage(
-  contract: Subscription
-): (image: string, dispatch: EventDispatcher<ImageChangeEvents>) => Promise<string> {
-  return async (image: string, dispatch: EventDispatcher<ImageChangeEvents>): Promise<string> => {
-    const tx = await contract.setImage(image);
-    dispatch('imageTxSubmitted', tx.hash);
-    await tx.wait();
-    dispatch('imageChanged', [image, tx.hash]);
-    return image;
+export function setImage(contract: Subscription): UpdateImage {
+  return async (image, events) => {
+    return setProperty(contract.setImage, image, events?.onImageTxSubmitted);
   };
 }
 
-export function setExternalUrl(
-  contract: Subscription
-): (externalUrl: string, dispatch: EventDispatcher<ExternalUrlChangeEvents>) => Promise<string> {
-  return async (
-    externalUrl: string,
-    dispatch: EventDispatcher<ExternalUrlChangeEvents>
-  ): Promise<string> => {
-    const tx = await contract.setExternalUrl(externalUrl);
-    dispatch('externalUrlTxSubmitted', tx.hash);
-    await tx.wait();
-    dispatch('externalUrlChanged', [externalUrl, tx.hash]);
-    return externalUrl;
+export function setExternalUrl(contract: Subscription): UpdateExternalUrl {
+  return async (externalUrl, events) => {
+    return setProperty(contract.setExternalUrl, externalUrl, events?.onExternalUrlTxSubmitted);
   };
 }
 

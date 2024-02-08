@@ -56,7 +56,7 @@
       };
 
       log.debug('creating new subscription plan', val.name, val.symbol, metadata, subSettings);
-      await $createContract.mutateAsync([val.name, val.symbol, metadata, subSettings]);
+      return await $createContract.mutateAsync([val.name, val.symbol, metadata, subSettings]);
     },
     transform: (value: any) => {
       if (value.subSettings.rate) value.subSettings.rate = BigInt(value.subSettings.rate);
