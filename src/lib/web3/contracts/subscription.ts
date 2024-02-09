@@ -8,7 +8,8 @@ import {
   type Address,
   type BigNumberish,
   asChecksumAddress,
-  type Hash
+  type Hash,
+  type OnTxSubmitted
 } from './common';
 import {
   Subscription__factory,
@@ -269,47 +270,31 @@ export function cancel(
   };
 }
 
-export function renew(
-  contract: Subscription,
-  tokenId: bigint
-): (
+export type DepositFunc = (
   amount: bigint,
   message: string,
-  dispatch: EventDispatcher<DepositEvents>
-) => Promise<[bigint, string]> {
-  return async (
-    amount: bigint,
-    message: string,
-    dispatch: EventDispatcher<DepositEvents>
-  ): Promise<[bigint, string]> => {
-    const tx = await contract.renew(tokenId, amount, message);
-    dispatch('depositTxSubmitted', tx.hash);
-    const receipt = await getReceipt(tx);
-    dispatch('deposited', [amount, receipt.hash]);
+  events?: {
+    onDepositTxSubmitted?: OnTxSubmitted;
+  }
+) => Promise<[bigint, string, Hash]>;
 
-    return [amount, message];
+export function renew(contract: Subscription, tokenId: bigint): DepositFunc {
+  return async (amount, message, events) => {
+    const tx = await contract.renew(tokenId, amount, message);
+    events?.onDepositTxSubmitted?.(tx.hash);
+    const receipt = await getReceipt(tx);
+
+    return [amount, message, receipt.hash];
   };
 }
 
-export function tip(
-  contract: Subscription,
-  tokenId: bigint
-): (
-  amount: bigint,
-  message: string,
-  dispatch: EventDispatcher<DepositEvents>
-) => Promise<[bigint, string]> {
-  return async (
-    amount: bigint,
-    message: string,
-    dispatch: EventDispatcher<DepositEvents>
-  ): Promise<[bigint, string]> => {
+export function tip(contract: Subscription, tokenId: bigint): DepositFunc {
+  return async (amount, message, events) => {
     const tx = await contract.tip(tokenId, amount, message);
-    dispatch('depositTxSubmitted', tx.hash);
+    events?.onDepositTxSubmitted?.(tx.hash);
     const receipt = await getReceipt(tx);
-    dispatch('deposited', [amount, receipt.hash]);
 
-    return [amount, message];
+    return [amount, message, receipt.hash];
   };
 }
 

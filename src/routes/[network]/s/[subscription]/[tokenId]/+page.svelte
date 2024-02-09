@@ -8,57 +8,74 @@
     renew,
     withdraw,
     tip,
-    createSubscriptionContract,
     type SubscriptionContractData,
-    getContractData,
     type SubscriptionData,
     getSubscriptionData,
     type SubscriptionContainer
   } from '$lib/web3/contracts/subscription';
-  import { approveFunc } from '$lib/web3/contracts/erc20';
+  import { approveFunc, type Erc20Container } from '$lib/web3/contracts/erc20';
   import { createQuery } from '@tanstack/svelte-query';
-  import { chainEnvironment } from '$lib/chain-context';
   import { derived } from 'svelte/store';
-  import { log } from '$lib/logger';
+  import { queryClient, type QueryResult } from '$lib/query/config';
+  import { getContext } from 'svelte';
+  import {
+    ERC20_ALLOWANCE_CTX,
+    ERC20_BALANCE_CTX,
+    ERC20_CONTRACT_CTX,
+    SUBSCRIPTION_CONTRACT_CTX,
+    SUBSCRIPTION_DATA_CTX
+  } from '../+layout.svelte';
+  import { ALLOWANCE, BALANCE, DATA, ERC20, SUBSCRIPTION } from '$lib/query/keys';
+  import toast from '$lib/toast';
+  import { currentAccount } from '$lib/web3/onboard';
 
   export let data: PageData;
 
   const addr = data.subscriptionAddr;
   const tokenId = data.tokenId;
 
-  const subscriptionContract = createQuery<SubscriptionContainer>(
-    derived(chainEnvironment, (chainEnvironment) => ({
-      queryKey: ['subscription', addr],
-      queryFn: () => createSubscriptionContract(addr, chainEnvironment!.ethersSigner)
-    }))
-  );
+  const subDataQueryKey = [SUBSCRIPTION, addr, DATA, tokenId.toString()];
 
-  const subscriptionContractData = createQuery<SubscriptionContractData>(
-    derived(subscriptionContract, (subscriptionContract) => ({
-      queryKey: ['subContractMetadata', addr],
-      queryFn: async () => {
-        log.debug('query for sub contract metadata', addr, subscriptionContract);
-        const data = await getContractData(subscriptionContract.data!.contract);
-        log.debug('sub contract metadata', data);
-        return data;
-      },
-      enabled: subscriptionContract.isSuccess
-    }))
-  );
+  const subscriptionContract =
+    getContext<QueryResult<SubscriptionContainer>>(SUBSCRIPTION_CONTRACT_CTX);
+
+  const subscriptionContractData =
+    getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
 
   const subscriptionData = createQuery<SubscriptionData>(
     derived(subscriptionContract, (subscriptionContract) => ({
-      queryKey: ['subscriptionData', addr, tokenId.toString()],
-      queryFn: async () => {
-        log.debug('Loading sub data', addr, tokenId);
-        const data = await getSubscriptionData(subscriptionContract.data!.contract, tokenId);
-        return data;
-      },
+      queryKey: subDataQueryKey,
+      queryFn: async () => await getSubscriptionData(subscriptionContract.data!.contract, tokenId),
       enabled: subscriptionContract.isSuccess
     }))
   );
 
-  const updateTokenMetadata = async () => {};
+  const erc20Contract = getContext<QueryResult<Erc20Container>>(ERC20_CONTRACT_CTX);
+  const erc20Allowance = getContext<QueryResult<bigint>>(ERC20_ALLOWANCE_CTX);
+  const erc20Balance = getContext<QueryResult<bigint>>(ERC20_BALANCE_CTX);
+
+  const invalidateErc20Approval = () =>
+    queryClient.invalidateQueries({
+      queryKey: [
+        ERC20,
+        ALLOWANCE,
+        $erc20Contract!.data!.address,
+        $currentAccount,
+        $subscriptionContract!.data!.address
+      ]
+    });
+
+  const invalidateBalances = () => {
+    invalidateErc20Approval();
+
+    queryClient.invalidateQueries({
+      queryKey: [ERC20, BALANCE, $erc20Contract!.data!.address, $currentAccount]
+    });
+
+    queryClient.invalidateQueries({
+      queryKey: subDataQueryKey
+    });
+  };
 </script>
 
 <h1>Subscription Details</h1>
@@ -87,50 +104,38 @@
     <!-- subscription controls -->
     <!-- deposit(renew) / tip -->
     <!-- withdraw / cancel -->
-    <!-- <CurrentAccountContext let:currentAccount> -->
-    <!--   <ERC20Context address={contractMetadata.token} {ethersSigner} let:token> -->
-    <!--     <ERC20BalanceContext -->
-    <!--       {token} -->
-    <!--       account={currentAccount} -->
-    <!--       let:balance -->
-    <!--       let:update={updateBalance} -->
-    <!--     > -->
-    <!--       <ERC20AllowanceContext -->
-    <!--         {token} -->
-    <!--         account={currentAccount} -->
-    <!--         spender={addr} -->
-    <!--         let:allowance -->
-    <!--         let:update={updateAllowance} -->
-    <!--       > -->
-    <!--         {@const doUpdate = async () => -->
-    <!--           await Promise.all([updateBalance(), updateAllowance(), updateTokenMetadata()]).then( -->
-    <!--             () => {} -->
-    <!--           )} -->
-    <!--         <SubscriptionDeposit -->
-    <!--           {allowance} -->
-    <!--           {balance} -->
-    <!--           approve={approveFunc(token, addr)} -->
-    <!--           renew={renew(subscriptionContract, tokenId)} -->
-    <!--           tip={tip(subscriptionContract, tokenId)} -->
-    <!--           updateData={doUpdate} -->
-    <!--         /> -->
-    <!--         {@const withdrawable = BigInt( -->
-    <!--           tokenMetadata.attributes?.find((e) => e.trait_type === 'withdrawable')?.value -->
-    <!--         )} -->
-    <!--         {@const deposited = BigInt( -->
-    <!--           tokenMetadata.attributes?.find((e) => e.trait_type === 'deposited')?.value -->
-    <!--         )} -->
-    <!--         <!-- TODO: disable when not owner -->
-    <!--         <SubscriptionWithdrawal -->
-    <!--           withdraw={withdraw(subscriptionContract, tokenId)} -->
-    <!--           cancel={cancel(subscriptionContract, tokenId)} -->
-    <!--           {withdrawable} -->
-    <!--           {deposited} -->
-    <!--           updateData={doUpdate} -->
-    <!--         /> -->
-    <!--       </ERC20AllowanceContext> -->
-    <!--     </ERC20BalanceContext> -->
-    <!--   </ERC20Context> -->
-    <!-- </CurrentAccountContext> -->
+    {#if $subscriptionContract.isSuccess && $subscriptionContractData.isSuccess && $subscriptionData.isSuccess && $erc20Contract.isSuccess && $erc20Allowance.isSuccess && $erc20Balance.isSuccess}
+      {@const subContract = $subscriptionContract.data.contract}
+      {@const erc20 = $erc20Contract.data.contract}
+      <SubscriptionDeposit
+        allowance={$erc20Allowance.data}
+        balance={$erc20Balance.data}
+        approve={approveFunc(erc20, addr)}
+        renew={renew(subContract, tokenId)}
+        tip={tip(subContract, tokenId)}
+        rate={BigInt($subscriptionContractData.data?.rate)}
+        on:approved={({ detail: [amount, tx] }) => {
+          invalidateErc20Approval();
+          toast.info(`Token approved for ${amount} in Tx ${tx}`);
+        }}
+        on:deposited={({ detail: [amount, tx] }) => {
+          invalidateBalances();
+          toast.info(`Token approved for ${amount} in Tx ${tx}`);
+        }}
+        on:txFailed={({detail: err}) => {
+          toast.error(`Transaction failed: ${err}`);
+          }}
+      />
+      <!-- multiplier for rate necessary? -->
+
+      <!-- TODO: disable when not owner -->
+      <SubscriptionWithdrawal
+        withdraw={withdraw(subContract, tokenId)}
+        cancel={cancel(subContract, tokenId)}
+        withdrawable={BigInt($subscriptionData.data.withdrawable)}
+        deposited={BigInt($subscriptionData.data.deposited)}
+        updateData={async () => {}}
+      />
+    {/if}
   </div>
 </div>

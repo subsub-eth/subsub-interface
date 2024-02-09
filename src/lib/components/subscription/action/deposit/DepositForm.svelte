@@ -1,51 +1,69 @@
 <script lang="ts">
-  import { DepositPropsSchema, type DepositProps } from '$lib/web3/contracts/subscription';
+  import {
+    DepositPropsSchema,
+    type DepositProps,
+    type DepositFunc
+  } from '$lib/web3/contracts/subscription';
   import { reporter } from '@felte/reporter-svelte';
   import { validator } from '@felte/validator-zod';
   import { createForm } from 'felte';
-  import { createEventDispatcher, type EventDispatcher } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import type { ApprovalEvents, DepositEvents, TxFailedEvents } from '../subscription-events';
   import NumberInput from '$lib/components/form/NumberInput.svelte';
   import TextInput from '$lib/components/form/TextInput.svelte';
   import Button from '$lib/components/Button.svelte';
+  import type { ApproveFunc } from '$lib/web3/contracts/erc20';
+  import { createMutation } from '@tanstack/svelte-query';
+  import { log } from '$lib/logger';
 
   export let allowance: bigint;
   export let balance: bigint;
   export let submitLabel: string;
-  export let approve: (
-    amount: bigint,
-    dispatch: EventDispatcher<ApprovalEvents>
-  ) => Promise<bigint>;
-  export let deposit: (
-    amount: bigint,
-    message: string,
-    dispatch: EventDispatcher<DepositEvents>
-  ) => Promise<[bigint, string]>;
+  export let approve: ApproveFunc;
+  export let deposit: DepositFunc;
   export let minAmount = 10n;
   export let maxAmount = 100n;
 
   const depositDispatch = createEventDispatcher<DepositEvents>();
   const approvalDispatch = createEventDispatcher<ApprovalEvents>();
   const failDispatch = createEventDispatcher<TxFailedEvents>();
-  let formDisabled = false;
+
+  const approveMutation = createMutation({
+    mutationFn: async ([amount]: Parameters<typeof approve>) =>
+      approve(amount, {
+        onApprovalTxSubmitted: (hash) => approvalDispatch('approvalTxSubmitted', hash)
+      }),
+    onError: (error) => failDispatch('txFailed', error),
+    onSuccess: ([amount, hash]) => {
+      approvalDispatch('approved', [amount, hash]);
+    }
+  });
+
+  const depositMutation = createMutation({
+    mutationFn: async ([amount, message]: Parameters<typeof deposit>) =>
+      deposit(amount, message, {
+        onDepositTxSubmitted: (hash) => depositDispatch('depositTxSubmitted', hash)
+      }),
+    onError: (error) => failDispatch('txFailed', error),
+    onSuccess: ([amount, , hash]) => {
+      depositDispatch('deposited', [amount, hash]);
+    }
+  });
 
   let approvalMode = true;
 
   const { form, data } = createForm<DepositProps>({
     async onSubmit(val, { resetField }) {
       try {
-        formDisabled = true;
         if (approvalMode) {
-          await approve(val.amount, approvalDispatch);
+          await $approveMutation.mutateAsync([val.amount]);
         } else {
-          await deposit(val.amount, val.message ?? '', depositDispatch);
+          await $depositMutation.mutateAsync([val.amount, val.message ?? '']);
           resetField('amount');
         }
       } catch (err) {
-        console.error('An error occurred', err);
-        failDispatch('txFailed', err);
-      } finally {
-        formDisabled = false;
+        log.error('An error occurred on deposit', err);
+        throw err;
       }
     },
     transform: (value: any) => {
@@ -54,11 +72,10 @@
     },
     validate: (val) => {
       const errors: any = {};
-      console.log('validate!', val);
       if (val.amount < minAmount) {
-        errors.amount = ['too small'];
+        errors.amount = [`too small, min ${minAmount.toString()}`];
       } else if (val.amount > maxAmount) {
-        errors.amount = ['too big'];
+        errors.amount = [`too big, max ${maxAmount.toString()}`];
       }
       return errors;
     },
@@ -66,8 +83,6 @@
   });
 
   $: {
-    console.log('data', $data);
-    // TODO why does this break?
     approvalMode = allowance < $data?.amount;
   }
 </script>
@@ -82,7 +97,7 @@
     <div>
       <Button
         type="submit"
-        isDisabled={formDisabled}
+        isDisabled={$depositMutation.isPending || $approveMutation.isPending}
         label={approvalMode ? 'Approve' : submitLabel}
         primary={true}
       />

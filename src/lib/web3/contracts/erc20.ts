@@ -1,5 +1,4 @@
 import { ERC20__factory, type ERC20 } from '@createz/contracts/types/ethers-contracts';
-import type { EventDispatcher } from 'svelte';
 import { type Hash, AddressSchema, type Address } from './common';
 import { z } from 'zod';
 import type { Signer } from 'ethers';

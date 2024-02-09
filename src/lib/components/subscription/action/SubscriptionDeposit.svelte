@@ -1,67 +1,34 @@
 <script lang="ts">
+  import type { ApproveFunc } from '$lib/web3/contracts/erc20';
+  import type { DepositFunc } from '$lib/web3/contracts/subscription';
   import DepositForm from './deposit/DepositForm.svelte';
-  import {
-    type ApprovalEvents,
-    type DepositEvents,
-    type DepositSubscriptionEvents
-  } from './subscription-events';
-  import { createEventDispatcher, onMount, type EventDispatcher } from 'svelte';
-
 
   export let allowance: bigint;
   export let balance: bigint;
 
-  export let approve: (amount: bigint, dispatch: EventDispatcher<ApprovalEvents>) => Promise<bigint>;
+  export let approve: ApproveFunc;
 
-  export let renew: (
-    amount: bigint,
-    message: string,
-    dispatch: EventDispatcher<DepositEvents>
-  ) => Promise<[bigint, string]>;
+  export let renew: DepositFunc;
 
-  export let tip: (
-    amount: bigint,
-    message: string,
-    dispatch: EventDispatcher<DepositEvents>
-  ) => Promise<[bigint, string]>;
+  export let tip: DepositFunc;
 
-  export let updateData: () => Promise<void>;
+  export let rate: bigint;
 
-  // TODO fixme
-  let rate: bigint = 1;
-
-  let counter = 0;
-
-  onMount(() => counter = Math.random());
-
-  const dispatch = createEventDispatcher<DepositSubscriptionEvents>();
 </script>
 
 <div>
-  counter: {counter}
   <div>
     <h3>Renew</h3>
     <DepositForm
       {allowance}
       {balance}
       submitLabel="Renew"
-      approve={approve}
+      {approve}
       deposit={renew}
       maxAmount={balance}
       minAmount={rate}
-      on:approved={async (ev) => {
-        // TODO toast
-        const [amount, hash] = ev.detail;
-        await updateData();
-        dispatch('approved', ev.detail);
-      }}
-      on:deposited={async (ev) => {
-        // TODO toast
-        const [amount, hash] = ev.detail;
-        await updateData();
-
-        dispatch('deposited', ev.detail);
-      }}
+      on:approved
+      on:deposited
       on:txFailed
       on:depositTxSubmitted
       on:approvalTxSubmitted
@@ -73,23 +40,12 @@
       {allowance}
       {balance}
       submitLabel="Tip"
-      approve={approve}
+      {approve}
       deposit={tip}
       maxAmount={balance}
       minAmount={0n}
-      on:approved={async (ev) => {
-        // TODO toast
-        const [amount, hash] = ev.detail;
-        await updateData();
-        dispatch('approved', ev.detail);
-      }}
-      on:deposited={async (ev) => {
-        // TODO toast
-        const [amount, hash] = ev.detail;
-        await updateData();
-
-        dispatch('deposited', ev.detail);
-      }}
+      on:approved
+      on:deposited
       on:txFailed
       on:depositTxSubmitted
       on:approvalTxSubmitted

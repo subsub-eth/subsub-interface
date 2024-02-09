@@ -19,6 +19,8 @@ export type KeyOfType<T, V> = keyof {
 
 export type Hash = string;
 
+export type OnTxSubmitted = (hash: Hash) => void;
+
 export const BigNumberishSchema = z.union([z.string(), z.number(), z.bigint()]);
 
 export type BigNumberish = z.infer<typeof BigNumberishSchema>;
