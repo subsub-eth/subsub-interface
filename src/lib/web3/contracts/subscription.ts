@@ -234,27 +234,29 @@ export async function getSubscriptionData(
   }
 }
 
-export function withdraw(
-  contract: Subscription,
-  tokenId: bigint
-): (amount: bigint, dispatch: EventDispatcher<WithdrawalEvents>) => Promise<bigint> {
-  return async (amount: bigint, dispatch: EventDispatcher<WithdrawalEvents>) => {
+export type WithdrawalFunc = (
+  amount: bigint,
+  events?: { onWithdrawTxSubmitted?: OnTxSubmitted }
+) => Promise<[bigint, Hash]>;
+
+export function withdraw(contract: Subscription, tokenId: bigint): WithdrawalFunc {
+  return async (amount, events) => {
     const tx = await contract.withdraw(tokenId, amount);
-    dispatch('withdrawTxSubmitted', tx.hash);
+    events?.onWithdrawTxSubmitted?.(tx.hash);
 
     const receipt = await getReceipt(tx);
-    dispatch('withdrawn', [amount, receipt.hash]);
-    return amount;
+    return [amount, receipt.hash];
   };
 }
 
-export function cancel(
-  contract: Subscription,
-  tokenId: bigint
-): (dispatch: EventDispatcher<WithdrawalEvents>) => Promise<bigint> {
-  return async (dispatch: EventDispatcher<WithdrawalEvents>) => {
+export type CancelFunc = (events?: {
+  onWithdrawTxSubmitted?: OnTxSubmitted;
+}) => Promise<[bigint, Hash]>;
+
+export function cancel(contract: Subscription, tokenId: bigint): CancelFunc {
+  return async (events) => {
     const tx = await contract.cancel(tokenId);
-    dispatch('withdrawTxSubmitted', tx.hash);
+    events?.onWithdrawTxSubmitted?.(tx.hash);
 
     const withdrawnEvent = await findLog(
       tx,
@@ -265,8 +267,7 @@ export function cancel(
       throw new Error('Transaction Log not found');
     }
     const amount = withdrawnEvent?.args.removedAmount;
-    dispatch('withdrawn', [amount, tx.hash]);
-    return amount;
+    return [amount, tx.hash];
   };
 }
 

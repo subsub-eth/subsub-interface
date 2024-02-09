@@ -1,32 +1,38 @@
 <script lang="ts">
-  import { createEventDispatcher, type EventDispatcher } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import type { TxFailedEvents, WithdrawalEvents } from '../subscription-events';
   import Button from '$lib/components/Button.svelte';
+  import type { CancelFunc } from '$lib/web3/contracts/subscription';
+  import { createMutation } from '@tanstack/svelte-query';
 
   export let submitLabel: string;
   export let withdrawable: bigint;
-  export let cancel: (dispatch: EventDispatcher<WithdrawalEvents>) => Promise<bigint>;
+  export let cancel: CancelFunc;
 
   const withdrawDispatch = createEventDispatcher<WithdrawalEvents>();
   const failDispatch = createEventDispatcher<TxFailedEvents>();
-  let formDisabled = false;
 
-  $: doCancel = async () => {
-    try {
-      formDisabled = true;
-      await cancel(withdrawDispatch);
-      console.log('cancel successful');
-    } catch (err) {
-      failDispatch('txFailed', err);
-    } finally {
-      formDisabled = false;
+  const cancelMutation = createMutation({
+    mutationFn: async () =>
+      cancel({
+        onWithdrawTxSubmitted: (hash) => withdrawDispatch('withdrawTxSubmitted', hash)
+      }),
+    onError: (error) => failDispatch('txFailed', error),
+    onSuccess: ([amount, hash]) => {
+      withdrawDispatch('withdrawn', [amount, hash]);
     }
-  }
+  });
 </script>
 
 <div>
   <div>current withdrawable: {withdrawable}</div>
   <div>
-    <Button type="button" isDisabled={formDisabled} label={submitLabel} primary={true} on:click={doCancel}/>
+    <Button
+      type="button"
+      isDisabled={$cancelMutation.isPending}
+      label={submitLabel}
+      primary={true}
+      on:click={() => $cancelMutation.mutate()}
+    />
   </div>
 </div>

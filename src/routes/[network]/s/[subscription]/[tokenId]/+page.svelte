@@ -122,9 +122,9 @@
           invalidateBalances();
           toast.info(`Token approved for ${amount} in Tx ${tx}`);
         }}
-        on:txFailed={({detail: err}) => {
+        on:txFailed={({ detail: err }) => {
           toast.error(`Transaction failed: ${err}`);
-          }}
+        }}
       />
       <!-- multiplier for rate necessary? -->
 
@@ -134,7 +134,14 @@
         cancel={cancel(subContract, tokenId)}
         withdrawable={BigInt($subscriptionData.data.withdrawable)}
         deposited={BigInt($subscriptionData.data.deposited)}
-        updateData={async () => {}}
+        on:txFailed={({ detail: err }) => {
+          toast.error(`Transaction failed: ${err}`);
+        }}
+        on:withdrawn={({ detail: [amount, tx] }) => {
+          invalidateBalances();
+          toast.info(`Token approved for ${amount} in Tx ${tx}`);
+        }}
+        on:withdrawTxSubmitted={({ detail: tx }) => toast.info(`Withdrawal submitted in Tx ${tx}`)}
       />
     {/if}
   </div>
