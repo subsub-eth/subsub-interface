@@ -11,9 +11,9 @@
   import { queryClient, type QueryResult } from '$lib/query/config';
   import { getContext } from 'svelte';
   import { SUBSCRIPTION_CONTRACT_CTX, SUBSCRIPTION_DATA_CTX } from '../+layout.svelte';
-  import { DATA, SUBSCRIPTION } from '$lib/query/keys';
   import toast from '$lib/toast';
   import type { Hash } from '$lib/web3/contracts/common';
+    import { subKeys } from '$lib/query/keys';
 
   export let data: PageData;
 
@@ -24,7 +24,7 @@
   const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
 
   const invalidateSubData = () =>
-    queryClient.invalidateQueries({ queryKey: [SUBSCRIPTION, addr, DATA] });
+    queryClient.invalidateQueries({ queryKey: subKeys.contractUri(addr) });
 
   const updateScheduled = ({ detail: hash }: CustomEvent<Hash>) =>
     toast.info(`Update scheduled in Tx ${hash}`);

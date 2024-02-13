@@ -14,15 +14,17 @@
   import { log } from '$lib/logger';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import ProfileTeaser from '$lib/components/profile/ProfileTeaser.svelte';
+    import { profileKeys } from '$lib/query/keys';
 
   const pageSize = 5;
 
   $: profileContract = $chainEnvironment!.profileContract;
+  $: profileAddr = $chainEnvironment!.chainData.contracts.profile;
   $: currentAcc = $currentAccount!;
 
   const profileTotalSupply = createQuery<number>(
     derived(chainEnvironment, (chainEnv) => ({
-      queryKey: ['profileTotalSupply'],
+      queryKey: profileKeys.totalSupply(chainEnv!.chainData.contracts.profile),
       queryFn: async () => {
         const supply = await totalSupply(chainEnv!.profileContract);
         log.debug('Total supply of profiles', supply);
@@ -33,7 +35,7 @@
 
   const userProfileBalance = createQuery<number>(
     derived([chainEnvironment, currentAccount], ([chainEnv, currentAcc]) => ({
-      queryKey: ['userProfileCount', currentAcc],
+      queryKey: profileKeys.balance(chainEnv!.chainData.contracts.profile, currentAcc!),
       queryFn: async () => {
         const balance = await countUserProfiles(chainEnv!.profileContract, currentAcc!);
         log.debug('Balance of users profiles', currentAcc, balance);
@@ -68,7 +70,7 @@
         )}
         <PaginatedLoadedList
           {load}
-          queryKeys={["userProfiles", currentAcc]}
+          queryKeys={profileKeys.ownerList(profileAddr, currentAcc)}
           let:items
           totalItems={$userProfileBalance.data}
           {pageSize}
@@ -90,7 +92,7 @@
       {@const load = listAllProfilesRev(profileContract, pageSize, $profileTotalSupply.data)}
       <PaginatedLoadedList
         {load}
-        queryKeys={["allProfiles"]}
+        queryKeys={profileKeys.list(profileAddr)}
         let:items
         totalItems={$profileTotalSupply.data}
         {pageSize}

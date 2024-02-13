@@ -22,7 +22,7 @@
   } from '../+layout.svelte';
   import { currentAccount } from '$lib/web3/onboard';
   import type { Hash } from '$lib/web3/contracts/common';
-  import { ALLOWANCE, ERC20 } from '$lib/query/keys';
+    import { erc20Keys } from '$lib/query/keys';
 
   export let data: PageData;
 
@@ -47,7 +47,13 @@
   const erc20Balance = getContext<QueryResult<bigint>>(ERC20_BALANCE_CTX);
 
   const approved = ({ detail: [amount, hash] }: CustomEvent<[bigint, Hash]>) => {
-    queryClient.invalidateQueries({ queryKey: [ERC20, ALLOWANCE] });
+    queryClient.invalidateQueries({
+      queryKey: erc20Keys.allowance(
+        $erc20Contract!.data!.address,
+        $currentAccount!,
+        $subscriptionContract!.data!.address
+      )
+    });
     toast.info(`Amount of ${amount} approved in tx ${hash}`);
   };
 </script>

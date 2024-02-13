@@ -18,8 +18,8 @@
   import { log } from '$lib/logger';
   import { getErc20Contract, getErc20Data, type Erc20Data } from '$lib/web3/contracts/erc20';
   import { findPrice, type Price } from '$lib/web3/contracts/oracle';
-  import { ERC6551_REGISTRY, PROFILE, SUBSCRIPTION } from '$lib/query/keys';
   import { findDefaultProfileErc6551Account } from '$lib/web3/contracts/erc6551';
+  import { erc6551Keys, profileKeys, subHandleKeys } from '$lib/query/keys';
 
   export let data: PageData;
 
@@ -29,10 +29,11 @@
 
   $: ethersSigner = $chainEnvironment!.ethersSigner;
   $: currentAcc = $currentAccount!;
+  $: subHandleAddr = $chainEnvironment!.chainData.contracts.subscriptionHandle;
 
   const profile = createQuery<ProfileData>(
     derived(chainEnvironment, (chainEnvironment) => ({
-      queryKey: ['profile', tokenId.toString()],
+      queryKey: profileKeys.tokenUri(chainEnvironment!.chainData.contracts.profile, tokenId),
       queryFn: async () => {
         log.debug('find profile', chainEnvironment);
         const profile = await findProfile(chainEnvironment!.profileContract, tokenId);
@@ -43,14 +44,22 @@
 
   const ownerAccount = createQuery<Address>(
     derived(chainEnvironment, (chainEnvironment) => ({
-      queryKey: [ERC6551_REGISTRY, chainEnvironment!.chainData.chainId, tokenId.toString()],
+      queryKey: erc6551Keys.profileAccount(
+        chainEnvironment!.chainData.contracts.erc6551Registry,
+        chainEnvironment!.chainData.chainId,
+        chainEnvironment!.chainData.contracts.profile,
+        tokenId
+      ),
       queryFn: async () => (await findDefaultProfileErc6551Account(chainEnvironment!, tokenId))!
     }))
   );
 
   const subscriptionContractAddresses = createQuery<Array<Address>>(
     derived([chainEnvironment, ownerAccount], ([chainEnvironment, ownerAccount]) => ({
-      queryKey: ['subContractAddresses', ownerAccount],
+      queryKey: subHandleKeys.ownerList(
+        chainEnvironment!.chainData.contracts.subscriptionHandle,
+        ownerAccount.data!
+      ),
       queryFn: async () =>
         await getSubscriptionContractAddresses(
           chainEnvironment!.subscriptionHandleContract,
@@ -117,7 +126,7 @@
 
       <PaginatedLoadedList
         {load}
-        queryKeys={[SUBSCRIPTION, PROFILE, tokenId.toString()]}
+        queryKeys={subHandleKeys.ownerList(subHandleAddr, currentAcc)}
         let:items
         totalItems={$subscriptionContractAddresses.data.length}
         {pageSize}

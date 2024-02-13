@@ -25,16 +25,16 @@
     SUBSCRIPTION_CONTRACT_CTX,
     SUBSCRIPTION_DATA_CTX
   } from '../+layout.svelte';
-  import { ALLOWANCE, BALANCE, DATA, ERC20, SUBSCRIPTION } from '$lib/query/keys';
   import toast from '$lib/toast';
   import { currentAccount } from '$lib/web3/onboard';
+    import { erc20Keys, subKeys } from '$lib/query/keys';
 
   export let data: PageData;
 
   const addr = data.subscriptionAddr;
   const tokenId = data.tokenId;
 
-  const subDataQueryKey = [SUBSCRIPTION, addr, DATA, tokenId.toString()];
+  const subDataQueryKey = subKeys.tokenUri(addr, tokenId);
 
   const subscriptionContract =
     getContext<QueryResult<SubscriptionContainer>>(SUBSCRIPTION_CONTRACT_CTX);
@@ -56,20 +56,18 @@
 
   const invalidateErc20Approval = () =>
     queryClient.invalidateQueries({
-      queryKey: [
-        ERC20,
-        ALLOWANCE,
+      queryKey: erc20Keys.allowance(
         $erc20Contract!.data!.address,
-        $currentAccount,
+        $currentAccount!,
         $subscriptionContract!.data!.address
-      ]
+      )
     });
 
   const invalidateBalances = () => {
     invalidateErc20Approval();
 
     queryClient.invalidateQueries({
-      queryKey: [ERC20, BALANCE, $erc20Contract!.data!.address, $currentAccount]
+      queryKey: erc20Keys.balance($erc20Contract!.data!.address, $currentAccount!)
     });
 
     queryClient.invalidateQueries({

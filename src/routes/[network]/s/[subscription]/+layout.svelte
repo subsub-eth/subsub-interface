@@ -19,7 +19,6 @@
   import { chainEnvironment } from '$lib/chain-context';
   import { derived } from 'svelte/store';
   import { setContext } from 'svelte';
-  import { ALLOWANCE, BALANCE, CONTRACT, DATA, ERC20, SUBSCRIPTION } from '$lib/query/keys';
   import {
     getErc20Contract,
     type Erc20Container,
@@ -29,6 +28,7 @@
     getBalance
   } from '$lib/web3/contracts/erc20';
   import { currentAccount } from '$lib/web3/onboard';
+  import { erc20Keys, subKeys } from '$lib/query/keys';
 
   export let data: LayoutData;
 
@@ -36,14 +36,14 @@
 
   const subscriptionContract = createQuery<SubscriptionContainer>(
     derived(chainEnvironment, (chainEnvironment) => ({
-      queryKey: [CONTRACT, addr],
+      queryKey: subKeys.contract(addr),
       queryFn: () => createSubscriptionContract(addr, chainEnvironment!.ethersSigner)
     }))
   );
 
   const subscriptionData = createQuery<SubscriptionContractData>(
     derived(subscriptionContract, (subscriptionContract) => ({
-      queryKey: [SUBSCRIPTION, addr, DATA],
+      queryKey: subKeys.contractUri(addr),
       queryFn: async () => {
         const data = await getContractData(subscriptionContract.data!.contract);
         return data;
@@ -56,7 +56,7 @@
     derived(
       [chainEnvironment, subscriptionData],
       ([chainEnvironment, { isSuccess, data: subData }]) => ({
-        queryKey: [CONTRACT, subData?.token],
+        queryKey: erc20Keys.contract(subData?.token),
         queryFn: () => getErc20Contract(subData!.token, chainEnvironment!.ethersSigner),
         enabled: isSuccess && !!subData?.token
       })
@@ -65,7 +65,7 @@
 
   const erc20Data = createQuery<Erc20Data>(
     derived(erc20Contract, ({ isSuccess, data }) => ({
-      queryKey: [ERC20, data?.address, DATA],
+      queryKey: erc20Keys.metadata(data?.address),
       queryFn: async () => getErc20Data(data!.contract),
       enabled: isSuccess
     }))
@@ -75,7 +75,7 @@
     derived(
       [erc20Contract, subscriptionContract, currentAccount],
       ([{ isSuccess, data: erc20 }, { data: sub }, currentAccount]) => ({
-        queryKey: [ERC20, ALLOWANCE, erc20?.address, currentAccount, sub?.address],
+        queryKey: erc20Keys.allowance(erc20?.address, currentAccount, sub?.address),
         queryFn: async () => await getAllowance(erc20!.contract, currentAccount!, sub!.address),
         enabled: isSuccess && !!currentAccount
       })
@@ -84,7 +84,7 @@
 
   const erc20Balance = createQuery<bigint>(
     derived([erc20Contract, currentAccount], ([{ isSuccess, data: erc20 }, currentAccount]) => ({
-      queryKey: [ERC20, BALANCE, erc20?.address, currentAccount],
+      queryKey: erc20Keys.balance(erc20?.address, currentAccount!),
       queryFn: async () => await getBalance(erc20!.contract, currentAccount!),
       enabled: isSuccess && !!currentAccount
     }))

@@ -27,7 +27,7 @@
     SUBSCRIPTION_CONTRACT_CTX,
     SUBSCRIPTION_DATA_CTX
   } from './+layout.svelte';
-  import { BALANCE, SUBSCRIPTION } from '$lib/query/keys';
+  import { subKeys } from '$lib/query/keys';
 
   export let data: PageData;
 
@@ -43,7 +43,7 @@
 
   const userSubsCount = createQuery<number>(
     derived([subscriptionContract, currentAccount], ([subscriptionContract, currentAccount]) => ({
-      queryKey: [SUBSCRIPTION, addr, currentAccount, BALANCE],
+      queryKey: subKeys.balance(addr, currentAccount!),
       queryFn: async () =>
         countUserSubscriptions(subscriptionContract.data!.contract, currentAccount!),
       enabled: subscriptionContract.isSuccess && !!currentAccount
@@ -111,7 +111,7 @@ Subscription Contract: {addr}
         )}
         <PaginatedLoadedList
           {load}
-          queryKeys={[SUBSCRIPTION, addr, $currentAccount]}
+          queryKeys={subKeys.ownerList(addr, $currentAccount)}
           totalItems={$userSubsCount.data}
           {pageSize}
           let:items

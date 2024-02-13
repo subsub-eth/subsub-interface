@@ -14,7 +14,7 @@
   import { formatEther, formatUnits } from 'ethers';
   import { prettyNumber } from '$lib/helpers';
   import type { Price } from '$lib/web3/contracts/oracle';
-  import { ERC20, PRICE } from '$lib/query/keys';
+    import { erc20Keys } from '$lib/query/keys';
 
   /**
    * Data of the subscription plan
@@ -37,12 +37,12 @@
   export let showOwner = false;
 
   const token = createQuery<Erc20Data>({
-    queryKey: [ERC20, contractData.token],
+    queryKey: erc20Keys.metadata(contractData.token),
     queryFn: async () => getErc20Data(contractData.token)
   });
 
   const price = createQuery<Price | false>({
-    queryKey: [PRICE, contractData.token],
+    queryKey: erc20Keys.price(contractData.token),
     queryFn: async () => {
       return (await getPriceData(contractData.token)) ?? false;
     }

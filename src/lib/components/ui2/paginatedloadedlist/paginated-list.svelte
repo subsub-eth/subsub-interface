@@ -54,7 +54,12 @@
         queryKey: queryKeys.concat([LIST, String(page)]),
         queryFn: async () => {
           log.debug('Loading page from list', page);
-          return await load(page);
+          try {
+            return await load(page);
+          } catch (err) {
+            log.error('Loading paged data failed', page, err);
+            throw err;
+          }
         },
         staleTime: 3 * 60 * 1000,
         placeholderData: keepPreviousData

@@ -2,7 +2,7 @@
   import Button from '$lib/components/Button.svelte';
   import { log } from '$lib/logger';
   import { queryClient } from '$lib/query/config';
-  import { ERC6551_ACCOUNT } from '$lib/query/keys';
+  import { erc6551Keys } from '$lib/query/keys';
   import type { Address } from '$lib/web3/contracts/common';
   import { createMutation } from '@tanstack/svelte-query';
 
@@ -15,9 +15,10 @@
     onError: (error) => {
       // TODO
     },
-    onSuccess: () => {
+    onSuccess: (addr) => {
       log.debug('invalidating erc6551 account query');
-      queryClient.invalidateQueries({ queryKey: [ERC6551_ACCOUNT] });
+      // TODO Fixme move to page
+      queryClient.invalidateQueries({ queryKey: erc6551Keys.account(addr) });
     }
   });
 </script>

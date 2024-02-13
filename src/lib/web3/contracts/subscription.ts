@@ -430,6 +430,7 @@ export function listUserSubscriptionsRev(
   pageSize: number,
   totalItems: number
 ): (page: number) => Promise<SubscriptionData[]> {
+  console.error('contract empty?', contract);
   // TODO multicall
   const func = async (page: number): Promise<SubscriptionData[]> => {
     const index = page * pageSize;

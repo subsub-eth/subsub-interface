@@ -22,8 +22,8 @@
     type TokenBoundAccount
   } from '$lib/web3/contracts/erc6551';
   import type { Address } from '$lib/web3/contracts/common';
-  import { ERC6551_ACCOUNT, ERC6551_REGISTRY, PROFILE, SUBSCRIPTION } from '$lib/query/keys';
   import { queryClient } from '$lib/query/config';
+  import { erc6551Keys, profileKeys, subHandleKeys } from '$lib/query/keys';
 
   export let data: PageData;
 
@@ -31,7 +31,11 @@
 
   const isOwner = createQuery<boolean>(
     derived([chainEnvironment, currentAccount], ([chainEnvironment, currentAccount]) => ({
-      queryKey: ['profileOwner', profileId.toString(), currentAccount],
+      queryKey: profileKeys.tokenOwner(
+        chainEnvironment!.chainData.contracts.profile,
+        profileId,
+        currentAccount!
+      ),
       queryFn: async () => {
         const profileContract = chainEnvironment!.profileContract;
         const owner = await ownerOf(profileContract, profileId);
@@ -42,14 +46,19 @@
 
   const erc6551AccountAddress = createQuery<Address>(
     derived(chainEnvironment, (chainEnvironment) => ({
-      queryKey: [ERC6551_REGISTRY, chainEnvironment!.chainData.chainId, profileId.toString()],
+      queryKey: erc6551Keys.profileAccount(
+        chainEnvironment!.chainData.contracts.erc6551Registry,
+        chainEnvironment!.chainData.chainId,
+        chainEnvironment!.chainData.contracts.profile,
+        profileId
+      ),
       queryFn: async () => (await findDefaultProfileErc6551Account(chainEnvironment!, profileId))!
     }))
   );
 
   const erc6551Account = createQuery<TokenBoundAccount | null>(
     derived([chainEnvironment, erc6551AccountAddress], ([chainEnvironment, addr]) => ({
-      queryKey: [ERC6551_ACCOUNT, chainEnvironment!.chainData.chainId, addr.data],
+      queryKey: erc6551Keys.account(addr.data!),
       queryFn: async () => {
         const signer = chainEnvironment!.ethersSigner;
         const account = await getErc6551Account(addr.data!, signer);
@@ -74,7 +83,12 @@
 
   const onContractCreated = (event: CustomEvent<[string, string]>) => {
     toast.info(`New Contract address: ${event.detail[0]}`);
-    queryClient.invalidateQueries({ queryKey: [SUBSCRIPTION, PROFILE, profileId.toString()] });
+    queryClient.invalidateQueries({
+      queryKey: subHandleKeys.ownerList(
+        $chainEnvironment!.chainData.contracts.subscriptionHandle,
+        $currentAccount!
+      )
+    });
     // TODO FIXME
     goto(`/${$page.params.network}/s/${event.detail[0]}/`);
   };
