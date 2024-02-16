@@ -1,7 +1,9 @@
-import NftAccount from './account-url.svelte';
+import AccountUrl from './account-url.svelte';
+import TokenUrl from './token-url.svelte';
 import NftUrl from './nft-url.svelte';
 
 export {
-  NftAccount as ExplorerAccountUrl,
+  AccountUrl as ExplorerAccountUrl,
+  TokenUrl as ExplorerTokenUrl,
   NftUrl as ExplorerNftUrl,
 };

@@ -19,7 +19,8 @@
     component: ProfileDetails,
     tags: ['autodocs'],
     args: {
-      profile: profileData
+      profile: profileData,
+      tokenboundAccount: zeroAddress
     },
     argTypes: {}
   };
@@ -48,3 +49,5 @@
 <Story name="No description" args={{ profile: { ...profileData, description: undefined } }} />
 
 <Story name="No external url" args={{ profile: { ...profileData, external_url: undefined } }} />
+
+<Story name="No tokenboundAccount" args={{ profile: profileData, tokenboundAccount: undefined }} />

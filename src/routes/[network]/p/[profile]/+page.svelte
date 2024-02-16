@@ -1,11 +1,10 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import SubscriptionContractTeaser from '$lib/components/subscription/SubscriptionContractTeaser.svelte';
+  import { SubscriptionContractTeaser } from '$lib/components/subscription/contract';
   import { addressEquals } from '$lib/web3/helpers';
   import ProfileDetails from '$lib/components/profile/ProfileDetails.svelte';
   import Button from '$lib/components/Button.svelte';
   import { getSubscriptionContractAddresses } from '$lib/web3/contracts/subscription-handle';
-  import { listSubscriptionContracts } from '$lib/web3/contracts/subscription';
   import { chainEnvironment } from '$lib/chain-context';
   import { currentAccount } from '$lib/web3/onboard';
   import { createQuery } from '@tanstack/svelte-query';
@@ -13,13 +12,14 @@
   import type { Address } from '$lib/web3/contracts/common';
   import { findProfile } from '$lib/web3/contracts/profile';
   import Url from '$lib/components/Url.svelte';
-  import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
+  import { PaginatedList } from '$lib/components/ui2/paginatedlist';
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { log } from '$lib/logger';
-  import { getErc20Contract, getErc20Data, type Erc20Data } from '$lib/web3/contracts/erc20';
   import { findPrice, type Price } from '$lib/web3/contracts/oracle';
   import { findDefaultProfileErc6551Account } from '$lib/web3/contracts/erc6551';
   import { erc6551Keys, profileKeys, subHandleKeys } from '$lib/query/keys';
+  import { ChevronLeft } from 'lucide-svelte';
+  import { SubscriptionContractContext } from '$lib/components/context/web3';
 
   export let data: PageData;
 
@@ -27,9 +27,7 @@
 
   const pageSize = 5;
 
-  $: ethersSigner = $chainEnvironment!.ethersSigner;
   $: currentAcc = $currentAccount!;
-  $: subHandleAddr = $chainEnvironment!.chainData.contracts.subscriptionHandle;
 
   const profile = createQuery<ProfileData>(
     derived(chainEnvironment, (chainEnvironment) => ({
@@ -69,11 +67,6 @@
     }))
   );
 
-  $: loadErc20Data = async (address: Address): Promise<Erc20Data> => {
-    const { contract } = getErc20Contract(address, $chainEnvironment!.ethersSigner);
-    return getErc20Data(contract);
-  };
-
   $: loadPrice = async (address: Address): Promise<Price | undefined> => {
     return findPrice(
       address,
@@ -95,6 +88,15 @@
       Failed to load Profile
     {/if}
     {#if $profile.isSuccess}
+      <!-- TODO "back link" to profile -->
+      <Url template={`/[network]/p/${data.ownerAddress}/`} let:path>
+        <a href={path}>
+          <div class="flex items-center gap-1">
+            <ChevronLeft className="h-4 w-4" /> <span>{'ownerName'}'s profile</span>
+          </div>
+        </a>
+      </Url>
+
       <ProfileDetails profile={$profile.data} />
     {/if}
   </div>
@@ -118,27 +120,22 @@
       Failed to load {$subscriptionContractAddresses.error}
     {/if}
     {#if $subscriptionContractAddresses.isSuccess}
-      {@const load = listSubscriptionContracts(
-        ethersSigner,
-        $subscriptionContractAddresses.data,
-        pageSize
-      )}
-
-      <PaginatedLoadedList
-        {load}
-        queryKeys={subHandleKeys.ownerList(subHandleAddr, currentAcc)}
-        let:items
-        totalItems={$subscriptionContractAddresses.data.length}
-        {pageSize}
-      >
-        {#each items as plan}
-          <SubscriptionContractTeaser
-            contractData={plan}
-            getErc20Data={loadErc20Data}
-            getPriceData={loadPrice}
-          />
+      <PaginatedList {pageSize} items={$subscriptionContractAddresses.data} let:currentItems>
+        {#each currentItems as planAddr}
+          <SubscriptionContractContext address={planAddr} let:subscriptionData let:erc20Data>
+            {#if subscriptionData.isPending || erc20Data.isPending}
+              ... Loading ...
+            {/if}
+            {#if subscriptionData.isSuccess && erc20Data.isSuccess}
+              <SubscriptionContractTeaser
+                contractData={subscriptionData.data}
+                paymentTokenData={erc20Data.data}
+                getPriceData={loadPrice}
+              />
+            {/if}
+          </SubscriptionContractContext>
         {/each}
-      </PaginatedLoadedList>
+      </PaginatedList>
     {/if}
   </div>
 </div>

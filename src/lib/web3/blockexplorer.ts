@@ -1,6 +1,7 @@
 import type { Address } from './contracts/common';
 
 const ADDRESS = 'address';
+const TOKEN = 'token';
 const NFT = 'nft';
 
 /**
@@ -12,6 +13,19 @@ export function addressUrl(explorerUrl: string, address: Address): string {
   const url = new URL(explorerUrl);
 
   url.pathname = [ADDRESS, address].join('/');
+
+  return url.toString();
+}
+
+/**
+ * Creates an explorer url to a token contract
+ * @param explorerUrl base url of the block explorer
+ * @param address on-chain contract address
+ */
+export function tokenUrl(explorerUrl: string, address: Address): string {
+  const url = new URL(explorerUrl);
+
+  url.pathname = [TOKEN, address].join('/');
 
   return url.toString();
 }

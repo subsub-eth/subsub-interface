@@ -1,13 +1,10 @@
 <script lang="ts">
-  import { Subscription__factory } from '@createz/contracts/types/ethers-contracts';
-  import type { Signer } from 'ethers';
+  import { subscriptionQueries } from '$lib/query/subscription-queries';
+  import type { Address } from '$lib/web3/contracts/common';
 
-  export let address: string;
-  export let ethersSigner: Signer;
+  export let address: Address;
 
-  $: subscriptionContract = Subscription__factory.connect(address, ethersSigner);
+  const { subscriptionData, erc20Data } = subscriptionQueries(address);
 </script>
 
-{#if subscriptionContract}
-  <slot {subscriptionContract} />
-{/if}
+<slot subscriptionData={$subscriptionData} erc20Data={$erc20Data} />

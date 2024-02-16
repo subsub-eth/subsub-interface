@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import SubscriptionContractTeaser from '$lib/components/subscription/SubscriptionContractTeaser.svelte';
+  import { SubscriptionContractTeaser } from '$lib/components/subscription/contract';
   import type { SubscriptionContractData } from '$lib/web3/contracts/subscription';
   import { contractDummy } from '$lib/static-content';
   import { zeroAddress } from '$lib/web3/helpers';
@@ -46,6 +46,17 @@
       contractData: testData,
       getErc20Data: getErc20,
       getPriceData: getPriceData
+    },
+    parameters: {
+      sveltekit_experimental: {
+        stores: {
+          page: {
+            params: {
+              network: 'mytest'
+            }
+          }
+        }
+      }
     }
   };
 </script>
@@ -65,5 +76,5 @@
 
   <Story name="with Owner" args={{ showOwner: true }} />
 
-  <Story name="paused" args={{ metadata: { ...testData, mintingPaused: true } }} />
+  <Story name="paused" args={{ contractData: { ...testData, mintingPaused: true } }} />
 </QueryClientContext>

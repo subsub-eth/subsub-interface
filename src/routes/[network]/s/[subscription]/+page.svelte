@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { derived } from 'svelte/store';
-  import SubscriptionContractDetails from '$lib/components/subscription/SubscriptionContractDetails.svelte';
   import { page } from '$app/stores';
+  import { SubscriptionContractDetails } from '$lib/components/subscription/contract';
   import Button from '$lib/components/Button.svelte';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import {
@@ -28,6 +28,9 @@
     SUBSCRIPTION_DATA_CTX
   } from './+layout.svelte';
   import { subKeys } from '$lib/query/keys';
+  import { findPrice, type Price } from '$lib/web3/contracts/oracle';
+  import type { Address } from '$lib/web3/contracts/common';
+  import { chainEnvironment } from '$lib/chain-context';
 
   export let data: PageData;
 
@@ -49,6 +52,15 @@
       enabled: subscriptionContract.isSuccess && !!currentAccount
     }))
   );
+
+  // TODO refactor?
+  $: loadPrice = async (address: Address): Promise<Price | undefined> => {
+    return findPrice(
+      address,
+      $chainEnvironment!.chainData.contracts.priceFeeds,
+      $chainEnvironment!.ethersSigner
+    );
+  };
 
   const update = async () => {};
 </script>
@@ -73,7 +85,11 @@ Subscription Contract: {addr}
       </div>
       <div class="rounded-xl border-2 border-solid p-2">
         <!-- sub details -->
-        <SubscriptionContractDetails address={addr} metadata={$subscriptionData.data} />
+        <SubscriptionContractDetails
+          contractData={$subscriptionData.data}
+          paymentTokenData={$erc20Data.data}
+          getPriceData={loadPrice}
+        />
         <SubscriptionContractControl
           metadata={$subscriptionData.data}
           pause={aflow(pause($subscriptionContract.data), update)}

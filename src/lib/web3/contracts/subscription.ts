@@ -18,12 +18,6 @@ import {
 import type { EventDispatcher } from 'svelte';
 import type {
   ClaimEvents,
-  DepositEvents,
-  DescriptionChangeEvents,
-  ExternalUrlChangeEvents,
-  ImageChangeEvents,
-  MintEvents,
-  WithdrawalEvents
 } from '$lib/components/subscription/action/subscription-events';
 import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
@@ -156,6 +150,13 @@ export function isFlagSet(flags: BigNumberish, flag: number): boolean {
 
 export function monthlyRate(rate: bigint): bigint {
   return rate * BigInt(60 * 60 * 24 * 30);
+}
+
+export function activeSubscriptions(activeShares: bigint, totalSupply: number): number {
+  return Math.min(
+    Math.floor(Number(BigInt(activeShares) / BigInt(100))),
+    totalSupply
+  );
 }
 
 export type SubscriptionContainer = { address: Address; contract: Subscription };

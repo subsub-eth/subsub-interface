@@ -1,7 +1,7 @@
 // https://reference-data-directory.vercel.app/feeds-matic-testnet.json
 
 import type { PriceFeeds } from '$lib/chain-config';
-import type { Signer } from 'ethers';
+import { formatUnits, type Signer } from 'ethers';
 import type { Address } from './common';
 import { AggregatorV3Interface__factory } from '@createz/contracts/types/ethers-contracts';
 import { log } from '$lib/logger';
@@ -38,4 +38,14 @@ export async function findPrice(
     price: answer,
     decimals: decimals
   };
+}
+
+/**
+ * converts a human readable amount to the currency described by the given price
+ * @param amount human readable number
+ * @param price conversion price
+ */
+export function converted(amount: number, price: Price): number {
+  const p = Number(formatUnits(price.price, price.decimals));
+  return amount * p;
 }
