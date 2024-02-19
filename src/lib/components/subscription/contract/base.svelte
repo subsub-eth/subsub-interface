@@ -9,10 +9,11 @@
      * Payment token data
      */
     paymentTokenData: Erc20Data;
+
     /**
-     *  Function to load price data for the underlying erc20 token from
+     * Loads price of payment token
      */
-    getPriceData: (address: Address) => Promise<Price | undefined>;
+    tokenPrice: ObservedQueryResult<Price | null>;
   };
 </script>
 
@@ -23,34 +24,25 @@
     type SubscriptionContractData
   } from '$lib/web3/contracts/subscription';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
-  import type { Address } from '$lib/web3/contracts/common';
-  import { createQuery } from '@tanstack/svelte-query';
   import { formatEther } from 'ethers';
   import { prettyNumber } from '$lib/helpers';
   import { converted, type Price } from '$lib/web3/contracts/oracle';
-  import { erc20Keys } from '$lib/query/keys';
+  import type { ObservedQueryResult } from '$lib/query/config';
 
   /**
    * Data of the subscription plan
    */
-  export let contractData: SubscriptionContractData;
+  export let contractData: Props['contractData'];
 
   /**
    * Payment token data
    */
-  export let paymentTokenData: Erc20Data;
+  export let paymentTokenData: Props['paymentTokenData'];
 
   /**
-   *  Function to load price data for the underlying erc20 token from
+   *  Loads price of payment token
    */
-  export let getPriceData: (address: Address) => Promise<Price | undefined>;
-
-  const price = createQuery<Price | false>({
-    queryKey: erc20Keys.price(paymentTokenData.address),
-    queryFn: async () => {
-      return (await getPriceData(paymentTokenData.address)) ?? false;
-    }
-  });
+  export let tokenPrice: Props['tokenPrice'];
 
   const rawRate = formatEther(monthlyRate(BigInt(contractData.rate)));
   const rate = prettyNumber(Number(rawRate));
@@ -64,4 +56,4 @@
   };
 </script>
 
-<slot price={$price} {rawRate} {rate} {totalSupply} {activeSubs} {ratePrice} />
+<slot {rawRate} {rate} {totalSupply} {activeSubs} {ratePrice} />

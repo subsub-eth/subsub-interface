@@ -18,6 +18,7 @@ import {
   getBalance
 } from '$lib/web3/contracts/erc20';
 import { createQuery } from '@tanstack/svelte-query';
+import { findPrice, type Price } from '$lib/web3/contracts/oracle';
 
 export function subscriptionQueries(addr: Address) {
   const subscriptionContract = createQuery<SubscriptionContainer>(
@@ -76,12 +77,29 @@ export function subscriptionQueries(addr: Address) {
     }))
   );
 
+  const tokenPrice = createQuery<Price | null>(
+    derived(
+      [erc20Data, chainEnvironment],
+      ([{ isSuccess, data: erc20Data }, chainEnvironment]) => ({
+        queryKey: erc20Keys.price(erc20Data?.address),
+        queryFn: async () =>
+          (await findPrice(
+            erc20Data!.address,
+            chainEnvironment!.chainData.contracts.priceFeeds,
+            chainEnvironment!.ethersSigner
+          )) ?? null,
+        enabled: isSuccess
+      })
+    )
+  );
+
   return {
     subscriptionContract,
     subscriptionData,
     erc20Contract,
     erc20Data,
     erc20Allowance,
-    erc20Balance
+    erc20Balance,
+    tokenPrice
   };
 }

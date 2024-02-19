@@ -22,9 +22,9 @@
   export let paymentTokenData: $$Props['paymentTokenData'];
 
   /**
-   *  Function to load price data for the underlying erc20 token from
+   *  Loads price of payment token
    */
-  export let getPriceData: $$Props['getPriceData'];
+  export let tokenPrice: $$Props['tokenPrice'];
 
   /**
    * show owner in teaser
@@ -35,8 +35,7 @@
 <Base
   {contractData}
   {paymentTokenData}
-  {getPriceData}
-  let:price
+  {tokenPrice}
   let:rate
   let:rawRate
   let:totalSupply
@@ -67,17 +66,17 @@
               </Tooltip.Trigger>
               <Tooltip.Content>{rawRate}</Tooltip.Content>
             </Tooltip.Root>
-              {paymentTokenData.symbol}
+            {paymentTokenData.symbol}
             / month
           </p>
-          {#if price.isPending}
+          {#if tokenPrice.isPending}
             ...
           {/if}
-          {#if price.isError}
+          {#if tokenPrice.isError}
             ???
           {/if}
-          {#if price.isSuccess && price.data}
-            <p class="text-xs text-muted-foreground">${ratePrice(price.data)} / month</p>
+          {#if tokenPrice.isSuccess && tokenPrice.data}
+            <p class="text-xs text-muted-foreground">${ratePrice(tokenPrice.data)} / month</p>
           {/if}
         </div>
         <div class="flex items-center gap-0 sm:gap-1 md:gap-2">

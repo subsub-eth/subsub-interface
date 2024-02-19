@@ -26,9 +26,9 @@
   export let paymentTokenData: $$Props['paymentTokenData'];
 
   /**
-   *  Function to load price data for the underlying erc20 token from
+   *  Loads price of payment token
    */
-  export let getPriceData: $$Props['getPriceData'];
+  export let tokenPrice: $$Props['tokenPrice'];
 
   /** open the technical details collapsible */
   export let technicalsOpen = false;
@@ -40,8 +40,7 @@
 <Base
   {contractData}
   {paymentTokenData}
-  {getPriceData}
-  let:price
+  {tokenPrice}
   let:rate
   let:rawRate
   let:totalSupply

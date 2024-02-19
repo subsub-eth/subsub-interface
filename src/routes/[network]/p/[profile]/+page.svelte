@@ -15,7 +15,6 @@
   import { PaginatedList } from '$lib/components/ui2/paginatedlist';
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { log } from '$lib/logger';
-  import { findPrice, type Price } from '$lib/web3/contracts/oracle';
   import { findDefaultProfileErc6551Account } from '$lib/web3/contracts/erc6551';
   import { erc6551Keys, profileKeys, subHandleKeys } from '$lib/query/keys';
   import { ChevronLeft } from 'lucide-svelte';
@@ -66,14 +65,6 @@
       enabled: ownerAccount.isFetched && !!ownerAccount.data
     }))
   );
-
-  $: loadPrice = async (address: Address): Promise<Price | undefined> => {
-    return findPrice(
-      address,
-      $chainEnvironment!.chainData.contracts.priceFeeds,
-      $chainEnvironment!.ethersSigner
-    );
-  };
 </script>
 
 <h1>Profile Details</h1>
@@ -122,7 +113,7 @@
     {#if $subscriptionContractAddresses.isSuccess}
       <PaginatedList {pageSize} items={$subscriptionContractAddresses.data} let:currentItems>
         {#each currentItems as planAddr}
-          <SubscriptionContractContext address={planAddr} let:subscriptionData let:erc20Data>
+          <SubscriptionContractContext address={planAddr} let:subscriptionData let:erc20Data let:tokenPrice>
             {#if subscriptionData.isPending || erc20Data.isPending}
               ... Loading ...
             {/if}
@@ -130,7 +121,7 @@
               <SubscriptionContractTeaser
                 contractData={subscriptionData.data}
                 paymentTokenData={erc20Data.data}
-                getPriceData={loadPrice}
+                tokenPrice={tokenPrice}
               />
             {/if}
           </SubscriptionContractContext>
