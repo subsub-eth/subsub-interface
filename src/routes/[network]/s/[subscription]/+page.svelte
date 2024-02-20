@@ -25,12 +25,11 @@
   import {
     ERC20_DATA_CTX,
     SUBSCRIPTION_CONTRACT_CTX,
-    SUBSCRIPTION_DATA_CTX
+    SUBSCRIPTION_DATA_CTX,
+    TOKEN_PRICE_CTX
   } from './+layout.svelte';
   import { subKeys } from '$lib/query/keys';
-  import { findPrice, type Price } from '$lib/web3/contracts/oracle';
-  import type { Address } from '$lib/web3/contracts/common';
-  import { chainEnvironment } from '$lib/chain-context';
+  import { type Price } from '$lib/web3/contracts/oracle';
 
   export let data: PageData;
 
@@ -44,6 +43,8 @@
 
   const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
 
+  const tokenPrice = getContext<QueryResult<Price | null>>(TOKEN_PRICE_CTX);
+
   const userSubsCount = createQuery<number>(
     derived([subscriptionContract, currentAccount], ([subscriptionContract, currentAccount]) => ({
       queryKey: subKeys.balance(addr, currentAccount!),
@@ -52,15 +53,6 @@
       enabled: subscriptionContract.isSuccess && !!currentAccount
     }))
   );
-
-  // TODO refactor?
-  $: loadPrice = async (address: Address): Promise<Price | undefined> => {
-    return findPrice(
-      address,
-      $chainEnvironment!.chainData.contracts.priceFeeds,
-      $chainEnvironment!.ethersSigner
-    );
-  };
 
   const update = async () => {};
 </script>
@@ -88,7 +80,7 @@ Subscription Contract: {addr}
         <SubscriptionContractDetails
           contractData={$subscriptionData.data}
           paymentTokenData={$erc20Data.data}
-          getPriceData={loadPrice}
+          tokenPrice={$tokenPrice}
         />
         <SubscriptionContractControl
           metadata={$subscriptionData.data}

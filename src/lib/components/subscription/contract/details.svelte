@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as Card from '$lib/components/ui/card';
+  import * as Tooltip from '$lib/components/ui/tooltip';
   import TokenLogo from '$lib/components/TokenLogo.svelte';
   import { DollarSign, ExternalLink, Activity, Users, Lock, Link } from 'lucide-svelte';
   import PropertyBox from '$lib/components/ui/PropertyBox.svelte';
@@ -12,6 +13,8 @@
   import { ExplorerTokenUrl } from '$lib/components/url/explorer';
   import Base from './base.svelte';
   import type { Props } from './base.svelte';
+  import { formatUnits } from 'ethers';
+  import type { BigNumberish } from '$lib/web3/contracts/common';
 
   type $$Props = Props;
 
@@ -33,8 +36,15 @@
   /** open the technical details collapsible */
   export let technicalsOpen = false;
 
-  // TODO
-  const tokenSymbol = 'USDT';
+  let externalUrl: URL | null;
+  try {
+    externalUrl = contractData.externalUrl ? new URL(contractData.externalUrl) : null;
+  } catch {
+    externalUrl = null;
+  }
+
+  const formatFromGwei = (amount: BigNumberish) => formatUnits(amount, 18);
+  const formatFromToken = (amount: BigNumberish) => formatUnits(amount, paymentTokenData.decimals);
 </script>
 
 <Base
@@ -51,12 +61,22 @@
     <!-- header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <TokenLogo class="mr-4" address={contractData.token} fallbackSymbol={tokenSymbol} />
+        <TokenLogo
+          class="mr-4"
+          address={contractData.token}
+          fallbackSymbol={paymentTokenData.symbol}
+        />
         <div>
           <h2>{contractData.name}</h2>
         </div>
       </div>
       <div class="flex items-center gap-2">
+        {#if contractData.tippingPaused}
+          <Paused />
+        {/if}
+        {#if contractData.renewalPaused}
+          <Paused />
+        {/if}
         {#if contractData.mintingPaused}
           <Paused />
         {/if}
@@ -66,13 +86,35 @@
     </div>
     <!-- Main Properties -->
     <div class="grid gap-4 pt-4 sm:grid-cols-2 md:grid-cols-4">
-      <PropertyBox title="Moneys" titleLogo={DollarSign} value="20$ per Month" />
+      <PropertyBox title="Moneys" titleLogo={DollarSign}>
+        <p slot="value" class="text-sm font-medium leading-none">
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <span class="text-xl font-bold">{rate}</span>
+            </Tooltip.Trigger>
+            <Tooltip.Content>{rawRate}</Tooltip.Content>
+          </Tooltip.Root>
+          {paymentTokenData.symbol}
+          / month
+        </p>
+        <p slot="subValue" class="text-xs text-muted-foreground">
+          {#if tokenPrice.isPending}
+            ...
+          {/if}
+          {#if tokenPrice.isError}
+            ???
+          {/if}
+          {#if tokenPrice.isSuccess && tokenPrice.data}
+            ${ratePrice(tokenPrice.data)} / month
+          {/if}
+        </p>
+      </PropertyBox>
       <PropertyBox title="Active Subs" titleLogo={Activity} value={String(activeSubs)} />
       <PropertyBox title="Total Subs" titleLogo={Users} value={String(totalSupply)} />
       <PropertyBox title="Lockup" titleLogo={Lock} value={`${contractData.lock / 100}%`} />
     </div>
     <!-- Description -->
-    {#if contractData.image || contractData.description || contractData.externalUrl}
+    {#if contractData.image || contractData.description || externalUrl}
       <Card.Root class="mt-4 pt-2">
         <Card.Header>
           <Card.Title>Details</Card.Title>
@@ -92,13 +134,12 @@
               {/if}
             </div>
           {/if}
-          {#if contractData.externalUrl}
+          {#if externalUrl}
             <div class="flex items-center gap-2 pt-2">
               <div>
-                <!--TODO extract url -->
-                <Button variant="link" target="_blank" href={contractData.externalUrl}>
+                <Button variant="link" target="_blank" href={externalUrl.href}>
                   <Link class="mr-2 h-4 w-4" />
-                  External URL
+                  {externalUrl.host}
                 </Button>
               </div>
             </div>
@@ -122,7 +163,19 @@
           </ExplorerAccountUrl>
         </div>
       </DetailsProperty>
-      <DetailsProperty title="Token" help="The address of the payment token">
+      <DetailsProperty title="Owner" help="The owner of this contract">
+        <div slot="value" class="flex items-center gap-2">
+          <div>
+            {contractData.owner}
+          </div>
+          <ExplorerAccountUrl address={contractData.owner} let:url>
+            <Button variant="link" target="_blank" href={url} class="h-0 px-0 py-0">
+              <ExternalLink class="h-4 w-4" />
+            </Button>
+          </ExplorerAccountUrl>
+        </div>
+      </DetailsProperty>
+      <DetailsProperty title="Payment Token" help="The address of the payment token">
         <div slot="value" class="flex items-center gap-2">
           <div>
             {contractData.token}
@@ -134,25 +187,70 @@
           </ExplorerTokenUrl>
         </div>
       </DetailsProperty>
+
       <DetailsProperty
         title="Rate"
-        value={contractData.rate + ''}
+        value={`${formatFromGwei(contractData.rate)}`}
         help="The internal payment rate of token funds in gwei for a given time unit"
       />
       <DetailsProperty
         title="Lock"
-        value={contractData.lock + ''}
+        value={`${contractData.lock}`}
         help="The internal representation (10000 == 100%) of the amount of funds getting locked in the contract on deposit"
       />
+      <!-- TODO determine time unit -->
       <DetailsProperty
         title="Epoch Size"
-        value={contractData.epochSize + ' Blocks'}
+        value={`${contractData.epochSize} seconds`}
         help="The length of an epoch in time units"
+      />
+
+      <DetailsProperty
+        title="Total Supply"
+        value={`${contractData.totalSupply}`}
+        help="The current total supply of minted subscription tokens"
       />
       <DetailsProperty
         title="Max Supply"
-        value={contractData.maxSupply + ''}
+        value={`${contractData.maxSupply}`}
         help="The maximum supply of subscription tokens that can be minted"
+      />
+      <DetailsProperty
+        title="Active Shares"
+        value={`${contractData.activeShares}`}
+        help="Subscriptions are internally represented as shares based on 100 shares equaling 1 subscription. Larger values represent a subscription with an applied multiplier"
+      />
+
+      <DetailsProperty
+        title="Minting Paused"
+        value={`${contractData.mintingPaused}`}
+        help="Minting of new subscriptions is paused"
+      />
+      <DetailsProperty
+        title="Renewal Paused"
+        value={`${contractData.renewalPaused}`}
+        help="Renewal of existing subscriptions is paused"
+      />
+      <DetailsProperty
+        title="Tipping Paused"
+        value={`${contractData.tippingPaused}`}
+        help="Tipping on subscriptions is paused"
+      />
+
+      <DetailsProperty
+        title="Claimable Funds"
+        value={`${formatFromToken(contractData.claimable)} ${paymentTokenData.symbol}`}
+        help="Currently unclaimed funds from subscriptions"
+      />
+      <DetailsProperty
+        title="Claimed Subscription Funds"
+        value={`${formatFromToken(contractData.depositsClaimed)} ${paymentTokenData.symbol}`}
+        help="Claimed funds from subscriptions"
+      />
+      <DetailsProperty
+        title="Claimed Tips"
+        value={`${formatFromToken(contractData.tipsClaimed)} ${paymentTokenData.symbol}`}
+        help="Claimed funds from tips"
       />
     </CollapsibleBox>
   </div>

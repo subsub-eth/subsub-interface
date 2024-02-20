@@ -5,6 +5,7 @@
   export const ERC20_DATA_CTX = 'erc20Data';
   export const ERC20_ALLOWANCE_CTX = 'erc20Allowance';
   export const ERC20_BALANCE_CTX = 'erc20Balance';
+  export const TOKEN_PRICE_CTX = 'tokenPrice';
 </script>
 
 <script lang="ts">
@@ -26,6 +27,7 @@
   setContext(ERC20_DATA_CTX, q.erc20Data);
   setContext(ERC20_ALLOWANCE_CTX, q.erc20Allowance);
   setContext(ERC20_BALANCE_CTX, q.erc20Balance);
+  setContext(TOKEN_PRICE_CTX, q.tokenPrice);
 </script>
 
 <slot />
