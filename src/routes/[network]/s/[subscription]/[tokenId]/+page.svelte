@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SubscriptionDetails from '$lib/components/subscription/SubscriptionDetails.svelte';
+  import { SubscriptionDetails } from '$lib/components/subscription/token';
   import type { PageData } from './$types';
   import SubscriptionDeposit from '$lib/components/subscription/action/SubscriptionDeposit.svelte';
   import SubscriptionWithdrawal from '$lib/components/subscription/action/SubscriptionWithdrawal.svelte';
@@ -13,7 +13,7 @@
     getSubscriptionData,
     type SubscriptionContainer
   } from '$lib/web3/contracts/subscription';
-  import { approveFunc, type Erc20Container } from '$lib/web3/contracts/erc20';
+  import { approveFunc, type Erc20Container, type Erc20Data } from '$lib/web3/contracts/erc20';
   import { createQuery } from '@tanstack/svelte-query';
   import { derived } from 'svelte/store';
   import { queryClient, type QueryResult } from '$lib/query/config';
@@ -22,12 +22,13 @@
     ERC20_ALLOWANCE_CTX,
     ERC20_BALANCE_CTX,
     ERC20_CONTRACT_CTX,
+    ERC20_DATA_CTX,
     SUBSCRIPTION_CONTRACT_CTX,
     SUBSCRIPTION_DATA_CTX
   } from '../+layout.svelte';
   import toast from '$lib/toast';
   import { currentAccount } from '$lib/web3/onboard';
-    import { erc20Keys, subKeys } from '$lib/query/keys';
+  import { erc20Keys, subKeys } from '$lib/query/keys';
 
   export let data: PageData;
 
@@ -51,6 +52,7 @@
   );
 
   const erc20Contract = getContext<QueryResult<Erc20Container>>(ERC20_CONTRACT_CTX);
+  const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
   const erc20Allowance = getContext<QueryResult<bigint>>(ERC20_ALLOWANCE_CTX);
   const erc20Balance = getContext<QueryResult<bigint>>(ERC20_BALANCE_CTX);
 
@@ -79,32 +81,38 @@
 <h1>Subscription Details</h1>
 
 <div>
-  <div>
-    <!-- LEFT -->
-    <!-- TODO proper details -->
-    {#if $subscriptionData.isPending}
-      Loading...
-    {/if}
-    {#if $subscriptionData.isError}
-      Failed to load subscription
-    {/if}
-    {#if $subscriptionData.isSuccess}
-      <SubscriptionDetails subscriptionData={$subscriptionData.data} />
-    {/if}
-    <!-- Subscription token details -->
-    <!-- sub contract details -->
-    <!-- Contract owner teaser -->
-  </div>
+  {#if $subscriptionContract.isSuccess && $subscriptionContractData.isSuccess && $subscriptionData.isSuccess && $erc20Contract.isSuccess && $erc20Data.isSuccess && $erc20Allowance.isSuccess && $erc20Balance.isSuccess}
+    {@const subContract = $subscriptionContract.data.contract}
+    {@const contractData = $subscriptionContractData.data}
+    {@const erc20 = $erc20Contract.data.contract}
+    {@const erc20Data = $erc20Data.data}
+    <div>
+      <!-- LEFT -->
+      <!-- TODO proper details -->
+      {#if $subscriptionData.isPending}
+        Loading...
+      {/if}
+      {#if $subscriptionData.isError}
+        Failed to load subscription
+      {/if}
+      {#if $subscriptionData.isSuccess}
+        <SubscriptionDetails
+          subscriptionData={$subscriptionData.data}
+          rate={contractData.rate}
+          paymentToken={erc20Data}
+        />
+      {/if}
+      <!-- Subscription token details -->
+      <!-- sub contract details -->
+      <!-- Contract owner teaser -->
+    </div>
 
-  <div>
-    <!-- RIGHT -->
+    <div>
+      <!-- RIGHT -->
 
-    <!-- subscription controls -->
-    <!-- deposit(renew) / tip -->
-    <!-- withdraw / cancel -->
-    {#if $subscriptionContract.isSuccess && $subscriptionContractData.isSuccess && $subscriptionData.isSuccess && $erc20Contract.isSuccess && $erc20Allowance.isSuccess && $erc20Balance.isSuccess}
-      {@const subContract = $subscriptionContract.data.contract}
-      {@const erc20 = $erc20Contract.data.contract}
+      <!-- subscription controls -->
+      <!-- deposit(renew) / tip -->
+      <!-- withdraw / cancel -->
       <SubscriptionDeposit
         allowance={$erc20Allowance.data}
         balance={$erc20Balance.data}
@@ -141,6 +149,6 @@
         }}
         on:withdrawTxSubmitted={({ detail: tx }) => toast.info(`Withdrawal submitted in Tx ${tx}`)}
       />
-    {/if}
-  </div>
+    </div>
+  {/if}
 </div>

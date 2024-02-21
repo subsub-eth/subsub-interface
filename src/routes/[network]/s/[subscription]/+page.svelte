@@ -14,7 +14,7 @@
     type SubscriptionContractData,
     type SubscriptionContainer
   } from '$lib/web3/contracts/subscription';
-  import SubscriptionTeaser from '$lib/components/subscription/SubscriptionTeaser.svelte';
+  import { SubscriptionTeaser } from '$lib/components/subscription/token';
   import SubscriptionContractControl from '$lib/components/subscription/SubscriptionContractControl.svelte';
   import { aflow } from '$lib/helpers';
   import { createQuery } from '@tanstack/svelte-query';

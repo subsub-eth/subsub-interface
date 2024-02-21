@@ -112,6 +112,7 @@ const SubscriptionTokenMetadataAttributesSchema = z.object({
   withdrawable: BigNumberishSchema,
   tips: BigNumberishSchema,
   isActive: z.boolean(),
+  multiplier: z.number(),
   expiresAt: BigNumberishSchema
 });
 
@@ -227,6 +228,7 @@ export async function getSubscriptionData(
       withdrawable: a.bigint('withdrawable'),
       tips: a.bigint('tips'),
       isActive: a.boolean('is_active'),
+      multiplier: a.number('multiplier'),
       expiresAt: a.bigint('expires_at')
     };
   } catch (err) {
@@ -431,7 +433,6 @@ export function listUserSubscriptionsRev(
   pageSize: number,
   totalItems: number
 ): (page: number) => Promise<SubscriptionData[]> {
-  console.error('contract empty?', contract);
   // TODO multicall
   const func = async (page: number): Promise<SubscriptionData[]> => {
     const index = page * pageSize;
