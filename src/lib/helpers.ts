@@ -43,6 +43,14 @@ export function rangeArray(start: number, stop: number, step: number = 1): Array
 }
 
 export function prettyNumber(num: number): string {
+  // if (num < 0) {
+  //   throw new Error("prettyNumber: cannot handle negative values");
+  // }
+  let sign = "";
+  if (num < 0) {
+    num = Math.abs(num);
+    sign = '-';
+  }
   if (num == 0) {
     return '0';
   }
@@ -58,7 +66,7 @@ export function prettyNumber(num: number): string {
     decimals += 2;
   }
   // fix the rounding in toFixed
-  return Number(Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(
+  return sign + Number(Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(
     decimals
   );
 }

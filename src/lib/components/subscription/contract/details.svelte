@@ -16,22 +16,22 @@
   import { formatUnits } from 'ethers';
   import type { BigNumberish } from '$lib/web3/contracts/common';
 
-  type $$Props = Props;
-
   /**
    * Data of the subscription plan
    */
-  export let contractData: $$Props['contractData'];
+  export let contractData: Props['contractData'];
 
   /**
    * Payment token data
    */
-  export let paymentTokenData: $$Props['paymentTokenData'];
+  export let paymentTokenData: Props['paymentTokenData'];
 
   /**
    *  Loads price of payment token
    */
-  export let tokenPrice: $$Props['tokenPrice'];
+  export let tokenPrice: Props['tokenPrice'];
+
+  // export let foo: string;
 
   /** open the technical details collapsible */
   export let technicalsOpen = false;

@@ -26,6 +26,8 @@ import type { PauseEvents, UnpauseEvents } from '$lib/components/common-events';
 import { log } from '$lib/logger';
 import { ContractTransactionResponse } from 'ethers';
 
+export const MULTIPLIER_BASE = 100;
+
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
 });

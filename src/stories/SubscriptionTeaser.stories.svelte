@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import SubscriptionTeaser from '$lib/components/subscription/SubscriptionTeaser.svelte';
+  import { SubscriptionTeaser } from '$lib/components/subscription/token';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import type { SubscriptionData } from '$lib/web3/contracts/subscription';
   import { zeroAddress } from '$lib/web3/helpers';
@@ -17,7 +17,8 @@
     withdrawable: 0,
     tips: 0,
     isActive: true,
-    expiresAt: 0
+    expiresAt: 0,
+    multiplier: 100
   };
 
   const erc20: Erc20Data = {
@@ -36,7 +37,18 @@
       rate: 5_000_000_000_000,
       paymentToken: erc20
     },
-    argTypes: {}
+    argTypes: {},
+    parameters: {
+      sveltekit_experimental: {
+        stores: {
+          page: {
+            params: {
+              network: 'mytest'
+            }
+          }
+        }
+      }
+    }
   };
 </script>
 

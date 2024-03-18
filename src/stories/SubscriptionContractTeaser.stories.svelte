@@ -10,14 +10,14 @@
     image: contractDummy,
     externalUrl: 'http://example.com',
     token: zeroAddress,
-    rate: 100,
+    rate: 500_000_000_000,
     lock: 100,
     epochSize: 3600,
     claimable: 30000,
     address: zeroAddress,
     maxSupply: 10_000,
     totalSupply: 100,
-    activeShares: 1000,
+    activeShares: 3300,
     owner: zeroAddress,
     depositsClaimed: 200,
     tipsClaimed: 400,
@@ -26,16 +26,16 @@
     tippingPaused: false
   };
 
-  const getErc20 = async (addr: Address): Promise<Erc20Data> => {
-    return {
-      name: 'Test Token',
-      symbol: 'TT',
-      decimals: 18,
-      address: addr
-    };
+  const erc20: Erc20Data = {
+    name: 'Some Token',
+    symbol: 'testUSD',
+    decimals: 6,
+    address: zeroAddress
   };
-  const getPriceData = async (addr: Address): Promise<Price> => {
-    return { price: 12n * 10n ** 7n, decimals: 8 };
+
+  const tokenPrice: Pick<ObservedQueryResult<Price | null>, 'isSuccess' | 'data'> = {
+    isSuccess: true,
+    data: { price: 99_000_000, decimals: 8 }
   };
 
   export const meta = {
@@ -44,8 +44,8 @@
     tags: ['autodocs'],
     args: {
       contractData: testData,
-      getErc20Data: getErc20,
-      getPriceData: getPriceData
+      paymentTokenData: erc20,
+      tokenPrice: tokenPrice
     },
     parameters: {
       sveltekit_experimental: {
@@ -63,18 +63,22 @@
 
 <script lang="ts">
   import { Story, Template } from '@storybook/addon-svelte-csf';
-  import type { Address } from '$lib/web3/contracts/common';
   import type { Price } from '$lib/web3/contracts/oracle';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
+  import type { ObservedQueryResult } from '$lib/query/config';
 </script>
 
 <QueryClientContext>
   <Template let:args>
-    <SubscriptionContractTeaser {...args} {getPriceData} getErc20Data={getErc20} />
+    <SubscriptionContractTeaser {...args} />
   </Template>
 
   <Story name="with Owner" args={{ showOwner: true }} />
 
   <Story name="paused" args={{ contractData: { ...testData, mintingPaused: true } }} />
+
+  <Story name="pending price data" args={{ tokenPrice: {isPending: true}}} />
+
+  <Story name="error price data" args={{ tokenPrice: {isError: true}}} />
 </QueryClientContext>

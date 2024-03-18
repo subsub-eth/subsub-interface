@@ -8,18 +8,24 @@
   import type { Props } from './base.svelte';
   import Base from './base.svelte';
 
-  type $$Props = Props;
-
   /** Data of the subscription */
-  export let subscriptionData: $$Props['subscriptionData'];
+  export let subscriptionData: Props['subscriptionData'];
 
   /** rate of spending in the subscription plan, based on 18 decimals */
-  export let rate: $$Props['rate'];
+  export let rate: Props['rate'];
 
-  export let paymentToken: $$Props['paymentToken'];
+  export let paymentToken: Props['paymentToken'];
+
+  const timeLeftUnit = (
+    timeUnits: [number, number, number, number]
+  ): [number, string] | undefined => {
+    const names = ['year', 'day', 'hour', 'minute'];
+    return timeUnits.map((u, i): [number, string] => [u, names[i]]).filter(([u]) => u > 0)[0];
+  };
 </script>
 
-<Base {subscriptionData} {rate} {paymentToken} let:unspent let:timeLeft let:timeLeftDays>
+<Base {subscriptionData} {rate} {paymentToken} let:unspent let:timeLeft let:timeLeftUnits>
+  {@const timeLeftWithUnit = timeLeftUnit(timeLeftUnits)}
   <Card.Root>
     <Card.Content class="p-4">
       <div class="flex items-center gap-2 sm:gap-6 sm:pl-2">
@@ -34,7 +40,16 @@
           <p class="text-sm font-medium leading-none">
             <Tooltip.Root>
               <Tooltip.Trigger>
-                <span class="text-xl font-bold">{timeLeftDays}</span> days left
+                {#if subscriptionData.isActive && timeLeftWithUnit}
+                  {@const [timeLeft, timeUnit] = timeLeftWithUnit}
+                  <span class="text-xl font-bold">{timeLeft}</span>
+                  {timeUnit + (timeLeft !== 1 ? 's' : '')} left
+                {:else if subscriptionData.isActive}
+                  <span class="text-xl font-bold">a few</span>
+                  seconds left
+                {:else}
+                  <span class="text-xl font-bold">Expired</span>
+                {/if}
               </Tooltip.Trigger>
               <Tooltip.Content>{timeLeft} seconds left</Tooltip.Content>
             </Tooltip.Root>

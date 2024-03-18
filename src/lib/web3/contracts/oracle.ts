@@ -2,7 +2,7 @@
 
 import type { PriceFeeds } from '$lib/chain-config';
 import { formatUnits, type Signer } from 'ethers';
-import type { Address } from './common';
+import type { Address, BigNumberish } from './common';
 import { AggregatorV3Interface__factory } from '@createz/contracts/types/ethers-contracts';
 import { log } from '$lib/logger';
 
@@ -10,7 +10,7 @@ import { log } from '$lib/logger';
  * tuple of price in USD as an integer and the number of decimals
  */
 export type Price = {
-  price: bigint;
+  price: BigNumberish;
   decimals: number;
 };
 

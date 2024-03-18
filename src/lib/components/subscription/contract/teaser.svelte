@@ -10,21 +10,20 @@
   import Base from './base.svelte';
   import type { Props } from './base.svelte';
 
-  type $$Props = Props;
   /**
    * Data of the subscription plan
    */
-  export let contractData: $$Props['contractData'];
+  export let contractData: Props['contractData'];
 
   /**
    * Payment token data
    */
-  export let paymentTokenData: $$Props['paymentTokenData'];
+  export let paymentTokenData: Props['paymentTokenData'];
 
   /**
    *  Loads price of payment token
    */
-  export let tokenPrice: $$Props['tokenPrice'];
+  export let tokenPrice: Props['tokenPrice'];
 
   /**
    * show owner in teaser
@@ -69,15 +68,17 @@
             {paymentTokenData.symbol}
             / month
           </p>
-          {#if tokenPrice.isPending}
-            ...
-          {/if}
-          {#if tokenPrice.isError}
-            ???
-          {/if}
-          {#if tokenPrice.isSuccess && tokenPrice.data}
-            <p class="text-xs text-muted-foreground">${ratePrice(tokenPrice.data)} / month</p>
-          {/if}
+          <p class="text-xs text-muted-foreground">
+            {#if tokenPrice.isPending}
+              ...
+            {/if}
+            {#if tokenPrice.isError}
+              ???
+            {/if}
+            {#if tokenPrice.isSuccess && tokenPrice.data}
+              ${ratePrice(tokenPrice.data)} / month
+            {/if}
+          </p>
         </div>
         <div class="flex items-center gap-0 sm:gap-1 md:gap-2">
           <ProgressRadial

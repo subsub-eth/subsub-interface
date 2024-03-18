@@ -11,7 +11,7 @@
     externalUrl: 'http://example.com',
     address: zeroAddress,
     token: zeroAddress,
-    rate: 100,
+    rate: 500_000_000_000,
     lock: 112,
     epochSize: 3600,
     maxSupply: 10000,
@@ -26,12 +26,26 @@
     tippingPaused: false
   };
 
+  const erc20: Erc20Data = {
+    name: 'Some Token',
+    symbol: 'testUSD',
+    decimals: 6,
+    address: zeroAddress
+  };
+
+  const tokenPrice: Pick<ObservedQueryResult<Price | null>, 'isSuccess' | 'data'> = {
+    isSuccess: true,
+    data: { price: 99_000_000, decimals: 8 }
+  };
+
   export const meta = {
     title: 'SubscriptionContractDetails',
     component: SubscriptionContractDetails,
     tags: ['autodocs'],
     args: {
-      contractData: testData
+      contractData: testData,
+      paymentTokenData: erc20,
+      tokenPrice: tokenPrice
     },
     argTypes: {},
     parameters: {
@@ -53,6 +67,9 @@
   import { setContext } from 'svelte';
   import { EXPLORER_URL } from '$lib/contexts';
   import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
+  import type { Erc20Data } from '$lib/web3/contracts/erc20';
+  import type { ObservedQueryResult } from '$lib/query/config';
+  import type { Price } from '$lib/web3/contracts/oracle';
 
   setContext(EXPLORER_URL, 'http://example.com');
 </script>
@@ -66,4 +83,8 @@
   <Story name="technicals closed" args={{}} />
 
   <Story name="paused" args={{ contractData: { ...testData, paused: true } }} />
+
+  <Story name="pending price data" args={{ tokenPrice: {isPending: true}}} />
+
+  <Story name="error price data" args={{ tokenPrice: {isError: true}}} />
 </QueryClientContext>
