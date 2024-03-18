@@ -20,7 +20,7 @@
     withdrawable: 5_000_000,
     tips: 20_000_000,
     isActive: true,
-    expiresAt: 100_000_000,
+    expiresAt: Math.floor(Date.now() / 1000 + 20 * 60 * 60 * 24 /** day */ + 60 * 60),
     multiplier: 100
   };
 
@@ -74,7 +74,7 @@
       isActive: false,
       unspent: 0,
       withdrawable: 0,
-      expiresAt: Date.now() / 1000 - 1
+      expiresAt: Math.floor(Date.now() / 1000 - 1)
     }
   }}
 />
@@ -87,7 +87,7 @@
       isActive: true,
       unspent: 50_000,
       withdrawable: 0,
-      expiresAt: Date.now() / 1000 + 88 * 60
+      expiresAt: Math.floor(Date.now() / 1000 + 2 * 60)
     }
   }}
 />
@@ -100,7 +100,7 @@
       isActive: true,
       unspent: 5,
       withdrawable: 0,
-      expiresAt: Date.now() / 1000 + 88 * 60
+      expiresAt: Math.floor(Date.now() / 1000 + 4)
     }
   }}
 />

@@ -14,7 +14,7 @@
 <script lang="ts">
   import type { SubscriptionData } from '$lib/web3/contracts/subscription';
   import { formatUnits } from 'ethers';
-  import { convertDecimals, prettyNumber } from '$lib/helpers';
+  import { prettyNumber } from '$lib/helpers';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import type { BigNumberish } from '$lib/web3/contracts/common';
 
@@ -32,22 +32,22 @@
   const unspent = formatTokenAmount(subscriptionData.unspent);
 
   // TODO block time implementation
-  const timeLeft =
-    convertDecimals(BigInt(subscriptionData.unspent), paymentToken.decimals, 18) /
-    ((BigInt(rate) * BigInt(subscriptionData.multiplier)) / 100n);
+  const timeLeft = Math.max(Number(subscriptionData.expiresAt) - Math.floor(Date.now() / 1000), 0);
 
-  const asTimeUnits = (seconds: bigint): [number, number, number, number] => {
-      const year = BigInt(60 * 60 * 24 * 365);
-      const day = BigInt(60 * 60 * 24);
-      const hour = BigInt(60 * 60);
+  const asTimeUnits = (seconds: number): [number, number, number, number] => {
+    const year = 60 * 60 * 24 * 365;
+    const day = 60 * 60 * 24;
+    const hour = 60 * 60;
 
-      const years = seconds / year;
-      const days = (seconds % year) / day;
-      const hours = (seconds % day) / hour;
-      const minutes = (seconds % hour) / 60n;
+    const f = Math.floor;
 
-      return [Number(years), Number(days), Number(hours), Number(minutes)];
-    };
+    const years = f(seconds / year);
+    const days = f((seconds % year) / day);
+    const hours = f((seconds % day) / hour);
+    const minutes = f((seconds % hour) / 60);
+
+    return [Number(years), Number(days), Number(hours), Number(minutes)];
+  };
   const timeLeftUnits: [number, number, number, number] = asTimeUnits(timeLeft);
 </script>
 

@@ -17,7 +17,7 @@
     withdrawable: 0,
     tips: 0,
     isActive: true,
-    expiresAt: 0,
+    expiresAt: Math.floor(Date.now() / 1000 + 20 * 60 * 60 * 24 /** day */ + 60 * 60),
     multiplier: 100
   };
 
@@ -62,18 +62,30 @@
 
 <Story name="Default" args={{}} />
 
-<Story name="Is inactive" args={{ subscriptionData: { ...subData, isActive: false } }} />
+<Story
+  name="Is inactive"
+  args={{ subscriptionData: { ...subData, unspent: 0, isActive: false } }}
+/>
 
 <Story
   name="Large Numbers"
-  args={{ rate: 50, subscriptionData: { ...subData, unspent: '9000000000000000000000000000000' } }}
+  args={{
+    rate: 50,
+    subscriptionData: {
+      ...subData,
+      unspent: '9000000000000000000000000000000',
+      expiresAt: Math.floor(
+        Date.now() / 1000 + 20_000_000_000_000 * 60 * 60 * 24 /** day */ + 60 * 60
+      )
+    }
+  }}
 />
 
 <Story
   name="Small Numbers"
   args={{
     rate: '5',
-    subscriptionData: { ...subData, unspent: '9' },
+    subscriptionData: { ...subData, unspent: '9', expiresAt: Math.floor(Date.now() / 1000 + 4) },
     paymentToken: { ...erc20, decimals: 18 }
   }}
 />

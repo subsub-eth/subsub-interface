@@ -33,7 +33,7 @@
         <div>
           <p class="text-sm font-medium leading-none">
             <span class="text-xl font-bold">{unspent}</span>
-            {paymentToken.symbol} deposited
+            {paymentToken.symbol} remaining
           </p>
         </div>
         <div class="flex items-center gap-0 sm:gap-1 md:gap-2">
