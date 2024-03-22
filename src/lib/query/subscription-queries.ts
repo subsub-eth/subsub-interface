@@ -19,6 +19,10 @@ import {
 } from '$lib/web3/contracts/erc20';
 import { createQuery } from '@tanstack/svelte-query';
 import { findPrice, type Price } from '$lib/web3/contracts/oracle';
+import {
+  analyzeSubscriptionContract,
+  type WarningMessage
+} from '$lib/web3/contracts/subscription-analytics';
 
 export function subscriptionQueries(addr: Address) {
   const subscriptionContract = createQuery<SubscriptionContainer>(
@@ -93,6 +97,20 @@ export function subscriptionQueries(addr: Address) {
     )
   );
 
+  const warnings = createQuery<Array<WarningMessage>>(
+    derived(subscriptionData, (subscriptionData) => ({
+      queryKey: subKeys.warnings(addr),
+      queryFn: async () => {
+        if (subscriptionData.data) {
+          // TODO add more analytics functions
+          return await analyzeSubscriptionContract(subscriptionData.data);
+        }
+        return [];
+      },
+      enabled: subscriptionData.isSuccess
+    }))
+  );
+
   return {
     subscriptionContract,
     subscriptionData,
@@ -100,6 +118,7 @@ export function subscriptionQueries(addr: Address) {
     erc20Data,
     erc20Allowance,
     erc20Balance,
-    tokenPrice
+    tokenPrice,
+    warnings
   };
 }

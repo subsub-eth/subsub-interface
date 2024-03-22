@@ -113,7 +113,13 @@
     {#if $subscriptionContractAddresses.isSuccess}
       <PaginatedList {pageSize} items={$subscriptionContractAddresses.data} let:currentItems>
         {#each currentItems as planAddr}
-          <SubscriptionContractContext address={planAddr} let:subscriptionData let:erc20Data let:tokenPrice>
+          <SubscriptionContractContext
+            address={planAddr}
+            let:subscriptionData
+            let:erc20Data
+            let:tokenPrice
+            let:warnings
+          >
             {#if subscriptionData.isPending || erc20Data.isPending}
               ... Loading ...
             {/if}
@@ -121,7 +127,8 @@
               <SubscriptionContractTeaser
                 contractData={subscriptionData.data}
                 paymentTokenData={erc20Data.data}
-                tokenPrice={tokenPrice}
+                {tokenPrice}
+                {warnings}
               />
             {/if}
           </SubscriptionContractContext>

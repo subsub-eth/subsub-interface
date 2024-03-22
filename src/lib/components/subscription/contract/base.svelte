@@ -14,6 +14,11 @@
      * Loads price of payment token
      */
     tokenPrice: ObservedQueryResult<Price | null>;
+
+    /**
+     * Warnings about the subscription plan
+     */
+    warnings: ObservedQueryResult<Array<WarningMessage>>;
   };
 </script>
 
@@ -28,6 +33,7 @@
   import { prettyNumber } from '$lib/helpers';
   import { converted, type Price } from '$lib/web3/contracts/oracle';
   import type { ObservedQueryResult } from '$lib/query/config';
+  import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
 
   /**
    * Data of the subscription plan

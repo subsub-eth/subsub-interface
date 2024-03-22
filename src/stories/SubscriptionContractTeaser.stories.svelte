@@ -38,6 +38,15 @@
     data: { price: 99_000_000, decimals: 8 }
   };
 
+  const warnings: Pick<
+    ObservedQueryResult<Array<WarningMessage>>,
+    'isSuccess' | 'isPending' | 'data'
+  > = {
+    isSuccess: true,
+    isPending: false,
+    data: createMessages(1, 2, 3)
+  };
+
   export const meta = {
     title: 'SubscriptionContractTeaser',
     component: SubscriptionContractTeaser,
@@ -45,7 +54,8 @@
     args: {
       contractData: testData,
       paymentTokenData: erc20,
-      tokenPrice: tokenPrice
+      tokenPrice: tokenPrice,
+      warnings: warnings
     },
     parameters: {
       sveltekit_experimental: {
@@ -67,6 +77,8 @@
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
   import type { ObservedQueryResult } from '$lib/query/config';
+  import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
+  import { createMessages } from './fixtures';
 </script>
 
 <QueryClientContext>
@@ -76,9 +88,23 @@
 
   <Story name="with Owner" args={{ showOwner: true }} />
 
-  <Story name="paused" args={{ contractData: { ...testData, mintingPaused: true } }} />
+  <Story
+    name="no warnings"
+    args={{
+      contractData: { ...testData },
+      warnings: { ...warnings, data: createMessages(0, 0, 0) }
+    }}
+  />
 
-  <Story name="pending price data" args={{ tokenPrice: {isPending: true}}} />
+  <Story
+    name="paused"
+    args={{
+      contractData: { ...testData },
+      warnings: { ...warnings, data: createMessages(0, 0, 1) }
+    }}
+  />
 
-  <Story name="error price data" args={{ tokenPrice: {isError: true}}} />
+  <Story name="pending price data" args={{ tokenPrice: { isPending: true } }} />
+
+  <Story name="error price data" args={{ tokenPrice: { isError: true } }} />
 </QueryClientContext>

@@ -4,7 +4,7 @@
 
   export let address: Address;
 
-  const { subscriptionData, erc20Data, tokenPrice } = subscriptionQueries(address);
+  const { subscriptionData, erc20Data, tokenPrice, warnings } = subscriptionQueries(address);
 </script>
 
-<slot subscriptionData={$subscriptionData} erc20Data={$erc20Data} tokenPrice={$tokenPrice} />
+<slot subscriptionData={$subscriptionData} erc20Data={$erc20Data} tokenPrice={$tokenPrice} warnings={$warnings} />

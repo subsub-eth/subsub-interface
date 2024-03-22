@@ -26,10 +26,12 @@
     ERC20_DATA_CTX,
     SUBSCRIPTION_CONTRACT_CTX,
     SUBSCRIPTION_DATA_CTX,
+    SUBSCRIPTION_WARNIGNS_CTX,
     TOKEN_PRICE_CTX
   } from './+layout.svelte';
   import { subKeys } from '$lib/query/keys';
   import { type Price } from '$lib/web3/contracts/oracle';
+    import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
 
   export let data: PageData;
 
@@ -40,6 +42,8 @@
     getContext<QueryResult<SubscriptionContainer>>(SUBSCRIPTION_CONTRACT_CTX);
 
   const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
+
+  const subscriptionWarnings = getContext<QueryResult<Array<WarningMessage>>>(SUBSCRIPTION_WARNIGNS_CTX);
 
   const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
 
@@ -81,6 +85,7 @@ Subscription Contract: {addr}
           contractData={$subscriptionData.data}
           paymentTokenData={$erc20Data.data}
           tokenPrice={$tokenPrice}
+          warnings={$subscriptionWarnings}
         />
         <SubscriptionContractControl
           metadata={$subscriptionData.data}

@@ -15,6 +15,7 @@
   import type { Props } from './base.svelte';
   import { formatUnits } from 'ethers';
   import type { BigNumberish } from '$lib/web3/contracts/common';
+    import WarningCollapsible from '$lib/components/ui2/WarningCollapsible.svelte';
 
   /**
    * Data of the subscription plan
@@ -30,6 +31,11 @@
    *  Loads price of payment token
    */
   export let tokenPrice: Props['tokenPrice'];
+
+  /**
+   * Warnings about the subscription plan
+   */
+  export let warnings: Props['warnings'];
 
   // export let foo: string;
 
@@ -70,19 +76,12 @@
           <h2>{contractData.name}</h2>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        {#if contractData.tippingPaused}
-          <Paused />
-        {/if}
-        {#if contractData.renewalPaused}
-          <Paused />
-        {/if}
-        {#if contractData.mintingPaused}
-          <Paused />
-        {/if}
-        <!-- TODO -->
-        <Warning text="Contract is not monitored" />
-      </div>
+      {#if warnings.isPending}
+        TODO Loading
+      {/if}
+      {#if warnings.isSuccess}
+        <WarningCollapsible messages={warnings.data} />
+      {/if}
     </div>
     <!-- Main Properties -->
     <div class="grid gap-4 pt-4 sm:grid-cols-2 md:grid-cols-4">

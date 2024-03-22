@@ -9,6 +9,7 @@
   import Paused from '$lib/components/subscription/Paused.svelte';
   import Base from './base.svelte';
   import type { Props } from './base.svelte';
+  import WarningTeaser from '$lib/components/ui2/WarningTeaser.svelte';
 
   /**
    * Data of the subscription plan
@@ -24,6 +25,11 @@
    *  Loads price of payment token
    */
   export let tokenPrice: Props['tokenPrice'];
+
+  /**
+   * Warnings about the subscription plan
+   */
+  export let warnings: Props['warnings'];
 
   /**
    * show owner in teaser
@@ -99,9 +105,8 @@
           </p>
         </div>
         <div class="flex flex-auto items-center justify-center">
-          <!-- TODO add other pause states -->
-          {#if contractData.mintingPaused}
-            <Paused />
+          {#if warnings.isSuccess}
+            <WarningTeaser messages={warnings.data} />
           {/if}
         </div>
         <Url template={`/[network]/s/${contractData.address}/`} let:path>

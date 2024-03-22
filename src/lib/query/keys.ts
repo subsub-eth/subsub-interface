@@ -14,6 +14,7 @@ const CONTRACT_DATA = 'contractUri';
 const PRICE = 'price';
 const ALLOWANCE = 'allowance';
 const BALANCE = 'balance';
+const WARNINGS = 'warnings';
 const GLOBAL = 'global';
 
 function key(...keys: (string | undefined)[]): string[] {
@@ -36,6 +37,7 @@ export const subHandleKeys = {
 export const subKeys = {
   contract: (address?: Address) => key(SUBSCRIPTION, address),
   contractUri: (contract?: Address) => key(SUBSCRIPTION, contract, DATA),
+  warnings: (contract?: Address) => key(SUBSCRIPTION, contract, WARNINGS),
   tokenUri: (contract?: Address, tokenId?: bigint) =>
     key(SUBSCRIPTION, contract, DATA, tokenId?.toString()),
   balance: (contract?: Address, owner?: Address) => key(SUBSCRIPTION, contract, BALANCE, owner),
