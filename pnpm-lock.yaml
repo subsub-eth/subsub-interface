@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@createz/contracts':
-    specifier: 0.2.0-alpha.11
-    version: 0.2.0-alpha.11
+    specifier: 0.2.0-alpha.12
+    version: 0.2.0-alpha.12
   '@felte/reporter-svelte':
     specifier: ^1.1.11
     version: 1.1.11(svelte@4.2.8)
@@ -1482,8 +1482,8 @@ packages:
     dev: true
     optional: true
 
-  /@createz/contracts@0.2.0-alpha.11:
-    resolution: {integrity: sha512-vfQDe8+pjI0R0dDETNC0k7D+DFlFs6AudrHUkTXNon+yJs/peaWWfpsL/TvMC5gxDw/aiI4rIdex7uU32ZRg9Q==}
+  /@createz/contracts@0.2.0-alpha.12:
+    resolution: {integrity: sha512-FLcVeogELVnmII1LF4n8/XiZKIHUlVWuV52+4uQLkrQ0+3Y4ATD38IUnICsihNGjWCPp6okSZhv+fG7wRyY0eA==}
     dev: false
 
   /@discoveryjs/json-ext@0.5.7:
