@@ -6,7 +6,10 @@ import { nodePolyfills as vitePluginNodePolyfills } from 'vite-plugin-node-polyf
 export default defineConfig({
   plugins: [
     sveltekit(),
-    vitePluginNodePolyfills({ protocolImports: true })
+    vitePluginNodePolyfills({
+      exclude: ['dns' /** vinejs wants this even though we are not using vine */],
+      protocolImports: true
+    })
   ],
   test: {
     include: ['src/**/*.{test,spec}.{js,ts}']

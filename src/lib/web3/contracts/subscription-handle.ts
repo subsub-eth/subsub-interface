@@ -1,7 +1,5 @@
 import { z } from 'zod';
 import { AddressSchema, WritingMetadataSchema, type Address } from './common';
-import type { EventDispatcher } from 'svelte';
-import type { CreateEvents } from '$lib/components/subscription/action/subscription-handle-events';
 import { findLog } from '../ethers';
 import type { IERC6551Executable, ISubscriptionHandle } from '@createz/contracts/types/ethers-contracts';
 import type {
@@ -10,7 +8,6 @@ import type {
 } from '@createz/contracts/types/ethers-contracts/ISubscriptionHandle.sol/ISubscriptionHandle';
 import { toBeHex } from 'ethers';
 import { log } from '$lib/logger';
-import { zero32Bytes } from '../helpers';
 import { execute } from './erc6551';
 
 export const SubSettingsSchema = z.object({
