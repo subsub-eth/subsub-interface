@@ -9,6 +9,7 @@
     token: AddressSchema,
     epochSize: EpochSizeSchema,
     rate: z.bigint({invalid_type_error: "Invalid number"}).min(1n, 'Rate too low'),
+    maxSupply: z.bigint({invalid_type_error: "Invalid number"}).min(0n, 'Cannot be a negative number'),
   });
 </script>
 
@@ -48,6 +49,7 @@
   } from '$lib/web3/contracts/common';
     import EpochSizeInput, { EpochSizeSchema } from '../form/EpochSizeInput.svelte';
     import RateInput from '../form/RateInput.svelte';
+    import MaxSupplyInput from '../form/MaxSupplyInput.svelte';
 
   export let create: CreateSubscriptionFunc;
 
@@ -212,6 +214,7 @@
       />
     <EpochSizeInput {form} name="epochSize" bind:value={$formData.epochSize}/>
     <RateInput {form} name="rate" bind:value={$formData.rate} />
+    <MaxSupplyInput {form} name="maxSupply" bind:value={$formData.maxSupply} required/>
     <!--   <NumberInput -->
     <!--     {form} -->
     <!--     bind:value={$rateProxy} -->
