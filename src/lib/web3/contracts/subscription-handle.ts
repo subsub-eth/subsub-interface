@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AddressSchema, WritingMetadataSchema, type Address } from './common';
+import { AddressSchema, type Address } from './common';
 import { findLog } from '../ethers';
 import type { IERC6551Executable, ISubscriptionHandle } from '@createz/contracts/types/ethers-contracts';
 import type {
@@ -20,23 +20,6 @@ export const SubSettingsSchema = z.object({
   epochSize: z.bigint(),
   maxSupply: z.bigint()
 });
-
-export const SubscriptionContractPropsSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(3, 'Name must have at least 3 chars')
-    .max(48, 'Name can be 48 chars at most'),
-  symbol: z
-    .string()
-    .trim()
-    .min(2, 'Symbol must have at least 2 chars')
-    .max(12, 'Symbol can be 12 chars at most'),
-  metadata: z.object(WritingMetadataSchema.shape),
-  subSettings: z.object(SubSettingsSchema.shape)
-});
-
-export type SubscriptionContractProps = z.infer<typeof SubscriptionContractPropsSchema>;
 
 export async function getSubscriptionContractAddresses(
   contract: ISubscriptionHandle,

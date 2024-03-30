@@ -11,6 +11,7 @@ export type FormPaths<T extends Record<string, unknown>, Type = any> =
   | FormPath<T, Type>
   | FormPathLeaves<T, Type>;
 
+  /** @deprecated */
 export function bigintProxy<T extends Record<string, unknown>, Path extends FormPaths<T>>(
   form: Writable<T> | SuperForm<T>,
   path: Path

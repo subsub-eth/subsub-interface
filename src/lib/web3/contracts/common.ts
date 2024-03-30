@@ -27,7 +27,7 @@ export type BigNumberish = z.infer<typeof BigNumberishSchema>;
 
 export const AddressSchema = z.custom<`0x${string}`>((val) => {
   return ethers.isAddress(val);
-});
+}, 'Invalid address');
 
 export type Address = z.infer<typeof AddressSchema>;
 export type address = Address;
@@ -46,6 +46,18 @@ export const BaseMetadataSchema = z.object({
   description: z.string().optional()
 });
 
+export const TokenNameSchema = z
+    .string()
+    .trim()
+    .min(3, 'Name must have at least 3 chars')
+    .max(48, 'Name can be 48 chars at most');
+
+export const TokenSymbolSchema = z
+    .string()
+    .trim()
+    .min(2, 'Symbol must have at least 2 chars')
+    .max(12, 'Symbol can be 12 chars at most');
+
 export const ImageUrlSchema = z
   .union([z.literal(''), z.string().trim().url('Image must be a URL')])
   .optional();
@@ -53,14 +65,6 @@ export const ImageUrlSchema = z
 export const ExternalUrlSchema = z
   .union([z.literal(''), z.string().trim().url('External link must be a URL')])
   .optional();
-
-export const WritingMetadataSchema = z.object({
-  description: z.string().optional(),
-  image: ImageUrlSchema,
-  external_url: ExternalUrlSchema
-});
-
-export type WritingMetadata = z.infer<typeof WritingMetadataSchema>;
 
 // Reading version of MetadataSchema that tries to remove invalid data.
 export const MetadataSchema = BaseMetadataSchema.extend({

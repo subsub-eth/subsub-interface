@@ -1,13 +1,20 @@
+<script lang="ts" context="module">
+  const SubscriptionContractSchema = z.object({
+    name: TokenNameSchema,
+    symbol: TokenSymbolSchema,
+    description: z.string().optional(),
+    imageUrl: ImageUrlSchema,
+    externalUrl: ExternalUrlSchema,
+
+    token: AddressSchema,
+    epochSize: EpochSizeSchema,
+    rate: z.bigint({invalid_type_error: "Invalid number"}).min(1n, 'Rate too low'),
+  });
+</script>
+
 <script lang="ts">
-  import { createForm } from 'felte';
   import TextInput from '../form/TextInput.svelte';
-  import {
-    SubscriptionContractPropsSchema,
-    type SubscriptionContractProps,
-    type CreateSubscriptionFunc
-  } from '$lib/web3/contracts/subscription-handle';
-  import { validator } from '@felte/validator-zod';
-  import { reporter } from '@felte/reporter-svelte';
+  import { type CreateSubscriptionFunc } from '$lib/web3/contracts/subscription-handle';
   import NumberInput from '../form/NumberInput.svelte';
   import type {} from '@createz/contracts/types/ethers-contracts';
   import { createEventDispatcher } from 'svelte';
@@ -17,14 +24,30 @@
     MetadataStructStruct,
     SubSettingsStruct
   } from '@createz/contracts/types/ethers-contracts/ISubscription.sol/ISubscription';
-  import { MaxUint256 } from 'ethers';
   import { log } from '$lib/logger';
   import { createMutation } from '@tanstack/svelte-query';
-  import SuperDebug, { defaults, intProxy, setError, setMessage, superForm } from 'sveltekit-superforms';
+  import SuperDebug, {
+    defaults,
+    intProxy,
+    setError,
+    setMessage,
+    superForm
+  } from 'sveltekit-superforms';
   import { zod } from 'sveltekit-superforms/adapters';
   import * as Form from '$lib/components/ui/form';
   import { Input } from '$lib/components/ui/input';
-    import { bigintProxy } from '$lib/form';
+  import { z } from 'zod';
+  import {
+    TokenSymbolSchema,
+    TokenNameSchema,
+    ImageUrlSchema,
+    ExternalUrlSchema,
+
+    AddressSchema
+
+  } from '$lib/web3/contracts/common';
+    import EpochSizeInput, { EpochSizeSchema } from '../form/EpochSizeInput.svelte';
+    import RateInput from '../form/RateInput.svelte';
 
   export let create: CreateSubscriptionFunc;
 
@@ -43,20 +66,22 @@
   });
 
   // TODO check for any errors
-  const form = superForm(defaults(zod(SubscriptionContractPropsSchema)), {
+  const form = superForm(defaults(zod(SubscriptionContractSchema)), {
     SPA: true,
     dataType: 'json',
-    validators: zod(SubscriptionContractPropsSchema),
+    validators: zod(SubscriptionContractSchema),
     onUpdate: async ({ form }) => {
       log.info('On Update', form);
       log.info('errors', form.errors);
       if (form.valid) {
         const val = form.data;
         const metadata: MetadataStructStruct = {
-          description: val.metadata.description ?? '',
-          image: val.metadata.image ?? '',
-          externalUrl: val.metadata.external_url ?? ''
+          description: val.description ?? '',
+          image: val.imageUrl ?? '',
+          externalUrl: val.externalUrl ?? ''
         };
+
+        log.info('epochSize:', val.epochSize);
 
         const subSettings: SubSettingsStruct = {
           token: val.subSettings.token,
@@ -124,10 +149,6 @@
   //   extend: [validator({ schema: SubscriptionContractPropsSchema }), reporter]
   // });
 
-const rateProxy = bigintProxy(form, 'subSettings.rate');
-const lockProxy = intProxy(form, 'subSettings.lock');
-const epochSizeProxy = bigintProxy(form, 'subSettings.epochSize');
-const maxSupplyProxy = bigintProxy(form, 'subSettings.maxSupply');
 </script>
 
 <div>
@@ -161,18 +182,57 @@ const maxSupplyProxy = bigintProxy(form, 'subSettings.maxSupply');
     </fieldset>
     <fieldset disabled={$createContract.isPending}>
       <legend>Metadata</legend>
-      <TextInput {form} bind:value={$formData.metadata.description} name="metadata.description" label="Description" />
-      <TextInput {form} bind:value={$formData.metadata.image} name="metadata.image" label="Image URL" />
-      <TextInput {form} bind:value={$formData.metadata.external_url} name="metadata.external_url" label="External URL" />
+      <TextInput
+        {form}
+        bind:value={$formData.description}
+        name="description"
+        label="Description"
+      />
+      <TextInput
+        {form}
+        bind:value={$formData.imageUrl}
+        name="imageUrl"
+        label="Image URL"
+      />
+      <TextInput
+        {form}
+        bind:value={$formData.externalUrl}
+        name="externalUrl"
+        label="External URL"
+      />
     </fieldset>
-    <fieldset disabled={$createContract.isPending}>
-      <legend>Subscription Config</legend>
-      <TextInput {form} bind:value={$formData.subSettings.token} name="subSettings.token" label="Token Address" required />
-      <NumberInput {form} bind:value={$rateProxy} name="subSettings.rate" label="Rate per Block" required />
-      <NumberInput {form} bind:value={$lockProxy} name="subSettings.lock" label="% of locked funds" required />
-      <NumberInput {form} bind:value={$epochSizeProxy} name="subSettings.epochSize" label="Size of an Epoch" required />
-      <NumberInput {form} bind:value={$maxSupplyProxy} name="subSettings.maxSupply" label="Max supply of tokens" />
-    </fieldset>
+    <!-- <fieldset disabled={$createContract.isPending}> -->
+    <!--   <legend>Subscription Config</legend> -->
+      <TextInput
+        {form}
+        bind:value={$formData.token}
+        name="token"
+        label="Token Address"
+        required
+      />
+    <EpochSizeInput {form} name="epochSize" bind:value={$formData.epochSize}/>
+    <RateInput {form} name="rate" bind:value={$formData.rate} />
+    <!--   <NumberInput -->
+    <!--     {form} -->
+    <!--     bind:value={$rateProxy} -->
+    <!--     name="subSettings.rate" -->
+    <!--     label="Rate per Block" -->
+    <!--     required -->
+    <!--   /> -->
+    <!--   <NumberInput -->
+    <!--     {form} -->
+    <!--     bind:value={$lockProxy} -->
+    <!--     name="subSettings.lock" -->
+    <!--     label="% of locked funds" -->
+    <!--     required -->
+    <!--   /> -->
+    <!--   <NumberInput -->
+    <!--     {form} -->
+    <!--     bind:value={$maxSupplyProxy} -->
+    <!--     name="subSettings.maxSupply" -->
+    <!--     label="Max supply of tokens" -->
+    <!--   /> -->
+    <!-- </fieldset> -->
     <div>
       <Button label="create" type="submit" isDisabled={$createContract.isPending} primary={true} />
     </div>
