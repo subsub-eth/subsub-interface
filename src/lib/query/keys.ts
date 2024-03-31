@@ -15,6 +15,7 @@ const PRICE = 'price';
 const ALLOWANCE = 'allowance';
 const BALANCE = 'balance';
 const WARNINGS = 'warnings';
+const TOKEN_SEARCH = 'tokenSearch';
 const GLOBAL = 'global';
 
 function key(...keys: (string | undefined)[]): string[] {
@@ -66,3 +67,5 @@ export const erc6551Keys = {
 
   account: (account: Address) => key(ERC6551_ACCOUNT, account)
 };
+
+export const tokenSearch = (searchTerm: string) => key(TOKEN_SEARCH, ERC20, searchTerm);

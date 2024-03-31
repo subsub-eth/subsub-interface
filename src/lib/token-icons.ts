@@ -21,7 +21,6 @@ const knownTokens: Map<Address, TokenData> = new Map([
 // TODO add chain?
 export default function findTokenIcon(address: Address): TokenIcon | null {
   const token = knownTokens.get(address);
-  console.log('finding stuff', address, token);
 
   if (token) {
     return {

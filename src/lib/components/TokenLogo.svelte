@@ -23,7 +23,7 @@
   const defaultClasses = 'h-16 w-16';
   const classes = cn(defaultClasses, clazz);
 
-  const icon = findTokenIcon(address);
+  $: icon = findTokenIcon(address);
 </script>
 
 <Avatar.Root class={classes}>
