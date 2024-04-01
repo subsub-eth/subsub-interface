@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     sveltekit(),
     vitePluginNodePolyfills({
-      exclude: ['dns' /** vinejs wants this even though we are not using vine */],
+      // exclude: ['dns' /** vinejs wants this even though we are not using vine */],
       protocolImports: true
     })
   ],
