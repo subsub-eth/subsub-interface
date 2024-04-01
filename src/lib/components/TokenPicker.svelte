@@ -18,14 +18,15 @@
   import { tokenSearch } from '$lib/query/keys';
 
   /** address of the selected token */
-  export let token: Address | undefined;
-  /** symbol of the selected token if any */
-  export let tokenSymbol: string | undefined;
+  export let token: Address | undefined = undefined;
+  /** symbol of the selected token if any, initially derived from known tokens and token */
+  export let tokenSymbol: string | undefined = undefined;
   /** load function to search token on a specific address */
   export let loadByAddress: (address: Address) => Promise<Erc20Data>;
   /** list of known tokens to display for quick pick */
-  export let knownTokens: Array<KnownToken>;
+  export let knownTokens: Array<KnownToken> = [];
 
+  tokenSymbol = tokenSymbol ?? knownTokens.find((t) => addressEquals(t.address, token))?.symbol;
   let open: boolean = false;
   let searchString = writable('');
 
@@ -74,6 +75,7 @@
       {#if !token}
         <span>Select Token</span>
       {:else}
+        <TokenLogo address={token} fallbackSymbol={`${tokenSymbol}`} class="size-6 self-center" />
         <span>{tokenSymbol}</span>
       {/if}
       <ChevronDown />

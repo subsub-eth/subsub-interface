@@ -44,24 +44,21 @@
   import type { Address } from '$lib/web3/contracts/common';
   import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
-    import { waitFor } from '$lib/helpers';
+  import { waitFor } from '$lib/helpers';
 </script>
 
 <Template let:args>
   <QueryClientContext>
-    <TokenPicker bind:token bind:tokenSymbol {...args} />
+    <TokenPicker {...args} />
   </QueryClientContext>
 </Template>
 
 <Story name="empty">
   <QueryClientContext>
-    <TokenPicker
-      bind:token={tempToken}
-      bind:tokenSymbol={tempTokenSymbol}
-      {knownTokens}
-      {loadByAddress}
-    />
+    <TokenPicker {knownTokens} {loadByAddress} />
   </QueryClientContext>
 </Story>
 
-<Story name="prefilled" args={{ token: token, tokenSymbol: tokenSymbol }} />
+<Story name="Prefilled" args={{ token: token }} />
+
+<Story name="Prefilled with Symbol" args={{ token: token, tokenSymbol: 'ELSE' }} />
