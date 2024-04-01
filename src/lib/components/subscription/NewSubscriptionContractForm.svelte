@@ -8,9 +8,21 @@
 
     token: AddressSchema,
     epochSize: EpochSizeSchema,
-    rate: z.bigint({invalid_type_error: "Invalid number"}).min(1n, 'Rate too low'),
-    maxSupply: z.bigint({invalid_type_error: "Invalid number"}).min(0n, 'Cannot be a negative number'),
+    lock: z
+      .number()
+      .multipleOf(0.01)
+      .min(0, 'Cannot be negative')
+      .max(10_000, 'Value too high')
+      .default(undefined as unknown as number), // dirty hacks!
+    rate: z.bigint({ invalid_type_error: 'Invalid number' }).min(1n, 'Rate too low'),
+    maxSupply: z
+      .bigint({ invalid_type_error: 'Invalid number' })
+      .min(0n, 'Cannot be a negative number')
   });
+
+  const day = 60n * 60n * 24n;
+  const week = day * 7n;
+  const month = week * 30n;
 </script>
 
 <script lang="ts">
@@ -29,29 +41,32 @@
   import { createMutation } from '@tanstack/svelte-query';
   import SuperDebug, {
     defaults,
-    intProxy,
+    numberProxy,
     setError,
     setMessage,
     superForm
   } from 'sveltekit-superforms';
   import { zod } from 'sveltekit-superforms/adapters';
-  import * as Form from '$lib/components/ui/form';
-  import { Input } from '$lib/components/ui/input';
   import { z } from 'zod';
   import {
     TokenSymbolSchema,
     TokenNameSchema,
     ImageUrlSchema,
     ExternalUrlSchema,
-
-    AddressSchema
-
+    AddressSchema,
+    type Address
   } from '$lib/web3/contracts/common';
-    import EpochSizeInput, { EpochSizeSchema } from '../form/EpochSizeInput.svelte';
-    import RateInput from '../form/RateInput.svelte';
-    import MaxSupplyInput from '../form/MaxSupplyInput.svelte';
+  import EpochSizeInput, { EpochSizeSchema } from '../form/EpochSizeInput.svelte';
+  import RateInput from '../form/RateInput.svelte';
+  import MaxSupplyInput from '../form/MaxSupplyInput.svelte';
+  import TokenPickerInput from '../form/TokenPickerInput.svelte';
+  import type { Erc20Data, Erc20Token } from '$lib/web3/contracts/erc20';
 
   export let create: CreateSubscriptionFunc;
+  /** load function to search token on a specific address */
+  export let tokenByAddress: (address: Address) => Promise<Erc20Data>;
+  /** list of known tokens to display for quick pick */
+  export let knownTokens: Array<Erc20Token> = [];
 
   const dispatch = createEventDispatcher<CreateSubscriptionContractEvents>();
 
@@ -84,13 +99,21 @@
         };
 
         log.info('epochSize:', val.epochSize);
+        let epochSize: bigint;
+        if (val.epochSize === 'day') {
+          epochSize = day;
+        } else if (val.epochSize === 'week') {
+          epochSize = week;
+        } else {
+          epochSize = month;
+        }
 
         const subSettings: SubSettingsStruct = {
-          token: val.subSettings.token,
-          rate: val.subSettings.rate,
-          lock: val.subSettings.lock,
-          epochSize: val.subSettings.epochSize,
-          maxSupply: val.subSettings.maxSupply
+          token: val.token,
+          rate: val.rate,
+          lock: val.lock,
+          epochSize: epochSize,
+          maxSupply: val.maxSupply
         };
 
         log.debug('creating new subscription plan', val.name, val.symbol, metadata, subSettings);
@@ -104,53 +127,12 @@
       } else {
         setError(form, 'invalid');
       }
-    },
-    onUpdated: async (data) => {
-      log.info('onUpdated', data);
-    },
-    // onChange: async (data) => {
-    //   log.info("onChange", data);
-    //   },
-    onSubmit: async (data) => {
-      log.info('OnSubmit', data);
     }
   });
-  const { form: formData, errors, enhance } = form;
-  // const { form, errors } = createForm<SubscriptionContractProps>({
-  //   async onSubmit(val) {
-  //     log.debug('onSubmit');
-  //     const metadata: MetadataStructStruct = {
-  //       description: val.metadata.description ?? '',
-  //       image: val.metadata.image ?? '',
-  //       externalUrl: val.metadata.external_url ?? ''
-  //     };
-  //
-  //     const subSettings: SubSettingsStruct = {
-  //       token: val.subSettings.token,
-  //       rate: val.subSettings.rate,
-  //       lock: val.subSettings.lock,
-  //       epochSize: val.subSettings.epochSize,
-  //       maxSupply: val.subSettings.maxSupply
-  //     };
-  //
-  //     log.debug('creating new subscription plan', val.name, val.symbol, metadata, subSettings);
-  //     return await $createContract.mutateAsync([val.name, val.symbol, metadata, subSettings]);
-  //   },
-  //   transform: (value: any) => {
-  //     if (value.subSettings.rate) value.subSettings.rate = BigInt(value.subSettings.rate);
-  //     if (value.subSettings.epochSize)
-  //       value.subSettings.epochSize = BigInt(value.subSettings.epochSize);
-  //     if (value.subSettings.maxSupply) {
-  //       value.subSettings.maxSupply = BigInt(value.subSettings.maxSupply);
-  //     } else {
-  //       value.subSettings.maxSupply = MaxUint256;
-  //     }
-  //     return value as SubscriptionContractProps;
-  //   },
-  //   // TODO set proper validation
-  //   extend: [validator({ schema: SubscriptionContractPropsSchema }), reporter]
-  // });
 
+  const { form: formData, errors, enhance } = form;
+
+  const lockProxy = numberProxy(form, 'lock');
 </script>
 
 <div>
@@ -161,16 +143,6 @@
   <form method="POST" use:enhance>
     <fieldset disabled={$createContract.isPending}>
       <legend>Name</legend>
-      <!-- <Form.Field {form} name="subSettings.token" class=""> -->
-      <!-- <Form.ElementField {form} name="subSettings.token" class={"pt-0"}> -->
-      <!--   <Form.Control let:attrs> -->
-      <!--     <Form.Label>Token</Form.Label> -->
-      <!--     <Input {...attrs} bind:value={$formData.subSettings.token} /> -->
-      <!--   </Form.Control> -->
-      <!--   <Form.Description>This is your public display name.</Form.Description> -->
-      <!--   <Form.FieldErrors /> -->
-      <!-- </Form.ElementField> -->
-      <!-- </Form.Field> -->
       <TextInput {form} bind:value={$formData.name} name="name" label="Name" required />
       <TextInput
         {form}
@@ -178,24 +150,14 @@
         name="symbol"
         label="Symbol"
         required
-        minLength={2}
-        maxLength={12}
+        minlength={2}
+        maxlength={12}
       />
     </fieldset>
     <fieldset disabled={$createContract.isPending}>
       <legend>Metadata</legend>
-      <TextInput
-        {form}
-        bind:value={$formData.description}
-        name="description"
-        label="Description"
-      />
-      <TextInput
-        {form}
-        bind:value={$formData.imageUrl}
-        name="imageUrl"
-        label="Image URL"
-      />
+      <TextInput {form} bind:value={$formData.description} name="description" label="Description" />
+      <TextInput {form} bind:value={$formData.imageUrl} name="imageUrl" label="Image URL" />
       <TextInput
         {form}
         bind:value={$formData.externalUrl}
@@ -203,39 +165,29 @@
         label="External URL"
       />
     </fieldset>
-    <!-- <fieldset disabled={$createContract.isPending}> -->
-    <!--   <legend>Subscription Config</legend> -->
-      <TextInput
-        {form}
-        bind:value={$formData.token}
-        name="token"
-        label="Token Address"
-        required
-      />
-    <EpochSizeInput {form} name="epochSize" bind:value={$formData.epochSize}/>
+    <TokenPickerInput
+      {form}
+      bind:value={$formData.token}
+      name="token"
+      label="Token Address"
+      required
+      {tokenByAddress}
+      {knownTokens}
+    />
     <RateInput {form} name="rate" bind:value={$formData.rate} />
-    <MaxSupplyInput {form} name="maxSupply" bind:value={$formData.maxSupply} required/>
-    <!--   <NumberInput -->
-    <!--     {form} -->
-    <!--     bind:value={$rateProxy} -->
-    <!--     name="subSettings.rate" -->
-    <!--     label="Rate per Block" -->
-    <!--     required -->
-    <!--   /> -->
-    <!--   <NumberInput -->
-    <!--     {form} -->
-    <!--     bind:value={$lockProxy} -->
-    <!--     name="subSettings.lock" -->
-    <!--     label="% of locked funds" -->
-    <!--     required -->
-    <!--   /> -->
-    <!--   <NumberInput -->
-    <!--     {form} -->
-    <!--     bind:value={$maxSupplyProxy} -->
-    <!--     name="subSettings.maxSupply" -->
-    <!--     label="Max supply of tokens" -->
-    <!--   /> -->
-    <!-- </fieldset> -->
+    <EpochSizeInput {form} name="epochSize" bind:value={$formData.epochSize} />
+    <NumberInput
+      {form}
+      label="Deposit Lock"
+      name="lock"
+      placeholder="5.5 %"
+      bind:value={$lockProxy}
+      required
+      step={0.01}
+      min={0}
+      max={100}
+    />
+    <MaxSupplyInput {form} name="maxSupply" bind:value={$formData.maxSupply} required />
     <div>
       <Button label="create" type="submit" isDisabled={$createContract.isPending} primary={true} />
     </div>

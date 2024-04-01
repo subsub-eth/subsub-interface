@@ -5,37 +5,30 @@
 
   export let name: U;
   export let label: string;
+  export let description: string | undefined = undefined;
   export let form: SuperForm<T>;
   export let value: unknown;
   export let id: string = '';
   export let placeholder: string = '';
   export let disabled: boolean = false;
   export let required: boolean = false;
-  export let minLength: number = 0;
-  export let maxLength: number = 0;
+  export let minlength: number | undefined = undefined;
+  export let maxlength: number | undefined = undefined;
 
   if (!id) {
     id = 'input-' + name;
   }
-
-  let opts: any = {};
-  $: {
-    opts = {};
-    if (placeholder) opts.placeholder = placeholder;
-    if (disabled) opts.disabled = disabled;
-    if (required) opts.required = required;
-    if (minLength) opts.minLength = minLength;
-    if (maxLength) opts.maxLength = maxLength;
-  }
 </script>
 
 <div>
-  <Form.Field {form} {name}>
+  <Form.Field {form} {name} {placeholder}>
     <Form.Control let:attrs>
       <Form.Label>{label}</Form.Label>
-      <Input {...attrs} {...opts} bind:value={value} />
+      <Input {...attrs} bind:value {placeholder} {required} {disabled} {minlength} {maxlength} />
     </Form.Control>
-    <Form.Description>This is your public display name.</Form.Description>
+    {#if description}
+      <Form.Description>{description}</Form.Description>
+    {/if}
     <Form.FieldErrors />
   </Form.Field>
 </div>

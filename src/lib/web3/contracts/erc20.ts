@@ -4,10 +4,15 @@ import { z } from 'zod';
 import type { Signer } from 'ethers';
 import { log } from '$lib/logger';
 
-const Erc20DataSchema = z.object({
+const Erc20TokenSchema = z.object({
   address: AddressSchema,
   name: z.string(),
   symbol: z.string(),
+});
+
+export type Erc20Token = z.infer<typeof Erc20TokenSchema>;
+
+const Erc20DataSchema = Erc20TokenSchema.extend({
   decimals: z.number()
 });
 

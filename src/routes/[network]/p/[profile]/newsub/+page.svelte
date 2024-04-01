@@ -24,6 +24,8 @@
   import type { Address } from '$lib/web3/contracts/common';
   import { queryClient } from '$lib/query/config';
   import { erc6551Keys, profileKeys, subHandleKeys } from '$lib/query/keys';
+  import { getErc20Contract, getErc20Data } from '$lib/web3/contracts/erc20';
+    import { knownErc20Tokens } from '$lib/chain-config';
 
   export let data: PageData;
 
@@ -77,6 +79,15 @@
       profileId
     );
 
+  $: tokenByAddress = async (addr: Address) => {
+    const signer = $chainEnvironment!.ethersSigner;
+    const { contract } = getErc20Contract(addr, signer);
+
+    return await getErc20Data(contract);
+  };
+
+  $: knownTokens = knownErc20Tokens($chainEnvironment!.chainData.chainId);
+
   const onTxSubmitted = (event: CustomEvent<string>) => {
     toast.info(`Transaction submitted: ${event.detail}`);
   };
@@ -120,6 +131,8 @@
     {:else}
       <NewSubscriptionContractForm
         create={erc6551CreateSubscription(erc6551Account[1], subHandle)}
+        {tokenByAddress}
+        knownTokens={knownTokens}
         on:txFailed={onTxFailed}
         on:createTxSubmitted={onTxSubmitted}
         on:created={onContractCreated}

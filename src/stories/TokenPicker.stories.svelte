@@ -1,14 +1,11 @@
 <script lang="ts" context="module">
   import { zeroAddress } from '$lib/web3/helpers';
-  import TokenPicker, { type KnownToken } from '$lib/components/TokenPicker.svelte';
+  import TokenPicker from '$lib/components/TokenPicker.svelte';
 
   let token = zeroAddress;
   let tokenSymbol = 'TEST';
 
-  let tempToken: Address;
-  let tempTokenSymbol: string;
-
-  const loadByAddress = async (addr: Address): Promise<Erc20Data> => {
+  const tokenByAddress = async (addr: Address): Promise<Erc20Data> => {
     await waitFor(1000);
     return {
       symbol: 'KEK',
@@ -18,7 +15,7 @@
     };
   };
 
-  const knownTokens: Array<KnownToken> = [];
+  const knownTokens: Array<Erc20Token> = [];
   for (let i = 0; i < 100; i++) {
     knownTokens.push({
       name: 'Test Token ' + i,
@@ -33,7 +30,7 @@
     tags: ['autodocs'],
     args: {
       knownTokens: knownTokens,
-      loadByAddress: loadByAddress
+      tokenByAddress: tokenByAddress
     },
     argTypes: {}
   };
@@ -43,7 +40,7 @@
   import { Story, Template } from '@storybook/addon-svelte-csf';
   import type { Address } from '$lib/web3/contracts/common';
   import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
-  import type { Erc20Data } from '$lib/web3/contracts/erc20';
+  import type { Erc20Data, Erc20Token } from '$lib/web3/contracts/erc20';
   import { waitFor } from '$lib/helpers';
 </script>
 
@@ -55,10 +52,12 @@
 
 <Story name="empty">
   <QueryClientContext>
-    <TokenPicker {knownTokens} {loadByAddress} />
+    <TokenPicker {knownTokens} tokenByAddress={tokenByAddress} />
   </QueryClientContext>
 </Story>
 
 <Story name="Prefilled" args={{ token: token }} />
 
 <Story name="Prefilled with Symbol" args={{ token: token, tokenSymbol: 'ELSE' }} />
+
+<Story name="disabled" args={{ token: token, disabled: true }} />

@@ -1,7 +1,3 @@
-<script lang="ts" context="module">
-  export type KnownToken = { name: string; symbol: string; address: Address };
-</script>
-
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
   import { AddressSchema, type Address } from '$lib/web3/contracts/common';
@@ -10,7 +6,7 @@
   import { truncateAddress } from '$lib/helpers';
   import TokenLogo from './TokenLogo.svelte';
   import { derived, writable } from 'svelte/store';
-  import type { Erc20Data } from '$lib/web3/contracts/erc20';
+  import type { Erc20Data, Erc20Token } from '$lib/web3/contracts/erc20';
   import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
   import { isAddress } from 'ethers';
   import { addressEquals } from '$lib/web3/helpers';
@@ -22,15 +18,17 @@
   /** symbol of the selected token if any, initially derived from known tokens and token */
   export let tokenSymbol: string | undefined = undefined;
   /** load function to search token on a specific address */
-  export let loadByAddress: (address: Address) => Promise<Erc20Data>;
+  export let tokenByAddress: (address: Address) => Promise<Erc20Data>;
   /** list of known tokens to display for quick pick */
-  export let knownTokens: Array<KnownToken> = [];
+  export let knownTokens: Array<Erc20Token> = [];
+
+  export let disabled = false;
 
   tokenSymbol = tokenSymbol ?? knownTokens.find((t) => addressEquals(t.address, token))?.symbol;
   let open: boolean = false;
   let searchString = writable('');
 
-  const searchQuery = createQuery<Array<KnownToken>>(
+  const searchQuery = createQuery<Array<Erc20Token>>(
     derived(searchString, (searchString) => ({
       queryKey: tokenSearch(searchString),
       queryFn: async () => {
@@ -44,7 +42,7 @@
 
           // search for token on chain
           log.debug('loading token from address', ss);
-          return [await loadByAddress(AddressSchema.parse(ss))];
+          return [await tokenByAddress(AddressSchema.parse(ss))];
         }
 
         // filter known tokens by search string
@@ -70,7 +68,7 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Trigger>
+  <Dialog.Trigger {disabled}>
     <div class="flex gap-2 text-lg font-semibold text-foreground">
       {#if !token}
         <span>Select Token</span>
