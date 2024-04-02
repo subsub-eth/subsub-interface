@@ -27,6 +27,7 @@
 
 <script lang="ts">
   import TextInput from '../form/TextInput.svelte';
+  import TextareaInput from '../form/TextareaInput.svelte';
   import { type CreateSubscriptionFunc } from '$lib/web3/contracts/subscription-handle';
   import NumberInput from '../form/NumberInput.svelte';
   import type {} from '@createz/contracts/types/ethers-contracts';
@@ -155,7 +156,7 @@
     </fieldset>
     <fieldset disabled={$createContract.isPending}>
       <legend>Metadata</legend>
-      <TextInput {form} bind:value={$formData.description} name="description" label="Description" />
+      <TextareaInput {form} bind:value={$formData.description} name="description" label="Description" />
       <TextInput {form} bind:value={$formData.imageUrl} name="imageUrl" label="Image URL" />
       <TextInput
         {form}
@@ -189,6 +190,13 @@
     <MaxSupplyInput {form} name="maxSupply" bind:value={$formData.maxSupply} required />
     <div>
       <Button label="create" type="submit" isDisabled={$createContract.isPending} primary={true} />
+    </div>
+    <div>
+      {#if $errors._errors}
+        {#each $errors._errors as err}
+          {err}
+        {/each}
+      {/if}
     </div>
   </form>
   <SuperDebug data={formData} />
