@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts" generics="T extends Record<string, unknown>, U extends FormPath<T>">
-    import { Label } from '../ui/label';
+  import { Label } from '../ui/label';
 
   import { log } from '$lib/logger';
 

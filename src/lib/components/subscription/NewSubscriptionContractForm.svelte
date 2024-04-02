@@ -12,7 +12,7 @@
       .number()
       .multipleOf(0.01)
       .min(0, 'Cannot be negative')
-      .max(10_000, 'Value too high')
+      .max(100, 'Value too high')
       .default(undefined as unknown as number), // dirty hacks!
     rate: z.bigint({ invalid_type_error: 'Invalid number' }).min(1n, 'Rate too low'),
     maxSupply: z
@@ -41,7 +41,6 @@
   import { createMutation } from '@tanstack/svelte-query';
   import SuperDebug, {
     defaults,
-    numberProxy,
     setError,
     setMessage,
     superForm
@@ -108,10 +107,12 @@
           epochSize = month;
         }
 
+        const lock = BigInt(val.lock * 100);
+
         const subSettings: SubSettingsStruct = {
           token: val.token,
           rate: val.rate,
-          lock: val.lock,
+          lock: lock,
           epochSize: epochSize,
           maxSupply: val.maxSupply
         };
@@ -131,8 +132,6 @@
   });
 
   const { form: formData, errors, enhance } = form;
-
-  const lockProxy = numberProxy(form, 'lock');
 </script>
 
 <div>
@@ -181,7 +180,7 @@
       label="Deposit Lock"
       name="lock"
       placeholder="5.5 %"
-      bind:value={$lockProxy}
+      bind:value={$formData.lock}
       required
       step={0.01}
       min={0}
