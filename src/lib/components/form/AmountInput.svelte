@@ -1,5 +1,4 @@
 <script lang="ts" context="module">
-  const month = 60n * 60n * 24n * 30n;
 </script>
 
 <script lang="ts" generics="T extends Record<string, unknown>, U extends FormPath<T>">
@@ -13,28 +12,27 @@
   import { Input } from '$lib/components/ui/input';
 
   export let name: U;
-  export let label: string = 'Rate';
+  export let label: string = 'Amount';
   export let placeholder: string = '10.01';
-  export let description: string = 'The price of a subscription per month';
+  export let description: string = '';
   export let form: SuperForm<T>;
   export let value: bigint | undefined;
-  export let rateDecimals: number = 18;
+  export let decimals: number = 18;
   export let disabled = false;
   export let required = false;
 
   let displayValue: string;
 
   const setDisplayValue = (val: bigint | undefined) =>
-    (displayValue = val ? formatUnits(val, rateDecimals) : '');
+    (displayValue = val ? formatUnits(val, decimals) : '');
 
   const setValue = (val: string) => {
     // in case of error, pass bad value, that's zod's problem
     try {
       if (val) {
-        const monthly = parseUnits(val, rateDecimals);
-        value = monthly / month;
+        value = parseUnits(val, decimals);
       } else {
-        value = val as unknown as bigint;
+        value = undefined as unknown as bigint;
       }
     } catch (err) {
       log.error(`Failed to convert value to valid bigint`, val);
@@ -60,7 +58,7 @@
         {required}
         type="number"
         min="0"
-        step={formatUnits(1n, rateDecimals)}
+        step={formatUnits(1n, decimals)}
       />
     </Form.Control>
     {#if description}

@@ -1,17 +1,38 @@
-<script lang="ts">
-  import { createForm } from 'felte';
+<script lang="ts" context="module">
+  const amountSchema = z.bigint().min(0n, 'Amount must be larger or equal to 0');
 
+  export const ApprovalSchema = z.object({
+    amount: amountSchema
+  });
+
+  export const MintSchema = z.object({
+    amount: amountSchema.optional(),
+    message: z.string().optional(),
+    multiplier: z
+      .number()
+      .multipleOf(0.01)
+      .min(1, 'Multiplier must be larger or equal to 1')
+      .max(1_000, 'Multiplier must be less or equal to 1,000')
+      .default(1)
+  });
+
+  export type MintProps = z.infer<typeof MintSchema>;
+</script>
+
+<script lang="ts">
   import NumberInput from '../../form/NumberInput.svelte';
   import TextInput from '../../form/TextInput.svelte';
-  import { type MintProps, MintPropsSchema, type MintFunc } from '$lib/web3/contracts/subscription';
-  import { validator } from '@felte/validator-zod';
-  import { reporter } from '@felte/reporter-svelte';
+  import { type MintFunc } from '$lib/web3/contracts/subscription';
   import { createEventDispatcher } from 'svelte';
   import type { MintSubscriptionEvents } from './subscription-events';
   import Button from '$lib/components/Button.svelte';
   import type { ApproveFunc } from '$lib/web3/contracts/erc20';
   import { createMutation } from '@tanstack/svelte-query';
   import { log } from '$lib/logger';
+  import SuperDebug, { defaults, setError, superForm } from 'sveltekit-superforms';
+  import { zod } from 'sveltekit-superforms/adapters';
+  import { z } from 'zod';
+  import AmountInput from '$lib/components/form/AmountInput.svelte';
 
   // TODO handle approval/permit, permit2?
 
@@ -47,15 +68,15 @@
   });
 
   const doApprove = async (val: MintProps) => {
-    if (val.amount > 0) {
-      await $approveMutation.mutateAsync([val.amount]);
+    if (val.amount && val.amount > 0) {
+      await $approveMutation.mutateAsync([val.amount!]);
     } else {
       throw new Error('Approval of 0 amount or token not found');
     }
   };
 
   const doMint = async (val: MintProps) => {
-    await $mintMutation.mutateAsync([val.amount, val.multiplier, val.message ?? '']);
+    await $mintMutation.mutateAsync([val.amount ?? 0n, val.multiplier!, val.message ?? '']);
   };
 
   let action = doApprove;
@@ -63,46 +84,66 @@
   // soften cyclic dependency
   const setAction = (func: (val: MintProps) => Promise<void>) => (action = func);
 
-  const { form, data } = createForm<MintProps>({
-    async onSubmit(val) {
+  const form = superForm(defaults(zod(MintSchema)), {
+    SPA: true,
+    dataType: 'json',
+    resetForm: false,
+    validators: zod(MintSchema),
+    onUpdate: async ({ form }) => {
+      if (!form.valid) {
+        setError(form, 'invalid');
+        return;
+      }
+
+      const val = form.data;
+      const multiplier = Math.floor((val.multiplier ?? 0) * 100);
+
       try {
-        await action(val);
+        await action({ ...val, multiplier: multiplier });
       } catch (err) {
         log.error('Failed to create new subscripion', err);
         dispatch('txFailed', err);
       }
-    },
-    transform: (value: any) => {
-      if (value.amount || value.amount === 0) value.amount = BigInt(value.amount);
-
-      return value as MintProps;
-    },
-    extend: [validator({ schema: MintPropsSchema }), reporter]
+    }
   });
 
-  $: needsApproval = allowance < $data.amount;
+  const { form: formData, errors, enhance, options } = form;
+
+  $: needsApproval = allowance < ($formData.amount ?? 0n);
 
   $: {
     if (needsApproval) {
+      options.validators = zod(ApprovalSchema);
       setAction(doApprove);
     } else {
+      options.validators = zod(MintSchema);
       setAction(doMint);
     }
   }
 </script>
 
 <div>
-  <form use:form>
+  <form method="POST" use:enhance>
     <div>current balance: {balance}</div>
-    <NumberInput name="amount" label="Amount" value={0} required />
+    <AmountInput {form} name="amount" label="Amount" bind:value={$formData.amount} />
     <NumberInput
+      {form}
       name="multiplier"
       label="Multiplier"
-      value={100}
+      bind:value={$formData.multiplier}
       disabled={needsApproval}
       required
+      min={1}
+      max={1_000}
+      step={0.01}
     />
-    <TextInput name="message" label="Message" disabled={needsApproval} />
+    <TextInput
+      {form}
+      bind:value={$formData.message}
+      name="message"
+      label="Message"
+      disabled={needsApproval}
+    />
 
     <div>
       <Button
@@ -112,5 +153,13 @@
         isDisabled={$approveMutation.isPending || $mintMutation.isPending}
       />
     </div>
+    <div>
+      {#if $errors._errors}
+        {#each $errors._errors as err}
+          {err}
+        {/each}
+      {/if}
+    </div>
   </form>
+  <SuperDebug data={formData} />
 </div>
