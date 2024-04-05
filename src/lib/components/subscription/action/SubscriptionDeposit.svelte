@@ -3,6 +3,7 @@
   import type { DepositFunc } from '$lib/web3/contracts/subscription';
   import DepositForm from './deposit/DepositForm.svelte';
 
+  export let tokenId: bigint;
   export let allowance: bigint;
   export let balance: bigint;
 
@@ -20,6 +21,7 @@
   <div>
     <h3>Renew</h3>
     <DepositForm
+      formId={`${tokenId}-renew`}
       {allowance}
       {balance}
       submitLabel="Renew"
@@ -37,13 +39,14 @@
   <div>
     <h3>Tip</h3>
     <DepositForm
+      formId={`${tokenId}-tip`}
       {allowance}
       {balance}
       submitLabel="Tip"
       {approve}
       deposit={tip}
       maxAmount={balance}
-      minAmount={0n}
+      minAmount={1n}
       on:approved
       on:deposited
       on:txFailed

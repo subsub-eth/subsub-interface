@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { reporter } from '@felte/reporter-svelte';
-  import { validator } from '@felte/validator-zod';
-  import { createForm } from 'felte';
   import { createEventDispatcher } from 'svelte';
   import type { TxFailedEvents, WithdrawalEvents } from '../subscription-events';
   import NumberInput from '$lib/components/form/NumberInput.svelte';
@@ -13,7 +10,11 @@
   } from '$lib/web3/contracts/subscription';
   import { createMutation } from '@tanstack/svelte-query';
   import { log } from '$lib/logger';
+  import SuperDebug, { defaults, setError, superForm } from 'sveltekit-superforms';
+  import { zod } from 'sveltekit-superforms/adapters';
+  import AmountInput from '$lib/components/form/AmountInput.svelte';
 
+  export let formId: string;
   export let submitLabel: string;
   export let deposited: bigint;
   export let withdrawable: bigint;
@@ -35,39 +36,43 @@
     }
   });
 
-  const { form } = createForm<WithdrawProps>({
-    async onSubmit(val, { resetField }) {
+  const form = superForm(defaults(zod(WithdrawPropsSchema)), {
+    id: formId,
+    SPA: true,
+    dataType: 'json',
+    validators: zod(
+      WithdrawPropsSchema.refine(({ amount }) => amount === undefined || amount >= minAmount, {
+        message: `too small, min ${minAmount.toString()}`,
+        path: ['amount']
+      }).refine(({ amount }) => amount === undefined || amount <= maxAmount, {
+        message: `too big, max ${maxAmount.toString()}`,
+        path: ['amount']
+      })
+    ),
+    onUpdate: async ({ form }) => {
+      if (!form.valid) {
+        setError(form, 'invalid');
+        return;
+      }
+
+      const val = form.data;
       try {
         await $withdrawMutation.mutateAsync([val.amount]);
-        resetField('amount');
       } catch (err) {
         log.error('An error occurred', err);
         failDispatch('txFailed', err);
       }
-    },
-    transform: (value: any) => {
-      if (value.amount || value.amount === 0) value.amount = BigInt(value.amount);
-      return value as WithdrawProps;
-    },
-    validate: (val) => {
-      const errors: any = {};
-      console.log('validate!', val);
-      if (val.amount < minAmount) {
-        errors.amount = [`too small, min ${minAmount.toString()}`];
-      } else if (val.amount > maxAmount) {
-        errors.amount = [`too big, max ${maxAmount.toString()}`];
-      }
-      return errors;
-    },
-    extend: [validator({ schema: WithdrawPropsSchema }), reporter]
+    }
   });
+
+  const { form: formData, errors, enhance } = form;
 </script>
 
 <div>
-  <form use:form>
+  <form method="POST" use:enhance>
     <div>total deposit: {deposited}</div>
     <div>current withdrawable: {withdrawable}</div>
-    <NumberInput name="amount" label="Amount" value={0} required />
+    <AmountInput {form} name="amount" label="Amount" bind:value={$formData.amount} required />
 
     <div>
       <Button
@@ -77,5 +82,13 @@
         primary={true}
       />
     </div>
+    <div>
+      {#if $errors._errors}
+        {#each $errors._errors as err}
+          {err}
+        {/each}
+      {/if}
+    </div>
   </form>
+  <SuperDebug data={formData} />
 </div>

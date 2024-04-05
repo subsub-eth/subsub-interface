@@ -62,6 +62,7 @@
   import TokenPickerInput from '../form/TokenPickerInput.svelte';
   import type { Erc20Data, Erc20Token } from '$lib/web3/contracts/erc20';
 
+  export let formId: string;
   export let create: CreateSubscriptionFunc;
   /** load function to search token on a specific address */
   export let tokenByAddress: (address: Address) => Promise<Erc20Data>;
@@ -84,6 +85,7 @@
 
   // TODO check for any errors
   const form = superForm(defaults(zod(SubscriptionContractSchema)), {
+    id: formId,
     SPA: true,
     dataType: 'json',
     validators: zod(SubscriptionContractSchema),

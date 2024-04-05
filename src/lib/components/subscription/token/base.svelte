@@ -29,10 +29,10 @@
   const formatTokenAmount = (value: BigNumberish) =>
     prettyNumber(Number(formatUnits(value, paymentToken.decimals)));
 
-  const unspent = formatTokenAmount(subscriptionData.unspent);
+  $: unspent = formatTokenAmount(subscriptionData.unspent);
 
   // TODO block time implementation
-  const timeLeft = Math.max(Number(subscriptionData.expiresAt) - Math.floor(Date.now() / 1000), 0);
+  $: timeLeft = Math.max(Number(subscriptionData.expiresAt) - Math.floor(Date.now() / 1000), 0);
 
   const asTimeUnits = (seconds: number): [number, number, number, number] => {
     const year = 60 * 60 * 24 * 365;
@@ -48,7 +48,8 @@
 
     return [Number(years), Number(days), Number(hours), Number(minutes)];
   };
-  const timeLeftUnits: [number, number, number, number] = asTimeUnits(timeLeft);
+
+  $: timeLeftUnits = asTimeUnits(timeLeft);
 </script>
 
 <slot

@@ -16,4 +16,8 @@
 </script>
 
 <h1>Create new Creator Token</h1>
-<NewProfile mint={mint(profileContract, currAcc)} on:minted={(ev) => onSuccess(ev.detail)} />
+<NewProfile
+  formId={currAcc}
+  mint={mint(profileContract, currAcc)}
+  on:minted={(ev) => onSuccess(ev.detail)}
+/>

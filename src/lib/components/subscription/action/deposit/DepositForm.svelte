@@ -1,21 +1,20 @@
 <script lang="ts">
   import {
     DepositPropsSchema,
-    type DepositProps,
     type DepositFunc
   } from '$lib/web3/contracts/subscription';
-  import { reporter } from '@felte/reporter-svelte';
-  import { validator } from '@felte/validator-zod';
-  import { createForm } from 'felte';
   import { createEventDispatcher } from 'svelte';
   import type { ApprovalEvents, DepositEvents, TxFailedEvents } from '../subscription-events';
-  import NumberInput from '$lib/components/form/NumberInput.svelte';
   import TextInput from '$lib/components/form/TextInput.svelte';
   import Button from '$lib/components/Button.svelte';
   import type { ApproveFunc } from '$lib/web3/contracts/erc20';
   import { createMutation } from '@tanstack/svelte-query';
   import { log } from '$lib/logger';
+  import SuperDebug, { defaults, setError, superForm } from 'sveltekit-superforms';
+  import { zod } from 'sveltekit-superforms/adapters';
+  import AmountInput from '$lib/components/form/AmountInput.svelte';
 
+  export let formId: string = "subscription-deposit";
   export let allowance: bigint;
   export let balance: bigint;
   export let submitLabel: string;
@@ -52,47 +51,59 @@
 
   let approvalMode = true;
 
-  const { form, data } = createForm<DepositProps>({
-    async onSubmit(val, { resetField }) {
+  const form = superForm(defaults(zod(DepositPropsSchema)), {
+    id: formId,
+    SPA: true,
+    dataType: 'json',
+    resetForm: () => !approvalMode,
+    validators: zod(
+      DepositPropsSchema.refine(({ amount }) => amount === undefined || amount >= minAmount, {
+        message: `too small, min ${minAmount.toString()}`,
+        path: ['amount']
+      }).refine(({ amount }) => amount === undefined || amount <= maxAmount, {
+        message: `too big, max ${maxAmount.toString()}`,
+        path: ['amount']
+      })
+    ),
+    onUpdate: async ({ form }) => {
+      if (!form.valid) {
+        setError(form, 'invalid');
+        return;
+      }
+
+      const val = form.data;
       try {
         if (approvalMode) {
           await $approveMutation.mutateAsync([val.amount]);
         } else {
           await $depositMutation.mutateAsync([val.amount, val.message ?? '']);
-          resetField('amount');
         }
       } catch (err) {
         log.error('An error occurred on deposit', err);
         throw err;
       }
-    },
-    transform: (value: any) => {
-      if (value.amount || value.amount === 0) value.amount = BigInt(value.amount);
-      return value as DepositProps;
-    },
-    validate: (val) => {
-      const errors: any = {};
-      if (val.amount < minAmount) {
-        errors.amount = [`too small, min ${minAmount.toString()}`];
-      } else if (val.amount > maxAmount) {
-        errors.amount = [`too big, max ${maxAmount.toString()}`];
-      }
-      return errors;
-    },
-    extend: [validator({ schema: DepositPropsSchema }), reporter]
+    }
   });
 
+  const { form: formData, errors, enhance } = form;
+
   $: {
-    approvalMode = allowance < $data?.amount;
+    approvalMode = allowance < ($formData.amount ?? 0n);
   }
 </script>
 
 <div>
-  <form use:form>
+  <form method="POST" use:enhance>
     <div>current balance: {balance}</div>
     <div>current allowance: {allowance}</div>
-    <NumberInput name="amount" label="Amount" value={0} required />
-    <TextInput name="message" label="Message" disabled={approvalMode} />
+    <AmountInput {form} name="amount" label="Amount" bind:value={$formData.amount} required />
+    <TextInput
+      {form}
+      bind:value={$formData.message}
+      name="message"
+      label="Message"
+      disabled={approvalMode}
+    />
 
     <div>
       <Button
@@ -102,5 +113,13 @@
         primary={true}
       />
     </div>
+    <div>
+      {#if $errors._errors}
+        {#each $errors._errors as err}
+          {err}
+        {/each}
+      {/if}
+    </div>
   </form>
+  <SuperDebug data={formData} />
 </div>

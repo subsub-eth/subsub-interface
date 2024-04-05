@@ -35,6 +35,7 @@
   import AmountInput from '$lib/components/form/AmountInput.svelte';
 
   // TODO handle approval/permit, permit2?
+  export let formId: string;
 
   export let allowance: bigint;
   export let balance: bigint;
@@ -85,6 +86,7 @@
   const setAction = (func: (val: MintProps) => Promise<void>) => (action = func);
 
   const form = superForm(defaults(zod(MintSchema)), {
+    id: formId,
     SPA: true,
     dataType: 'json',
     resetForm: false,

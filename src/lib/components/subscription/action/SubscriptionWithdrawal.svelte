@@ -3,6 +3,7 @@
   import CancelForm from './withdraw/CancelForm.svelte';
   import type { CancelFunc, WithdrawalFunc } from '$lib/web3/contracts/subscription';
 
+  export let tokenId: bigint;
   export let deposited: bigint;
   export let withdrawable: bigint;
 
@@ -15,12 +16,13 @@
   <div>
     <h3>Withdraw</h3>
     <WithdrawForm
+      formId={`${tokenId}-withdraw`}
       {withdrawable}
       {deposited}
       submitLabel="Withdraw"
       {withdraw}
       maxAmount={withdrawable}
-      minAmount={0n}
+      minAmount={1n}
       on:withdrawn
       on:txFailed
       on:withdrawTxSubmitted

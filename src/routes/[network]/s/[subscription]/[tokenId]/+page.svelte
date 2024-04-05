@@ -24,11 +24,15 @@
     ERC20_CONTRACT_CTX,
     ERC20_DATA_CTX,
     SUBSCRIPTION_CONTRACT_CTX,
-    SUBSCRIPTION_DATA_CTX
+    SUBSCRIPTION_DATA_CTX,
+
+    TOKEN_PRICE_CTX
+
   } from '../+layout.svelte';
   import toast from '$lib/toast';
   import { currentAccount } from '$lib/web3/onboard';
   import { erc20Keys, subKeys } from '$lib/query/keys';
+    import type { Price } from '$lib/web3/contracts/oracle';
 
   export let data: PageData;
 
@@ -55,6 +59,7 @@
   const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
   const erc20Allowance = getContext<QueryResult<bigint>>(ERC20_ALLOWANCE_CTX);
   const erc20Balance = getContext<QueryResult<bigint>>(ERC20_BALANCE_CTX);
+  const tokenPrice = getContext<QueryResult<Price | null>>(TOKEN_PRICE_CTX);
 
   const invalidateErc20Approval = () =>
     queryClient.invalidateQueries({
@@ -100,6 +105,7 @@
           subscriptionData={$subscriptionData.data}
           rate={contractData.rate}
           paymentToken={erc20Data}
+          tokenPrice={$tokenPrice}
         />
       {/if}
       <!-- Subscription token details -->

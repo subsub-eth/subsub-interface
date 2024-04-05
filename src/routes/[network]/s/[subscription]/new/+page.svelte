@@ -22,7 +22,7 @@
   } from '../+layout.svelte';
   import { currentAccount } from '$lib/web3/onboard';
   import type { Hash } from '$lib/web3/contracts/common';
-    import { erc20Keys } from '$lib/query/keys';
+  import { erc20Keys } from '$lib/query/keys';
 
   export let data: PageData;
 
@@ -62,6 +62,7 @@
 
 {#if $erc20Contract.isSuccess && $erc20Balance.isSuccess && $erc20Allowance.isSuccess && $subscriptionContract.isSuccess && $currentAccount}
   <MintSubscriptionForm
+    formId={addr}
     allowance={$erc20Allowance.data}
     balance={$erc20Balance.data}
     mint={mint($subscriptionContract.data.contract, $currentAccount)}

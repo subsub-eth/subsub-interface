@@ -40,6 +40,8 @@
   const multipliedRawRate = rawRate * (multiplier / 100);
   const multipliedRate = prettyNumber(multipliedRawRate);
 
+  $: lockedAmount = BigInt(subscriptionData.unspent) - BigInt(subscriptionData.withdrawable);
+
   const tokenValueAsUsd = (value: bigint, price: Price | null) => {
     if (!price) {
       return undefined;
@@ -167,8 +169,6 @@
       </PropertyBox>
       <PropertyBox rootClass="border-0" title="Liquid funds" titleLogo={Droplet}>
         <div slot="value" class="flex items-center gap-4 pt-2">
-          {@const lockedAmount =
-            BigInt(subscriptionData.unspent) - BigInt(subscriptionData.withdrawable)}
           <div class="basis-1/2">
             <h4>Withdrawable</h4>
             <p>
@@ -227,13 +227,46 @@
           </ExplorerNftUrl>
         </div>
       </DetailsProperty>
-      <DetailsProperty title="Deposited" value={BigInt(subscriptionData.deposited).toString()} help="Amount of tokens ever deposited" />
-      <DetailsProperty title="Spent" value={BigInt(subscriptionData.spent).toString()} help="Amount of tokens spent on the subscription" />
-      <DetailsProperty title="Unspent" value={BigInt(subscriptionData.unspent).toString()} help="Amount of tokens deposited but not yet spent" />
-      <DetailsProperty title="Withdrawable" value={BigInt(subscriptionData.withdrawable).toString()} help="Amount of unspent tokens that can be withdrawn" />
-      <DetailsProperty title="Tips" value={BigInt(subscriptionData.tips).toString()} help="Amount of tokens tipped on this subscription" />
-      <DetailsProperty title="Multiplier" value={BigInt(subscriptionData.multiplier).toString()} help="Multiplier applied to the rate of this subscription" />
-      <DetailsProperty title="Expires at" value={BigInt(subscriptionData.expiresAt).toString()} help="Time unit subscriptions expires or is expired at" />
+      <DetailsProperty
+        title="Deposited"
+        value={BigInt(subscriptionData.deposited).toString()}
+        help="Amount of tokens ever deposited"
+      />
+      <DetailsProperty
+        title="Spent"
+        value={BigInt(subscriptionData.spent).toString()}
+        help="Amount of tokens spent on the subscription"
+      />
+      <DetailsProperty
+        title="Unspent"
+        value={BigInt(subscriptionData.unspent).toString()}
+        help="Amount of tokens deposited but not yet spent"
+      />
+      <DetailsProperty
+        title="Withdrawable"
+        value={BigInt(subscriptionData.withdrawable).toString()}
+        help="Amount of unspent tokens that can be withdrawn"
+      />
+      <DetailsProperty
+        title="Locked"
+        value={lockedAmount.toString()}
+        help="Amount of locked tokens that cannot be withdrawn"
+      />
+      <DetailsProperty
+        title="Tips"
+        value={BigInt(subscriptionData.tips).toString()}
+        help="Amount of tokens tipped on this subscription"
+      />
+      <DetailsProperty
+        title="Multiplier"
+        value={BigInt(subscriptionData.multiplier).toString()}
+        help="Multiplier applied to the rate of this subscription"
+      />
+      <DetailsProperty
+        title="Expires at"
+        value={BigInt(subscriptionData.expiresAt).toString()}
+        help="Time unit subscriptions expires or is expired at"
+      />
     </CollapsibleBox>
   </div>
 </Base>

@@ -130,6 +130,7 @@
       <NewAccount create={createAccount} />
     {:else}
       <NewSubscriptionContractForm
+        formId={`${$erc6551AccountAddress.data}`}
         create={erc6551CreateSubscription(erc6551Account[1], subHandle)}
         {tokenByAddress}
         knownTokens={knownTokens}

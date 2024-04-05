@@ -21,6 +21,7 @@
   import { z } from 'zod';
   import { ImageUrlSchema, ExternalUrlSchema } from '$lib/web3/contracts/common';
 
+  export let formId: string;
   export let mint: MintFunc;
 
   const dispatch = createEventDispatcher<MintProfileEvents>();
@@ -33,6 +34,7 @@
   });
 
   const form = superForm(defaults(zod(NewProfileSchema)), {
+    id: formId,
     SPA: true,
     dataType: 'json',
     validators: zod(NewProfileSchema),
