@@ -60,8 +60,6 @@
   "type": "module",
   "dependencies": {
     "@createz/contracts": "0.2.0-alpha.12",
-    "@felte/reporter-svelte": "^1.1.11",
-    "@felte/validator-zod": "^1.0.17",
     "@metamask/contract-metadata": "^2.4.0",
     "@tanstack/svelte-query": "^5.17.9",
     "@web3-onboard/core": "^2.21.2",
@@ -70,7 +68,6 @@
     "buffer": "^6.0.3",
     "clsx": "^2.0.0",
     "ethers": "^6.9.1",
-    "felte": "^1.2.12",
     "formsnap": "^1.0.0",
     "loglevelnext": "^6.0.0",
     "lucide-svelte": "^0.303.0",

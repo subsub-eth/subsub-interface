@@ -11,12 +11,6 @@ dependencies:
   '@createz/contracts':
     specifier: 0.2.0-alpha.12
     version: 0.2.0-alpha.12
-  '@felte/reporter-svelte':
-    specifier: ^1.1.11
-    version: 1.1.11(svelte@4.2.8)
-  '@felte/validator-zod':
-    specifier: ^1.0.17
-    version: 1.0.17(zod@3.22.4)
   '@metamask/contract-metadata':
     specifier: ^2.4.0
     version: 2.4.0
@@ -41,9 +35,6 @@ dependencies:
   ethers:
     specifier: ^6.9.1
     version: 6.9.1
-  felte:
-    specifier: ^1.2.12
-    version: 1.2.12(svelte@4.2.8)
   formsnap:
     specifier: ^1.0.0
     version: 1.0.0(svelte@4.2.8)(sveltekit-superforms@2.12.2)
@@ -2287,38 +2278,6 @@ packages:
   /@fal-works/esbuild-plugin-global-externals@2.1.2:
     resolution: {integrity: sha512-cEee/Z+I12mZcFJshKcCqC8tuX5hG3s+d+9nZ3LabqKF1vKdF41B92pJVCBggjAGORAeOzyyDDKrZwIkLffeOQ==}
     dev: true
-
-  /@felte/common@1.1.8:
-    resolution: {integrity: sha512-VbEOfNLWfDx0SpCfeE+fNWDpvcntND4MFs7Lxd18RIjrZYH82D0wWe9th2oVF9QT5XzgBEdMF5NGIttcwU4sjg==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dev: false
-
-  /@felte/core@1.4.1:
-    resolution: {integrity: sha512-dUzfzug5cK93kBjG0u9F3zDM781qCJP4QwYPOpJsXbydwVseDM5BXpDqvZUFhqJsd0x1GKftkX69+iWafyASjw==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dependencies:
-      '@felte/common': 1.1.8
-    dev: false
-
-  /@felte/reporter-svelte@1.1.11(svelte@4.2.8):
-    resolution: {integrity: sha512-H/E9Oq7xOEiwDNxekgCOcLWtl0kCjgN9G0Q2JQPnDJUVDNGd8IsG0HljM4ephnK/hmmLUl3bmq/or442Ygqkiw==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    peerDependencies:
-      svelte: ^3.31.0 || ^4.0.0
-    dependencies:
-      '@felte/common': 1.1.8
-      svelte: 4.2.8
-    dev: false
-
-  /@felte/validator-zod@1.0.17(zod@3.22.4):
-    resolution: {integrity: sha512-rOX1chLfTcixKMPEdrMSi8zsCM685Dsoy1a5qN1G6Fyh7HYK1vSmI6SfJ7m92DOt6kV+vAP4m5rk94Y8UFIeVw==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    peerDependencies:
-      zod: ^3.2.0
-    dependencies:
-      '@felte/common': 1.1.8
-      zod: 3.22.4
-    dev: false
 
   /@floating-ui/core@1.5.2:
     resolution: {integrity: sha512-Ii3MrfY/GAIN3OhXNzpCKaLxHQfJF9qvwq/kEJYdqDxeIHa01K8sldugal6TmeeXl+WMvhv9cnVzUTaFFJF09A==}
@@ -7072,16 +7031,6 @@ packages:
     dependencies:
       pend: 1.2.0
     dev: true
-
-  /felte@1.2.12(svelte@4.2.8):
-    resolution: {integrity: sha512-llg9ywCgIso48NnO6jZUy8D9vWuKE90dfIFUZPLyNKqbH1WJ0brNU6C4DkdfXtpRKlzWWHvaQkgMIezKoWlzvA==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    peerDependencies:
-      svelte: ^3.31.0 || ^4.0.0
-    dependencies:
-      '@felte/core': 1.4.1
-      svelte: 4.2.8
-    dev: false
 
   /fetch-retry@5.0.6:
     resolution: {integrity: sha512-3yurQZ2hD9VISAhJJP9bpYFNQrHHBXE2JxxjY5aLEcDi46RmAzJE2OC9FAde0yis5ElW0jTTzs0zfg/Cca4XqQ==}
