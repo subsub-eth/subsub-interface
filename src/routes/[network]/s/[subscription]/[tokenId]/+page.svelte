@@ -120,6 +120,7 @@
       <!-- deposit(renew) / tip -->
       <!-- withdraw / cancel -->
       <SubscriptionDeposit
+        {tokenId}
         allowance={$erc20Allowance.data}
         balance={$erc20Balance.data}
         approve={approveFunc(erc20, addr)}
@@ -142,6 +143,7 @@
 
       <!-- TODO: disable when not owner -->
       <SubscriptionWithdrawal
+        {tokenId}
         withdraw={withdraw(subContract, tokenId)}
         cancel={cancel(subContract, tokenId)}
         withdrawable={BigInt($subscriptionData.data.withdrawable)}

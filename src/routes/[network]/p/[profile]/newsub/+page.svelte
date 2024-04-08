@@ -122,7 +122,7 @@
   Unable to determine ownership
 {:else if $erc6551Account.isError}
   Unable to load token account: {$erc6551Account.error}
-{:else if $isOwner.isSuccess && $erc6551Account.isSuccess}
+{:else if $isOwner.isSuccess && $erc6551AccountAddress.isSuccess && $erc6551Account.isSuccess}
   {@const isOwner = $isOwner.data}
   {@const erc6551Account = $erc6551Account.data}
   {#if isOwner}

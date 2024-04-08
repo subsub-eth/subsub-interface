@@ -15,7 +15,7 @@
   import type { Props } from './base.svelte';
   import { formatUnits } from 'ethers';
   import type { BigNumberish } from '$lib/web3/contracts/common';
-    import WarningCollapsible from '$lib/components/ui2/WarningCollapsible.svelte';
+  import WarningCollapsible from '$lib/components/ui2/WarningCollapsible.svelte';
 
   /**
    * Data of the subscription plan
@@ -127,7 +127,7 @@
                 </div>
               {/if}
               {#if contractData.description}
-                <div class="basis-3/4">
+                <div class="basis-3/4 whitespace-pre-line">
                   <p>{contractData.description}</p>
                 </div>
               {/if}

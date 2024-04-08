@@ -6,17 +6,19 @@
 </script>
 
 <script lang="ts">
-  import { createForm } from 'felte';
   import Button from '../Button.svelte';
   import TextInput from './TextInput.svelte';
   import { createEventDispatcher } from 'svelte';
   import type { Hash } from '$lib/web3/contracts/common';
   import type { TxFailedEvents } from '../common-events';
-  import { validator } from '@felte/validator-zod';
-  import { reporter } from '@felte/reporter-svelte';
   import { z, ZodSchema } from 'zod';
   import { createMutation } from '@tanstack/svelte-query';
+  import SuperDebug, { defaults, setError, superForm } from 'sveltekit-superforms';
+  import { zod } from 'sveltekit-superforms/adapters';
+  import TextareaInput from './TextareaInput.svelte';
 
+  export let formId: string;
+  export let type: 'input' | 'textarea' = 'input';
   export let value: string | undefined;
   export let label: string;
   export let validatorSchema: ZodSchema = z.string().optional();
@@ -27,6 +29,7 @@
   ) => Promise<[string, Hash]>;
 
   const dispatch = createEventDispatcher<FieldChangeEvents & TxFailedEvents>();
+  const schema = z.object({ field: validatorSchema });
 
   const handleMutation = createMutation({
     mutationFn: async ([value]: Parameters<typeof handle>) =>
@@ -37,44 +40,56 @@
     }
   });
 
-  const { form, isDirty, reset, setInitialValues } = createForm<{
-    field: string | undefined;
-  }>({
-    onSubmit: async (values) => {
-      try {
-        const val = values.field + '';
-        const result = await $handleMutation.mutateAsync([
-          val,
-          { onTxSubmitted: (hash) => dispatch('txSubmitted', hash) }
-        ]);
+  const form = superForm(
+    { field: value },
+    {
+      id: formId,
+      SPA: true,
+      dataType: 'json',
+      resetForm: false,
+      validators: zod(schema),
+      onUpdate: async ({ form }) => {
+        if (!form.valid) {
+          setError(form, 'invalid');
+          return;
+        }
+        const val = form.data.field ?? '';
+        try {
+          const result = await $handleMutation.mutateAsync([
+            val,
+            { onTxSubmitted: (hash) => dispatch('txSubmitted', hash) }
+          ]);
 
-        // re-initialize the form
-        setInitialValues({
-          field: val
-        });
-        reset();
-        return result;
-      } catch (err) {
-        dispatch('txFailed', err);
-        throw err;
+          return result;
+        } catch (err) {
+          dispatch('txFailed', err);
+          throw err;
+        }
       }
-    },
-    initialValues: {
-      field: value
-    },
+    }
+  );
 
-    extend: [validator({ schema: z.object({ field: validatorSchema }) }), reporter]
-  });
-
-  const id = label.toLowerCase().replaceAll(/\s/g, '');
+  const { form: formData, errors, enhance, tainted, isTainted, reset } = form;
 </script>
 
 <div>
-  <form use:form>
-    <TextInput name="field" {label} {id} />
-    {#if $isDirty}
+  <form method="POST" use:enhance>
+    {#if type === 'textarea'}
+      <TextareaInput {form} name="field" {label} bind:value={$formData.field} />
+    {:else}
+      <TextInput {form} name="field" {label} bind:value={$formData.field} />
+    {/if}
+    {#if isTainted($tainted?.field)}
       <Button label="apply" type="submit" isLoading={$handleMutation.isPending} />
       <Button label="reset" on:click={() => reset()} />
     {/if}
+    <div>
+      {#if $errors._errors}
+        {#each $errors._errors as err}
+          {err}
+        {/each}
+      {/if}
+    </div>
   </form>
+  <SuperDebug data={formData} />
 </div>

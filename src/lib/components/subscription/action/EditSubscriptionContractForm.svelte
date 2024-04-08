@@ -20,7 +20,9 @@
 </script>
 
 <SingleStringFieldForm
+  formId={`description`}
   label="Description"
+  type="textarea"
   value={data.description}
   handle={async (s, e) => {
     return setDescription(s, { onDescriptionTxSubmitted: e?.onTxSubmitted });
@@ -30,6 +32,7 @@
   on:valueChanged={({ detail }) => dispatch('descriptionChanged', detail)}
 />
 <SingleStringFieldForm
+  formId={`image`}
   label="Image"
   value={data.image}
   handle={async (s, e) => {
@@ -41,6 +44,7 @@
   on:valueChanged={({ detail }) => dispatch('imageChanged', detail)}
 />
 <SingleStringFieldForm
+  formId={`externalUrl`}
   label="External URL"
   value={data.externalUrl}
   handle={async (s, e) => {
