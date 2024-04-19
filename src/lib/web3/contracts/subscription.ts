@@ -22,7 +22,6 @@ import type {
 import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
 import { ZeroAddress, type Signer } from 'ethers';
-import type { PauseEvents, UnpauseEvents } from '$lib/components/common-events';
 import { log } from '$lib/logger';
 import { ContractTransactionResponse } from 'ethers';
 
@@ -132,14 +131,21 @@ const SubscriptionDataSchema = z
 
 export type SubscriptionData = z.infer<typeof SubscriptionDataSchema>;
 
-export const FLAG_MINTING_PAUSED = 1;
-export const FLAG_RENEWAL_PAUSED = 2;
-export const FLAG_TIPPING_PAUSED = 4;
+export type SubscriptionFlag = 1 | 2 | 4;
+export const FLAG_MINTING_PAUSED: SubscriptionFlag = 1;
+export const FLAG_RENEWAL_PAUSED: SubscriptionFlag = 2;
+export const FLAG_TIPPING_PAUSED: SubscriptionFlag = 4;
 
-export function isFlagSet(flags: BigNumberish, flag: number): boolean {
+export function isFlagSet(flags: BigNumberish, flag: SubscriptionFlag): boolean {
   const bFlag = BigInt(flag);
   const bFlags = BigInt(flags);
   return (bFlag & bFlags) === bFlag;
+}
+
+export function createFlags(flags: SubscriptionFlag | Array<SubscriptionFlag>,
+                            currentFlags = 0n): bigint {
+  const ff = Array.isArray(flags) ? flags : [flags];
+  return ff.reduce((a, b) => a | BigInt(b), currentFlags);
 }
 
 export function monthlyRate(rate: bigint): bigint {
@@ -322,34 +328,6 @@ export function mint(contract: Subscription, currentAccount: string): MintFunc {
   };
 }
 
-export function unpause(
-  contract: Subscription
-): (dispatch: EventDispatcher<UnpauseEvents>) => Promise<void> {
-  return async (dispatch: EventDispatcher<UnpauseEvents>): Promise<void> => {
-    const tx = await contract.unpause();
-    dispatch('unpauseTxSubmitted', tx.hash);
-    const unpauseEvent = await findLog(tx, contract, contract.filters.Unpaused());
-    if (!unpauseEvent) {
-      throw new Error('Transaction Log not found');
-    }
-    dispatch('unpaused', tx.hash);
-  };
-}
-
-export function pause(
-  contract: Subscription
-): (dispatch: EventDispatcher<PauseEvents>) => Promise<void> {
-  return async (dispatch: EventDispatcher<PauseEvents>): Promise<void> => {
-    const tx = await contract.pause();
-    dispatch('pauseTxSubmitted', tx.hash);
-    const pauseEvent = await findLog(tx, contract, contract.filters.Paused());
-    if (!pauseEvent) {
-      throw new Error('Transaction Log not found');
-    }
-    dispatch('paused', tx.hash);
-  };
-}
-
 export function claim(
   contract: Subscription
 ): (dispatch: EventDispatcher<ClaimEvents>) => Promise<void> {
@@ -382,12 +360,16 @@ export type UpdateExternalUrl = (
   externalUrl: string,
   events?: { onExternalUrlTxSubmitted?: (hash: Hash) => void }
 ) => Promise<[string, Hash]>;
+export type UpdateFlags = (
+  flags: bigint,
+  events?: { onFlagsTxSubmitted?: (hash: Hash) => void }
+) => Promise<[bigint, Hash]>;
 
-async function setProperty(
-  func: (s: string) => Promise<ContractTransactionResponse>,
-  value: string,
+async function setProperty<T>(
+  func: (s: T) => Promise<ContractTransactionResponse>,
+  value: T,
   onSubmitted?: (hash: Hash) => void
-): Promise<[string, Hash]> {
+): Promise<[T, Hash]> {
   const tx = await func(value);
   onSubmitted?.(tx.hash);
   await tx.wait();
@@ -409,6 +391,12 @@ export function setImage(contract: Subscription): UpdateImage {
 export function setExternalUrl(contract: Subscription): UpdateExternalUrl {
   return async (externalUrl, events) => {
     return setProperty(contract.setExternalUrl, externalUrl, events?.onExternalUrlTxSubmitted);
+  };
+}
+
+export function setFlags(contract: Subscription): UpdateFlags {
+  return async (flags, events) => {
+    return setProperty(contract.setFlags, flags, events?.onFlagsTxSubmitted);
   };
 }
 

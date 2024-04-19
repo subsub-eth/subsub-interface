@@ -23,6 +23,7 @@ import {
   analyzeSubscriptionContract,
   type WarningMessage
 } from '$lib/web3/contracts/subscription-analytics';
+import { log } from '$lib/logger';
 
 export function subscriptionQueries(addr: Address) {
   const subscriptionContract = createQuery<SubscriptionContainer>(
@@ -36,7 +37,9 @@ export function subscriptionQueries(addr: Address) {
     derived(subscriptionContract, (subscriptionContract) => ({
       queryKey: subKeys.contractUri(addr),
       queryFn: async () => {
+        log.debug('Querying contract data for subscription contract', addr);
         const data = await getContractData(subscriptionContract.data!.contract);
+        log.debug('Found contract data', data);
         return data;
       },
       enabled: subscriptionContract.isSuccess
@@ -99,11 +102,15 @@ export function subscriptionQueries(addr: Address) {
 
   const warnings = createQuery<Array<WarningMessage>>(
     derived(subscriptionData, (subscriptionData) => ({
-      queryKey: subKeys.warnings(addr),
+      queryKey: subKeys.warnings(subscriptionData.data!),
       queryFn: async () => {
         if (subscriptionData.data) {
           // TODO add more analytics functions
-          return await analyzeSubscriptionContract(subscriptionData.data);
+          log.debug('Querying warnings for subscription contract', subscriptionData.data);
+          const warnings = await analyzeSubscriptionContract(subscriptionData.data);
+          log.debug('warnings found', warnings.length);
+
+          return warnings;
         }
         return [];
       },

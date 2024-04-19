@@ -1,5 +1,5 @@
 import type { BigNumberish, Hash } from '$lib/web3/contracts/common';
-import type { PauseEvents, TxFailedEvents, UnpauseEvents } from '$lib/components/common-events';
+import type { TxFailedEvents  } from '$lib/components/common-events';
 export { type TxFailedEvents };
 
 export type ApprovalEvents = {
@@ -28,6 +28,11 @@ export type ClaimEvents = {
   claimed: [BigNumberish, Hash];
 };
 
+export type FlagsChangeEvents = {
+  flagsTxSubmitted: Hash;
+  flagsChanged: [BigNumberish, Hash];
+};
+
 export type DescriptionChangeEvents = {
   descriptionTxSubmitted: Hash;
   descriptionChanged: [string, Hash];
@@ -47,11 +52,9 @@ export type DepositSubscriptionEvents = DepositEvents & ApprovalEvents & TxFaile
 
 export type WithdrawSubscriptionEvents = WithdrawalEvents & TxFailedEvents;
 
-export type PauseSubscriptionContractEvents = PauseEvents & TxFailedEvents;
-
-export type UnpauseSubscriptionContractEvents = UnpauseEvents & TxFailedEvents;
-
 export type ClaimSubscriptionContractEvents = ClaimEvents & TxFailedEvents;
+
+export type FlagsChangeContractEvents = FlagsChangeEvents & TxFailedEvents;
 
 export type MetadataChangeContractEvents = DescriptionChangeEvents &
   ImageChangeEvents &

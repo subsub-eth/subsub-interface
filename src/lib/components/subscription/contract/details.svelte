@@ -7,8 +7,6 @@
   import DetailsProperty from '$lib/components/ui/DetailsProperty.svelte';
   import { Button } from '$lib/components/ui/button';
   import CollapsibleBox from '$lib/components/ui/CollapsibleBox.svelte';
-  import Paused from '$lib/components/subscription/Paused.svelte';
-  import Warning from '$lib/components/subscription/Warning.svelte';
   import { ExplorerAccountUrl } from '$lib/components/url';
   import { ExplorerTokenUrl } from '$lib/components/url/explorer';
   import Base from './base.svelte';

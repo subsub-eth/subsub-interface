@@ -9,14 +9,17 @@ overrides:
 
 dependencies:
   '@createz/contracts':
-    specifier: 0.2.0-alpha.12
-    version: 0.2.0-alpha.12
+    specifier: 0.2.0-alpha.13
+    version: 0.2.0-alpha.13
   '@metamask/contract-metadata':
     specifier: ^2.4.0
     version: 2.4.0
   '@tanstack/svelte-query':
     specifier: ^5.17.9
     version: 5.17.9(svelte@4.2.8)
+  '@types/object-hash':
+    specifier: ^3.0.6
+    version: 3.0.6
   '@web3-onboard/core':
     specifier: ^2.21.2
     version: 2.21.2
@@ -47,6 +50,9 @@ dependencies:
   mode-watcher:
     specifier: ^0.1.2
     version: 0.1.2(svelte@4.2.8)
+  object-hash:
+    specifier: ^3.0.0
+    version: 3.0.0
   rxjs:
     specifier: ^7.8.1
     version: 7.8.1
@@ -1482,8 +1488,8 @@ packages:
     dev: true
     optional: true
 
-  /@createz/contracts@0.2.0-alpha.12:
-    resolution: {integrity: sha512-FLcVeogELVnmII1LF4n8/XiZKIHUlVWuV52+4uQLkrQ0+3Y4ATD38IUnICsihNGjWCPp6okSZhv+fG7wRyY0eA==}
+  /@createz/contracts@0.2.0-alpha.13:
+    resolution: {integrity: sha512-/SrveoAOKEutzgWnchBM1ihZmw+ewBUWBFyKfo2iPY1Ic2rRvUCb4b0HTSddH2dj/IniGQNTq7wCvbv0PCZKaQ==}
     dev: false
 
   /@discoveryjs/json-ext@0.5.7:
@@ -4460,6 +4466,10 @@ packages:
   /@types/normalize-package-data@2.4.4:
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
     dev: true
+
+  /@types/object-hash@3.0.6:
+    resolution: {integrity: sha512-fOBV8C1FIu2ELinoILQ+ApxcUKz4ngq+IWUYrxSGjXzzjUALijilampwkMgEtJ+h2njAW3pi853QpzNVCHB73w==}
+    dev: false
 
   /@types/prettier@2.7.3:
     resolution: {integrity: sha512-+68kP9yzs4LMp7VNh8gdzMSPZFL44MLGqiHWvttYJe+6qnuVr4Ek9wSBQoveqY/r+LwjCcU29kNVkidwim+kYA==}

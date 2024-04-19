@@ -6,22 +6,18 @@
   import Button from '$lib/components/Button.svelte';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import {
-    claim,
     countUserSubscriptions,
     listUserSubscriptionsRev,
-    pause,
-    unpause,
     type SubscriptionContractData,
     type SubscriptionContainer
   } from '$lib/web3/contracts/subscription';
   import { SubscriptionTeaser } from '$lib/components/subscription/token';
   import SubscriptionContractControl from '$lib/components/subscription/SubscriptionContractControl.svelte';
-  import { aflow } from '$lib/helpers';
   import { createQuery } from '@tanstack/svelte-query';
   import { currentAccount } from '$lib/web3/onboard';
   import { type Erc20Data } from '$lib/web3/contracts/erc20';
   import { getContext } from 'svelte';
-  import type { QueryResult } from '$lib/query/config';
+  import { queryClient, type QueryResult } from '$lib/query/config';
   import {
     ERC20_DATA_CTX,
     SUBSCRIPTION_CONTRACT_CTX,
@@ -31,7 +27,10 @@
   } from './+layout.svelte';
   import { subKeys } from '$lib/query/keys';
   import { type Price } from '$lib/web3/contracts/oracle';
-    import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
+  import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
+  import toast from '$lib/toast';
+  import { log } from '$lib/logger';
+  import Url from '$lib/components/Url.svelte';
 
   export let data: PageData;
 
@@ -43,7 +42,8 @@
 
   const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
 
-  const subscriptionWarnings = getContext<QueryResult<Array<WarningMessage>>>(SUBSCRIPTION_WARNIGNS_CTX);
+  const subscriptionWarnings =
+    getContext<QueryResult<Array<WarningMessage>>>(SUBSCRIPTION_WARNIGNS_CTX);
 
   const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
 
@@ -58,7 +58,10 @@
     }))
   );
 
-  const update = async () => {};
+  const invalidateSub = () => {
+    log.debug('invalidating sub data', addr);
+    queryClient.invalidateQueries({ queryKey: subKeys.contractUri(addr) });
+  };
 </script>
 
 <h1>Subscription Contract Details page</h1>
@@ -87,12 +90,10 @@ Subscription Contract: {addr}
           tokenPrice={$tokenPrice}
           warnings={$subscriptionWarnings}
         />
-        <SubscriptionContractControl
-          metadata={$subscriptionData.data}
-          pause={aflow(pause($subscriptionContract.data), update)}
-          unpause={aflow(unpause($subscriptionContract.data), update)}
-          claim={aflow(claim($subscriptionContract.data), update)}
-        />
+        <SubscriptionContractControl data={$subscriptionData.data} />
+        <Url template="/[network]/s/[subscription]/edit/" let:path>
+          <Button label="Edit" href={path} />
+        </Url>
       </div>
     </div>
 

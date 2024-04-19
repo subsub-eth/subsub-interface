@@ -1,10 +1,12 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import EditSubscriptionContractForm from '$lib/components/subscription/action/EditSubscriptionContractForm.svelte';
+  import FlagsSubscriptionContractForm from '$lib/components/subscription/action/FlagsSubscriptionContractForm.svelte';
   import {
     setDescription,
     setExternalUrl,
     setImage,
+    setFlags,
     type SubscriptionContainer,
     type SubscriptionContractData
   } from '$lib/web3/contracts/subscription';
@@ -12,7 +14,7 @@
   import { getContext } from 'svelte';
   import { SUBSCRIPTION_CONTRACT_CTX, SUBSCRIPTION_DATA_CTX } from '../+layout.svelte';
   import toast from '$lib/toast';
-  import type { Hash } from '$lib/web3/contracts/common';
+  import type { BigNumberish, Hash } from '$lib/web3/contracts/common';
   import { subKeys } from '$lib/query/keys';
   import Url from '$lib/components/Url.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -38,6 +40,12 @@
       toast.info(msg(hash));
       invalidateSubData();
     };
+  const flagsUpdated = ({ detail: [flags, hash] }: CustomEvent<[BigNumberish, Hash]>) => {
+    toast.info(`Contract Flags updated in ${hash}`);
+    invalidateSubData();
+  };
+
+  // TODO tx failed msgs
 </script>
 
 <Url template={`/[network]/s/${addr}/`} let:path>
@@ -63,5 +71,13 @@
     on:descriptionChanged={updated((h) => `Description updated in Tx ${h}`)}
     on:imageChanged={updated((h) => `Image updated in Tx ${h}`)}
     on:externalUrlChanged={updated((h) => `External URL updated in Tx ${h}`)}
+  />
+  <FlagsSubscriptionContractForm
+    formId={`flags-${data.address}`}
+    data={$subscriptionData.data}
+    setFlags={setFlags($subscriptionContract.data.contract)}
+    on:flagsChanged={flagsUpdated}
+    on:txFailed
+    on:flagsTxSubmitted={updateScheduled}
   />
 {/if}

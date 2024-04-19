@@ -56,8 +56,7 @@
         const val = form.data.field ?? '';
         try {
           const result = await $handleMutation.mutateAsync([
-            val,
-            { onTxSubmitted: (hash) => dispatch('txSubmitted', hash) }
+            val
           ]);
 
           return result;

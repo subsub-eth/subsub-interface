@@ -17,10 +17,10 @@
   const colorWarning = 'stroke-yellow-500';
   const colorPaused = 'stroke-yellow-500';
 
-  const msgs = messages ?? [];
-  const errors = msgs?.filter((msg) => msg.type === 'error');
-  const warnings = msgs?.filter((msg) => msg.type === 'warning');
-  const paused = msgs?.filter((msg) => msg.type === 'paused');
+  $: msgs = messages ?? [];
+  $: errors = msgs?.filter((msg) => msg.type === 'error');
+  $: warnings = msgs?.filter((msg) => msg.type === 'warning');
+  $: paused = msgs?.filter((msg) => msg.type === 'paused');
 </script>
 
 {#if messages && messages.length > 0}

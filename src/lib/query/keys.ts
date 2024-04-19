@@ -1,4 +1,6 @@
 import type { Address } from '$lib/web3/contracts/common';
+import type { SubscriptionContractData } from '$lib/web3/contracts/subscription';
+import objectHash from 'object-hash';
 
 const ERC6551_ACCOUNT = 'erc6551account';
 const ERC6551_REGISTRY = 'erc6551registry';
@@ -22,6 +24,11 @@ function key(...keys: (string | undefined)[]): string[] {
   return keys.filter((s) => s) as string[];
 }
 
+function hash(val: unknown): string {
+  return objectHash(val ?? '');
+}
+// TODO Review keys and queries to actually depend on data for refresh
+
 export const erc20Keys = {
   contract: (address?: Address) => key(ERC20, address),
   metadata: (address?: Address) => key(ERC20, address, CONTRACT_DATA),
@@ -37,13 +44,14 @@ export const subHandleKeys = {
 
 export const subKeys = {
   contract: (address?: Address) => key(SUBSCRIPTION, address),
-  contractUri: (contract?: Address) => key(SUBSCRIPTION, contract, DATA),
-  warnings: (contract?: Address) => key(SUBSCRIPTION, contract, WARNINGS),
+  contractUri: (contract?: Address) => key(SUBSCRIPTION, contract, CONTRACT_DATA),
+  warnings: (contractData: SubscriptionContractData) =>
+    key(SUBSCRIPTION, contractData?.address, CONTRACT_DATA, WARNINGS, hash(contractData ?? '')),
   tokenUri: (contract?: Address, tokenId?: bigint) =>
     key(SUBSCRIPTION, contract, DATA, tokenId?.toString()),
   balance: (contract?: Address, owner?: Address) => key(SUBSCRIPTION, contract, BALANCE, owner),
-  ownerList: (contract?: Address, owner?: Address) => key(SUBSCRIPTION, contract, DATA, owner),
-  totalSupply: (contract?: Address) => key(PROFILE, contract, TOTAL_SUPPLY)
+  ownerList: (contract?: Address, owner?: Address) => key(SUBSCRIPTION, contract, owner),
+  totalSupply: (contract?: Address) => key(SUBSCRIPTION, contract, TOTAL_SUPPLY)
 };
 
 export const profileKeys = {
