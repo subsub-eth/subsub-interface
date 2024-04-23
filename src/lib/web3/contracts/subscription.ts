@@ -16,9 +16,7 @@ import {
   type Subscription
 } from '@createz/contracts/types/ethers-contracts';
 import type { EventDispatcher } from 'svelte';
-import type {
-  ClaimEvents,
-} from '$lib/components/subscription/action/subscription-events';
+import type { ClaimEvents } from '$lib/components/subscription/action/subscription-events';
 import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
 import { ZeroAddress, type Signer } from 'ethers';
@@ -142,8 +140,10 @@ export function isFlagSet(flags: BigNumberish, flag: SubscriptionFlag): boolean 
   return (bFlag & bFlags) === bFlag;
 }
 
-export function createFlags(flags: SubscriptionFlag | Array<SubscriptionFlag>,
-                            currentFlags = 0n): bigint {
+export function createFlags(
+  flags: SubscriptionFlag | Array<SubscriptionFlag>,
+  currentFlags = 0n
+): bigint {
   const ff = Array.isArray(flags) ? flags : [flags];
   return ff.reduce((a, b) => a | BigInt(b), currentFlags);
 }
@@ -153,10 +153,7 @@ export function monthlyRate(rate: bigint): bigint {
 }
 
 export function activeSubscriptions(activeShares: bigint, totalSupply: number): number {
-  return Math.min(
-    Math.floor(Number(BigInt(activeShares) / BigInt(100))),
-    totalSupply
-  );
+  return Math.min(Math.floor(Number(BigInt(activeShares) / BigInt(100))), totalSupply);
 }
 
 export type SubscriptionContainer = { address: Address; contract: Subscription };
@@ -328,23 +325,28 @@ export function mint(contract: Subscription, currentAccount: string): MintFunc {
   };
 }
 
-export function claim(
-  contract: Subscription
-): (dispatch: EventDispatcher<ClaimEvents>) => Promise<void> {
-  return async (dispatch: EventDispatcher<ClaimEvents>): Promise<void> => {
+export type ClaimFunc = (
+  address: Address,
+  events?: {
+    onClaimTxSubmitted?: (hash: Hash) => void;
+  }
+) => Promise<[bigint, Hash]>;
+
+export function claim(contract: Subscription): ClaimFunc {
+  return async (address, events) => {
     // we increase the gas estimate as `claim` iterates over epochs which
     // might require more gas between estimate and actual execution
-    const gasEstimate = await contract.claim.estimateGas();
+    const gasEstimate = await contract.claim.estimateGas(address);
 
     // increase to 110% of original estimate
     const increasedGas = (gasEstimate * 11n) / 10n;
-    const tx = await contract.claim({ gasLimit: increasedGas });
-    dispatch('claimTxSubmitted', tx.hash);
+    const tx = await contract.claim(address, { gasLimit: increasedGas });
+    events?.onClaimTxSubmitted?.(tx.hash);
     const claimEvent = await findLog(tx, contract, contract.filters.FundsClaimed());
     if (!claimEvent) {
       throw new Error('Transaction Log not found');
     }
-    dispatch('claimed', [claimEvent.args.amount, tx.hash]);
+    return [claimEvent.args.amount, tx.hash];
   };
 }
 

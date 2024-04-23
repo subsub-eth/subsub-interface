@@ -9,13 +9,15 @@
     countUserSubscriptions,
     listUserSubscriptionsRev,
     type SubscriptionContractData,
-    type SubscriptionContainer
+    type SubscriptionContainer,
+    claim
   } from '$lib/web3/contracts/subscription';
   import { SubscriptionTeaser } from '$lib/components/subscription/token';
-  import SubscriptionContractControl from '$lib/components/subscription/SubscriptionContractControl.svelte';
+  import ClaimControl from '$lib/components/subscription/ClaimControl.svelte';
   import { createQuery } from '@tanstack/svelte-query';
   import { currentAccount } from '$lib/web3/onboard';
   import { type Erc20Data } from '$lib/web3/contracts/erc20';
+  import { isValidSigner } from '$lib/web3/contracts/erc6551';
   import { getContext } from 'svelte';
   import { queryClient, type QueryResult } from '$lib/query/config';
   import {
@@ -25,12 +27,14 @@
     SUBSCRIPTION_WARNIGNS_CTX,
     TOKEN_PRICE_CTX
   } from './+layout.svelte';
-  import { subKeys } from '$lib/query/keys';
+  import { erc6551Keys, subKeys } from '$lib/query/keys';
   import { type Price } from '$lib/web3/contracts/oracle';
   import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
   import toast from '$lib/toast';
   import { log } from '$lib/logger';
   import Url from '$lib/components/Url.svelte';
+  import type { BigNumberish, Hash } from '$lib/web3/contracts/common';
+  import { chainEnvironment } from '$lib/chain-context';
 
   export let data: PageData;
 
@@ -58,10 +62,33 @@
     }))
   );
 
+  const validSigner = createQuery<boolean>(
+    derived(
+      [chainEnvironment, subscriptionData, currentAccount],
+      ([chainEnvironment, subscriptionData, currentAccount]) => ({
+        queryKey: erc6551Keys.signer(subscriptionData.data?.owner, currentAccount!),
+        queryFn: async () =>
+          isValidSigner(
+            currentAccount!,
+            subscriptionData.data!.owner,
+            chainEnvironment!.ethersSigner
+          ),
+        enabled: subscriptionData.isSuccess && !!currentAccount
+      })
+    )
+  );
+
   const invalidateSub = () => {
     log.debug('invalidating sub data', addr);
     queryClient.invalidateQueries({ queryKey: subKeys.contractUri(addr) });
   };
+
+  const claimed = ({ detail: [amount, hash] }: CustomEvent<[BigNumberish, Hash]>) => {
+    toast.info(`Funds claimed in ${hash}`);
+    invalidateSub();
+  };
+
+  $: currAcc = $currentAccount!;
 </script>
 
 <h1>Subscription Contract Details page</h1>
@@ -90,7 +117,17 @@ Subscription Contract: {addr}
           tokenPrice={$tokenPrice}
           warnings={$subscriptionWarnings}
         />
-        <SubscriptionContractControl data={$subscriptionData.data} />
+        {#if $validSigner.isSuccess && $validSigner.data}
+          <ClaimControl
+            data={$subscriptionData.data}
+            claim={claim($subscriptionContract.data.contract)}
+            claimTo={currAcc}
+            on:claimed={claimed}
+          />
+        {/if}
+        {#if $validSigner.isError}
+          {$validSigner.error}
+        {/if}
         <Url template="/[network]/s/[subscription]/edit/" let:path>
           <Button label="Edit" href={path} />
         </Url>

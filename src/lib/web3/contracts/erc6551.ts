@@ -10,12 +10,10 @@ import type { ChainEnvironment } from '$lib/chain-context';
 import { log } from '$lib/logger';
 import type { Signer } from 'ethers';
 import { findLog } from '../ethers';
-import { zero32Bytes } from '../helpers';
+import { addressEquals, zero32Bytes } from '../helpers';
 import type { ContractTransactionResponse } from 'ethers';
 import type { BaseContract } from 'ethers';
-import type {
-  TypedContractMethod
-} from '@createz/contracts/types/ethers-contracts/common';
+import type { TypedContractMethod } from '@createz/contracts/types/ethers-contracts/common';
 
 async function findErc6551Account(
   registry: IERC6551Registry,
@@ -132,4 +130,39 @@ export async function execute<
   log.debug('ERC6551Execute: encoded', contract, contractAddress, func, params, encoded);
 
   return await account.execute(contractAddress, value, encoded, 0n);
+}
+
+/**
+ * determines if `addr` is a valid signer of `potentialTokenboundAcc`
+ */
+export async function isValidSigner(
+  addr: Address,
+  potentialTokenboundAcc: Address,
+  signer: Signer
+): Promise<boolean> {
+  log.debug('isValidSigner()', addr, potentialTokenboundAcc);
+  // is actually the same address
+  if (addressEquals(addr, potentialTokenboundAcc)) {
+    log.debug('isValidSigner() addresses match', addr, potentialTokenboundAcc);
+    return true;
+  }
+
+  // check if is tokenbound account
+  const acc = await getErc6551Account(potentialTokenboundAcc, signer);
+  if (!acc) {
+    log.debug('isValidSigner() not an ERC6551 account', addr, potentialTokenboundAcc);
+    return false;
+  }
+  const [tAcc] = acc;
+
+  const magicValue = '0x523e3260';
+
+  try {
+    const res = await tAcc.isValidSigner(addr, '0x00');
+    log.debug('isValidSigner() ERC6551 result', addr, potentialTokenboundAcc, res);
+    return res === magicValue;
+  } catch (error) {
+    log.error('Failed to call isValidSigner', addr, potentialTokenboundAcc, error);
+    throw error;
+  }
 }

@@ -4,6 +4,7 @@ import objectHash from 'object-hash';
 
 const ERC6551_ACCOUNT = 'erc6551account';
 const ERC6551_REGISTRY = 'erc6551registry';
+const VALID_SIGNER = 'validSigner';
 const SUB_HANDLE = 'subHandle';
 const SUBSCRIPTION = 'subscription';
 const CONTRACT = 'contract';
@@ -73,7 +74,8 @@ export const erc6551Keys = {
     tokenId?: bigint
   ) => key(ERC6551_REGISTRY, erc6551Registry, String(chainId), profile, tokenId?.toString()),
 
-  account: (account: Address) => key(ERC6551_ACCOUNT, account)
+  account: (account: Address) => key(ERC6551_ACCOUNT, account),
+  signer: (account?: Address, addr?: Address) => key(ERC6551_ACCOUNT, account, VALID_SIGNER, addr)
 };
 
 export const tokenSearch = (searchTerm: string) => key(TOKEN_SEARCH, ERC20, searchTerm);
