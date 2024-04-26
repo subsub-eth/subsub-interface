@@ -24,6 +24,7 @@
     ERC20_DATA_CTX,
     SUBSCRIPTION_CONTRACT_CTX,
     SUBSCRIPTION_DATA_CTX,
+    SUBSCRIPTION_ERC20_BALANCE_CTX,
     SUBSCRIPTION_WARNIGNS_CTX,
     TOKEN_PRICE_CTX
   } from './+layout.svelte';
@@ -48,6 +49,8 @@
 
   const subscriptionWarnings =
     getContext<QueryResult<Array<WarningMessage>>>(SUBSCRIPTION_WARNIGNS_CTX);
+
+  const subscriptionBalance = getContext<QueryResult<bigint>>(SUBSCRIPTION_ERC20_BALANCE_CTX);
 
   const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
 
@@ -101,7 +104,7 @@ Subscription Contract: {addr}
 {#if $subscriptionData.isError || $erc20Data.isError}
   Failed to load contract data
 {/if}
-{#if $subscriptionData.isSuccess && $subscriptionContract.isSuccess && $erc20Data.isSuccess}
+{#if $subscriptionData.isSuccess && $subscriptionContract.isSuccess && $erc20Data.isSuccess && $subscriptionBalance.isSuccess}
   <div class="flex flex-row space-x-4">
     <div class="basis-1/2">
       <!-- LEFT -->
@@ -114,6 +117,7 @@ Subscription Contract: {addr}
         <SubscriptionContractDetails
           contractData={$subscriptionData.data}
           paymentTokenData={$erc20Data.data}
+          contractBalance={$subscriptionBalance.data}
           tokenPrice={$tokenPrice}
           warnings={$subscriptionWarnings}
         />

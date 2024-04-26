@@ -14,6 +14,7 @@
   import { formatUnits } from 'ethers';
   import type { BigNumberish } from '$lib/web3/contracts/common';
   import WarningCollapsible from '$lib/components/ui2/WarningCollapsible.svelte';
+  import { convertedEtherPretty } from '$lib/web3/contracts/oracle';
 
   /**
    * Data of the subscription plan
@@ -35,7 +36,7 @@
    */
   export let warnings: Props['warnings'];
 
-  // export let foo: string;
+  export let contractBalance: BigNumberish;
 
   /** open the technical details collapsible */
   export let technicalsOpen = false;
@@ -49,6 +50,7 @@
 
   const formatFromGwei = (amount: BigNumberish) => formatUnits(amount, 18);
   const formatFromToken = (amount: BigNumberish) => formatUnits(amount, paymentTokenData.decimals);
+
 </script>
 
 <Base
@@ -59,7 +61,6 @@
   let:rawRate
   let:totalSupply
   let:activeSubs
-  let:ratePrice
 >
   <div class="p-4 text-foreground">
     <!-- header -->
@@ -83,7 +84,7 @@
     </div>
     <!-- Main Properties -->
     <div class="grid gap-4 pt-4 sm:grid-cols-2 md:grid-cols-4">
-      <PropertyBox title="Moneys" titleLogo={DollarSign}>
+      <PropertyBox title="Fee" titleLogo={DollarSign}>
         <p slot="value" class="text-sm font-medium leading-none">
           <Tooltip.Root>
             <Tooltip.Trigger>
@@ -102,12 +103,40 @@
             ???
           {/if}
           {#if tokenPrice.isSuccess && tokenPrice.data}
-            ${ratePrice(tokenPrice.data)} / month
+            ${convertedEtherPretty(rawRate, tokenPrice.data)} / month
           {/if}
         </p>
       </PropertyBox>
-      <PropertyBox title="Active Subs" titleLogo={Activity} value={String(activeSubs)} />
-      <PropertyBox title="Total Subs" titleLogo={Users} value={String(totalSupply)} />
+      <PropertyBox title="Funds" titleLogo={Activity}>
+        <p slot="value" class="text-sm font-medium leading-none">
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <span class="text-xl font-bold">{formatFromToken(contractBalance)}</span>
+            </Tooltip.Trigger>
+            <Tooltip.Content>{String(contractBalance)}</Tooltip.Content>
+          </Tooltip.Root>
+          {paymentTokenData.symbol}
+        </p>
+        <p slot="subValue" class="text-xs text-muted-foreground">
+          {#if tokenPrice.isPending}
+            ...
+          {/if}
+          {#if tokenPrice.isError}
+            ???
+          {/if}
+          {#if tokenPrice.isSuccess && tokenPrice.data}
+            ${convertedEtherPretty(BigInt(contractBalance), tokenPrice.data)}
+          {/if}
+        </p>
+      </PropertyBox>
+      <PropertyBox title="Active Subs" titleLogo={Users}>
+        <p slot="value" class="text-xl font-bold">
+          {String(activeSubs)}
+        </p>
+        <p slot="subValue" class="text-xs text-muted-foreground">
+          Total Subs: {String(totalSupply)}
+        </p>
+      </PropertyBox>
       <PropertyBox title="Lockup" titleLogo={Lock} value={`${contractData.lock / 100}%`} />
     </div>
     <!-- Description -->

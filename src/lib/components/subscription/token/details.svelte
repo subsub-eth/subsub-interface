@@ -10,7 +10,7 @@
   import Base from './base.svelte';
   import { MULTIPLIER_BASE, monthlyRate } from '$lib/web3/contracts/subscription';
   import type { ObservedQueryResult } from '$lib/query/config';
-  import { converted, type Price } from '$lib/web3/contracts/oracle';
+  import { convertedPretty, type Price } from '$lib/web3/contracts/oracle';
   import { prettyNumber } from '$lib/helpers';
   import { formatEther, formatUnits } from 'ethers';
   import type { BigNumberish } from '$lib/web3/contracts/common';
@@ -46,10 +46,10 @@
     if (!price) {
       return undefined;
     }
-    return prettyNumber(converted(Number(formatUnits(value, paymentToken.decimals)), price));
+    return convertedPretty(Number(formatUnits(value, paymentToken.decimals)), price);
   };
 
-  const usdPrice = (value: BigNumberish): string | undefined => {
+  $: usdPrice = (value: BigNumberish): string | undefined => {
     if (tokenPrice.isSuccess) {
       const usdValue = tokenValueAsUsd(BigInt(value), tokenPrice.data);
       if (usdValue) {
@@ -60,9 +60,9 @@
     return undefined;
   };
 
-  const rateUsd = (rate: number): string | undefined =>
+  $: rateUsd = (rate: number): string | undefined =>
     tokenPrice.isSuccess && tokenPrice.data
-      ? prettyNumber(converted(rate, tokenPrice.data))
+      ? convertedPretty(rate, tokenPrice.data)
       : undefined;
 
   const timeUnitsWithNames = (timeUnits: [number, number, number, number]) => {

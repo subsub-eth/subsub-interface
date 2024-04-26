@@ -29,11 +29,11 @@
     type SubscriptionContractData
   } from '$lib/web3/contracts/subscription';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
-  import { formatEther } from 'ethers';
   import { prettyNumber } from '$lib/helpers';
-  import { converted, type Price } from '$lib/web3/contracts/oracle';
+  import { type Price } from '$lib/web3/contracts/oracle';
   import type { ObservedQueryResult } from '$lib/query/config';
   import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
+  import { formatEther } from 'ethers';
 
   /**
    * Data of the subscription plan
@@ -50,16 +50,12 @@
    */
   export let tokenPrice: Props['tokenPrice'];
 
-  const rawRate = formatEther(monthlyRate(BigInt(contractData.rate)));
-  const rate = prettyNumber(Number(rawRate));
+  const rawRate = monthlyRate(BigInt(contractData.rate));
+  const rate = prettyNumber(Number(formatEther(rawRate)));
 
   // for simplicity: convert active subs but max out at totalSupply
   const totalSupply = Number(contractData.totalSupply);
   const activeSubs = activeSubscriptions(BigInt(contractData.activeShares), totalSupply);
-
-  const ratePrice = (price: Price): string => {
-    return prettyNumber(converted(Number(rawRate), price));
-  };
 </script>
 
-<slot {rawRate} {rate} {totalSupply} {activeSubs} {ratePrice} />
+<slot {rawRate} {rate} {totalSupply} {activeSubs} />

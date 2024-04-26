@@ -57,6 +57,14 @@ export function subscriptionQueries(addr: Address) {
     )
   );
 
+  const subscriptionErc20Balance = createQuery<bigint>(
+    derived([erc20Contract], ([{ isSuccess, data: erc20 }]) => ({
+      queryKey: erc20Keys.balance(erc20?.address, addr),
+      queryFn: async () => await getBalance(erc20!.contract, addr),
+      enabled: isSuccess && !!currentAccount
+    }))
+  );
+
   const erc20Data = createQuery<Erc20Data>(
     derived(erc20Contract, ({ isSuccess, data }) => ({
       queryKey: erc20Keys.metadata(data?.address),
@@ -121,6 +129,7 @@ export function subscriptionQueries(addr: Address) {
   return {
     subscriptionContract,
     subscriptionData,
+    subscriptionErc20Balance,
     erc20Contract,
     erc20Data,
     erc20Allowance,

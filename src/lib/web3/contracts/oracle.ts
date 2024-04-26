@@ -1,10 +1,11 @@
 // https://reference-data-directory.vercel.app/feeds-matic-testnet.json
 
 import type { PriceFeeds } from '$lib/chain-config';
-import { formatUnits, type Signer } from 'ethers';
+import { formatEther, formatUnits, type Signer } from 'ethers';
 import type { Address, BigNumberish } from './common';
 import { AggregatorV3Interface__factory } from '@createz/contracts/types/ethers-contracts';
 import { log } from '$lib/logger';
+import { prettyNumber } from '$lib/helpers';
 
 /**
  * tuple of price in USD as an integer and the number of decimals
@@ -48,4 +49,25 @@ export async function findPrice(
 export function converted(amount: number, price: Price): number {
   const p = Number(formatUnits(price.price, price.decimals));
   return amount * p;
+}
+
+/**
+ * converts a human readable amount to the currency described by the given price
+ * @param amount human readable number
+ * @param price conversion price
+ * @returns a pretty printed string number
+ */
+export function convertedPretty(amount: number, price: Price): string {
+  const v = converted(amount, price);
+  return prettyNumber(v);
+}
+
+/**
+ * converts a Wei amount to the currency described by the given price
+ * @param amount in Wei
+ * @param price conversion price
+ * @returns a pretty printed string number
+ */
+export function convertedEtherPretty(amount: bigint, price: Price): string {
+    return convertedPretty(Number(formatEther(amount)), price);
 }

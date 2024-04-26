@@ -6,10 +6,10 @@
   import * as Tooltip from '$lib/components/ui/tooltip';
   import { ChevronRight } from 'lucide-svelte';
   import ProgressRadial from '$lib/components/ui/ProgressRadial.svelte';
-  import Paused from '$lib/components/subscription/Paused.svelte';
   import Base from './base.svelte';
   import type { Props } from './base.svelte';
   import WarningTeaser from '$lib/components/ui2/WarningTeaser.svelte';
+  import { convertedEtherPretty } from '$lib/web3/contracts/oracle';
 
   /**
    * Data of the subscription plan
@@ -45,7 +45,6 @@
   let:rawRate
   let:totalSupply
   let:activeSubs
-  let:ratePrice
 >
   <Card.Root>
     <Card.Content class="p-4">
@@ -69,7 +68,7 @@
               <Tooltip.Trigger>
                 <span class="text-xl font-bold">{rate}</span>
               </Tooltip.Trigger>
-              <Tooltip.Content>{rawRate}</Tooltip.Content>
+              <Tooltip.Content>{String(rawRate)}</Tooltip.Content>
             </Tooltip.Root>
             {paymentTokenData.symbol}
             / month
@@ -82,7 +81,7 @@
               ???
             {/if}
             {#if tokenPrice.isSuccess && tokenPrice.data}
-              ${ratePrice(tokenPrice.data)} / month
+              ${convertedEtherPretty(rawRate, tokenPrice.data)} / month
             {/if}
           </p>
         </div>
