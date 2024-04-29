@@ -26,14 +26,22 @@
   const doClaim = async () => {
     return await $claimMutation.mutateAsync([claimTo]);
   };
+
+  const epochEnd = new Date(
+    data.epochSize * (Number(data.currentEpoch) + 1) * 1000
+  ).toLocaleString();
 </script>
 
 <div>
   <div>
     <p>Only funds of completed epochs are claimable</p>
-    Claimable Funds: {data.claimable}
-    Claimed Deposits: {data.depositsClaimed}
-    Claimed Tips: {data.tipsClaimed}
+
+    Current Epoch: {data.currentEpoch}<br />
+    Last processed Epoch: {data.lastProcessedEpoch}<br />
+    Next Epoch starts at: {epochEnd}<br />
+    Claimable Funds: {data.claimable}<br />
+    Claimed Deposits: {data.depositsClaimed}<br />
+    Claimed Tips: {data.tipsClaimed}<br />
   </div>
   <Button
     label="Claim"

@@ -15,8 +15,6 @@ import {
   Subscription__factory,
   type Subscription
 } from '@createz/contracts/types/ethers-contracts';
-import type { EventDispatcher } from 'svelte';
-import type { ClaimEvents } from '$lib/components/subscription/action/subscription-events';
 import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
 import { ZeroAddress, type Signer } from 'ethers';
@@ -46,6 +44,8 @@ const SubscriptionContractBaseAttributesSchema = z.object({
   rate: BigNumberishSchema,
   lock: z.number(),
   epochSize: z.number(),
+  currentEpoch: BigNumberishSchema,
+  lastProcessedEpoch: BigNumberishSchema,
   maxSupply: BigNumberishSchema,
   totalSupply: BigNumberishSchema,
   activeShares: BigNumberishSchema,
@@ -182,6 +182,8 @@ export async function getContractData(contract: Subscription): Promise<Subscript
       rate: a.bigint('rate'),
       lock: a.number('lock'),
       epochSize: a.number('epoch_size'),
+      currentEpoch: a.bigint('current_epoch'),
+      lastProcessedEpoch: a.bigint('last_processed_epoch'),
       maxSupply: a.bigint('max_supply'),
       totalSupply: a.bigint('total_supply'),
       activeShares: a.bigint('active_shares'),
