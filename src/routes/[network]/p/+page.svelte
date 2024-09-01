@@ -14,7 +14,7 @@
   import { log } from '$lib/logger';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import ProfileTeaser from '$lib/components/profile/ProfileTeaser.svelte';
-    import { profileKeys } from '$lib/query/keys';
+  import { profileKeys } from '$lib/query/keys';
 
   const pageSize = 5;
 

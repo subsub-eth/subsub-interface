@@ -10,11 +10,6 @@ import {
   ContractTransactionResponse,
   TransactionReceipt
 } from 'ethers';
-import {
-  type TypedContractEvent,
-  type TypedDeferredTopicFilter,
-  type TypedLogDescription
-} from '@createz/contracts/types/ethers-contracts/common';
 import { primaryWallet } from './onboard';
 import { derived, type Readable } from 'svelte/store';
 

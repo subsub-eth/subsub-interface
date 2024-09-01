@@ -1,42 +1,35 @@
 import { getChainByName, type ChainData } from './chain-config';
-import {
-  IERC6551Registry__factory,
-  type IERC6551Account,
-  type IERC6551Registry,
-  type Profile,
-  IERC6551Account__factory,
-  Profile__factory,
-  type ISubscriptionHandle,
-  ISubscriptionHandle__factory
-} from '@createz/contracts/types/ethers-contracts';
-import type { Signer } from 'ethers';
 import { derived, type Readable } from 'svelte/store';
-import { ethersSigner } from './web3/ethers';
 import { page } from '$app/stores';
+import { log } from './logger';
+import type { Profile } from './web3/contracts/profile';
+import { publicClient, type ReadClient } from './web3/viem';
+import type { IERC6551Account, IERC6551Registry } from './web3/contracts/erc6551';
+import type { SubscriptionHandle } from './web3/contracts/subscription-handle';
 
-export type ChainEnvironment = {
+export type ReadableChainEnvironment = {
   chainData: ChainData;
-  ethersSigner: Signer;
+  publicClient: ReadClient;
   erc6551Registry: IERC6551Registry;
   defaultErc6551Account: IERC6551Account;
   // TODO execution
   profileContract: Profile;
-  subscriptionHandleContract: ISubscriptionHandle;
+  subscriptionHandleContract: SubscriptionHandle;
   // TODO Badge Handle
 };
 
 const networkSegment: Readable<string | undefined> = derived(page, (page) => {
-  console.log(`Extracting navigation segment from page params`, page);
+  log.debug(`Extracting navigation segment from page params`, page);
   const network = page?.params?.network;
-  console.log(`network segment is`, network);
+  log.debug(`network segment is`, network);
   return network;
 });
 
-export const chainEnvironment: Readable<ChainEnvironment | undefined> = derived(
-  [ethersSigner, networkSegment],
-  ([ethersSigner, network]) => {
-    console.debug(`Constructing ChainContext from ethersSigner and page`, ethersSigner, network);
-    if (!network || !ethersSigner) {
+export const chainEnvironment: Readable<ReadableChainEnvironment | undefined> = derived(
+  [publicClient, networkSegment],
+  ([publicClient, network]) => {
+    console.debug(`Constructing ChainContext from publicClient and page`, publicClient, network);
+    if (!network || !publicClient) {
       return;
     }
     const chain = getChainByName(network);
@@ -44,26 +37,22 @@ export const chainEnvironment: Readable<ChainEnvironment | undefined> = derived(
       return;
     }
 
-    // debugger;
-    const erc6551Registry = IERC6551Registry__factory.connect(
-      chain.contracts.erc6551Registry,
-      ethersSigner
-    );
-    const defaultAccount = IERC6551Account__factory.connect(
-      chain.contracts.defaultErc6551Implementation,
-      ethersSigner
-    );
-    const profile = Profile__factory.connect(chain.contracts.profile, ethersSigner);
-    const subHandle = ISubscriptionHandle__factory.connect(
-      chain.contracts.subscriptionHandle,
-      ethersSigner
-    );
+    const profile = { address: chain.contracts.profile, publicClient: publicClient };
+    const erc6551Registry = {
+      address: chain.contracts.erc6551Registry,
+      publicClient: publicClient
+    };
+    const defaultErc6551Account = {
+      address: chain.contracts.defaultErc6551Implementation,
+      publicClient: publicClient
+    };
+    const subHandle = { address: chain.contracts.subscriptionHandle, publicClient: publicClient };
 
     return {
       chainData: chain,
-      ethersSigner: ethersSigner,
+      publicClient: publicClient,
       erc6551Registry: erc6551Registry,
-      defaultErc6551Account: defaultAccount,
+      defaultErc6551Account: defaultErc6551Account,
       profileContract: profile,
       subscriptionHandleContract: subHandle
     };

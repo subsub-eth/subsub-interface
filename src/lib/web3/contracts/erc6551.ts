@@ -1,22 +1,67 @@
-import {
-  IERC6551Account__factory,
-  type IERC6551Account,
-  type IERC6551Executable,
-  type IERC6551Registry,
-  IERC6551Executable__factory
-} from '@createz/contracts/types/ethers-contracts';
 import { AddressSchema, type Address, asChecksumAddress } from './common';
-import type { ChainEnvironment } from '$lib/chain-context';
+import type { ReadableChainEnvironment } from '$lib/chain-context';
 import { log } from '$lib/logger';
-import type { Signer } from 'ethers';
-import { findLog } from '../ethers';
 import { addressEquals, zero32Bytes } from '../helpers';
-import type { ContractTransactionResponse } from 'ethers';
-import type { BaseContract } from 'ethers';
-import type { TypedContractMethod } from '@createz/contracts/types/ethers-contracts/common';
+import type { ReadClient, ReadableContract, WritableContract, WriteClient } from '../viem';
+import {
+  decodeEventLog,
+  getContract,
+  toHex,
+  type Abi,
+  erc20Abi,
+  type ContractFunctionName,
+  type ContractFunctionArgs,
+  encodeFunctionData,
+  type EncodeFunctionDataParameters
+} from 'viem';
+import {
+  ierc6551AccountAbi,
+  ierc6551ExecutableAbi,
+  ierc6551RegistryAbi
+} from '../generated/createz';
+import { writeContract } from 'viem/actions';
+
+export interface IERC6551Registry extends ReadableContract {}
+export interface WritableIERC6551Registry extends WritableContract {}
+
+export interface IERC6551Account extends ReadableContract {}
+
+export interface IERC6551Executable extends WritableContract {}
+
+function registry(reg: IERC6551Registry) {
+  return getContract({
+    abi: ierc6551RegistryAbi,
+    address: reg.address,
+    client: reg.publicClient
+  });
+}
+
+function writableRegistry(reg: WritableIERC6551Registry) {
+  return getContract({
+    abi: ierc6551RegistryAbi,
+    address: reg.address,
+    client: { public: reg.publicClient, wallet: reg.walletClient }
+  });
+}
+
+function account(acc: IERC6551Account) {
+  return getContract({
+    abi: ierc6551AccountAbi,
+    address: acc.address,
+    client: acc.publicClient
+  });
+}
+
+function executable(exec: IERC6551Executable) {
+  return getContract({
+    abi: ierc6551ExecutableAbi,
+    address: exec.address,
+    client: exec.walletClient
+  });
+}
 
 async function findErc6551Account(
-  registry: IERC6551Registry,
+  reg: IERC6551Registry,
   implementation: Address,
   salt: Uint8Array,
   chainId: number,
@@ -24,13 +69,20 @@ async function findErc6551Account(
   tokenId: bigint
 ): Promise<Address | undefined> {
   // TODO replace with off-chain computation
-  const acc = await registry.account(implementation, salt, chainId, erc721Address, tokenId);
+  const r = registry(reg);
+  const acc = await r.read.account([
+    implementation,
+    toHex(salt),
+    BigInt(chainId),
+    erc721Address,
+    tokenId
+  ]);
 
   return AddressSchema.parse(acc);
 }
 
 export async function findDefaultProfileErc6551Account(
-  chainEnv: ChainEnvironment,
+  chainEnv: ReadableChainEnvironment,
   tokenId: bigint
 ): Promise<Address | undefined> {
   const { erc6551Registry, chainData } = chainEnv;
@@ -54,28 +106,44 @@ export type TokenBoundAccount = [IERC6551Account, IERC6551Executable];
 
 export async function getErc6551Account(
   address: Address,
-  signer: Signer
+  publicClient: ReadClient,
+  walletClient: WriteClient
 ): Promise<TokenBoundAccount | null> {
-  const acc = IERC6551Account__factory.connect(address, signer.provider);
+  const acc = await tryGetErc6551Account(address, publicClient);
 
-  try {
-    await acc.state();
-  } catch (error) {
-    log.debug(
-      'Could not call state() from account, there is no account deployed at address',
-      address
-    );
+  if (!acc) {
     return null;
   }
 
-  const exec = IERC6551Executable__factory.connect(address, signer);
+  const exec = { address, publicClient, walletClient };
   log.debug('Created ERC6551 contracts for address', address);
 
   return [acc, exec];
 }
 
+async function tryGetErc6551Account(
+  address: Address,
+  publicClient: ReadClient
+): Promise<IERC6551Account | null> {
+  const a = { address, publicClient: publicClient };
+  const acc = account(a);
+
+  try {
+    await acc.read.state();
+  } catch (error) {
+    log.debug(
+      'Could not call state() from account, there is no account deployed at address',
+      address,
+      error
+    );
+    return null;
+  }
+
+  return a;
+}
+
 export async function createErc6551Account(
-  registry: IERC6551Registry,
+  registry: WritableIERC6551Registry,
   accountImplementation: Address,
   chainId: number,
   contract: Address,
@@ -85,51 +153,69 @@ export async function createErc6551Account(
   }
 ): Promise<Address> {
   let tx;
+  const r = writableRegistry(registry);
   try {
-    tx = await registry.createAccount(
+    tx = await r.write.createAccount([
       accountImplementation,
-      zero32Bytes,
-      chainId,
+      toHex(zero32Bytes),
+      BigInt(chainId),
       contract,
       tokenId
-    );
+    ]);
   } catch (error) {
     log.error('Failed to create ERC6551 Account', error);
     throw error;
   }
-  if (events?.onTxSubmitted) events.onTxSubmitted(tx.hash);
+  if (events?.onTxSubmitted) events.onTxSubmitted(tx);
 
-  const createEvent = await findLog(tx, registry, registry.filters.ERC6551AccountCreated());
-  if (!createEvent) {
-    const msg = 'Transaction Log not found';
-    log.error(msg);
-    throw new Error(msg);
+  const { logs } = await registry.publicClient.waitForTransactionReceipt({ hash: tx });
+  const [account] = logs
+    .map((l) =>
+      decodeEventLog({
+        abi: ierc6551RegistryAbi,
+        topics: l.topics,
+        data: l.data,
+        strict: false
+      })
+    )
+    .filter(
+      (l) =>
+        l.eventName === 'ERC6551AccountCreated' &&
+        l.args.tokenContract === contract &&
+        l.args.tokenId === tokenId
+    )
+    .map((l) => (l.eventName === 'ERC6551AccountCreated' ? l.args.account : undefined));
+
+  if (!account) {
+    throw new Error('Transaction Log not found, did the transaction revert?');
   }
-  const account = createEvent.args.account;
 
   return asChecksumAddress(account);
 }
 
 export async function execute<
-  C extends BaseContract,
-  F extends {
-    [P in keyof C]: C[P] extends TypedContractMethod<infer _A, infer _B, infer _C> ? P : never;
-  }[keyof C],
-  ARGS extends C[F] extends TypedContractMethod<infer A, infer _B, infer _C> ? A : never
+  abi extends Abi,
+  functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  args extends ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>
 >(
-  account: IERC6551Executable,
-  contract: C,
-  func: F & string,
-  params: ARGS,
+  exec: IERC6551Executable,
+  target: Address,
+  abi: abi,
+  func: functionName,
+  args: args,
   value: bigint = 0n
-): Promise<ContractTransactionResponse> {
-  const contractAddress = await contract.getAddress();
-  log.debug('ERC6551Execute:', account, contract, contractAddress, func, params, value);
+) {
+  log.debug('ERC6551Execute:', account, target, func, args, value);
 
-  const encoded = contract.interface.encodeFunctionData(func, params);
-  log.debug('ERC6551Execute: encoded', contract, contractAddress, func, params, encoded);
-
-  return await account.execute(contractAddress, value, encoded, 0n);
+  const encoded = encodeFunctionData({
+    abi: abi,
+    functionName: func,
+    args: args
+  } as EncodeFunctionDataParameters);
+  log.debug('ERC6551Execute: encoded', target, func, args, encoded);
+  const ex = executable(exec);
+  const tx = await ex.write.execute([target, value, encoded, 0]);
+  exec.publicClient.waitForTransactionReceipt({ hash: tx });
 }
 
 /**
@@ -138,7 +224,7 @@ export async function execute<
 export async function isValidSigner(
   addr: Address,
   potentialTokenboundAcc: Address,
-  signer: Signer
+  client: ReadClient
 ): Promise<boolean> {
   log.debug('isValidSigner()', addr, potentialTokenboundAcc);
   // is actually the same address
@@ -147,18 +233,20 @@ export async function isValidSigner(
     return true;
   }
 
-  // check if is tokenbound account
-  const acc = await getErc6551Account(potentialTokenboundAcc, signer);
-  if (!acc) {
+  // check if it is a tokenbound account
+
+  const a = await tryGetErc6551Account(potentialTokenboundAcc, client);
+  if (!a) {
     log.debug('isValidSigner() not an ERC6551 account', addr, potentialTokenboundAcc);
     return false;
   }
-  const [tAcc] = acc;
+
+  const acc = account(a);
 
   const magicValue = '0x523e3260';
 
   try {
-    const res = await tAcc.isValidSigner(addr, '0x00');
+    const res = await acc.read.isValidSigner([addr, '0x00']);
     log.debug('isValidSigner() ERC6551 result', addr, potentialTokenboundAcc, res);
     return res === magicValue;
   } catch (error) {

@@ -11,17 +11,26 @@ import {
   type Hash,
   type OnTxSubmitted
 } from './common';
-import {
-  Subscription__factory,
-  type Subscription
-} from '@createz/contracts/types/ethers-contracts';
-import { findLog, getReceipt } from '../ethers';
 import { decodeDataJsonTokenURI } from '../helpers';
-import { ZeroAddress, type Signer } from 'ethers';
 import { log } from '$lib/logger';
-import { ContractTransactionResponse } from 'ethers';
+import type { ReadClient, ReadableContract, WritableContract } from '../viem';
+import { getContract } from 'viem';
+import { iSubscriptionAbi } from '../generated/createz';
 
 export const MULTIPLIER_BASE = 100;
+
+export interface Subscription extends ReadableContract {}
+
+export interface WritableSubscription extends Subscription, WritableContract {}
+
+
+function contract(sub: Subscription) {
+  return getContract({
+    abi: iSubscriptionAbi,
+    address: sub.address,
+    client: sub.publicClient
+  });
+}
 
 const FundsPropsSchema = z.object({
   amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
@@ -156,16 +165,16 @@ export function activeSubscriptions(activeShares: bigint, totalSupply: number): 
   return Math.min(Math.floor(Number(BigInt(activeShares) / BigInt(100))), totalSupply);
 }
 
-export type SubscriptionContainer = { address: Address; contract: Subscription };
 export function createSubscriptionContract(
   address: Address,
-  signer: Signer
-): SubscriptionContainer {
-  return { address: address, contract: Subscription__factory.connect(address, signer) };
+  client: ReadClient
+): Subscription {
+  return { address: address, publicClient: client };
 }
 
-export async function getContractData(contract: Subscription): Promise<SubscriptionContractData> {
-  const encoded = await contract.contractURI();
+export async function getContractData(sub: Subscription): Promise<SubscriptionContractData> {
+  const c = contract(sub);
+  const encoded = await c.read.contractURI();
   const decoded = decodeDataJsonTokenURI(encoded, AttributesMetadataSchema);
 
   try {
@@ -174,7 +183,7 @@ export async function getContractData(contract: Subscription): Promise<Subscript
     const a = fromAttributes<SubscriptionContractExtendedMetadata>(m.attributes ?? []);
     const flags = a.bigint('flags');
     return {
-      address: asChecksumAddress(await contract.getAddress()),
+      address: asChecksumAddress(sub.address),
       name: m.name,
       description: m.description,
       image: m.image,
@@ -203,10 +212,11 @@ export async function getContractData(contract: Subscription): Promise<Subscript
 }
 
 export async function getSubscriptionData(
-  contract: Subscription,
+  sub: Subscription,
   tokenId: BigNumberish
 ): Promise<SubscriptionData> {
-  const encoded = await contract.tokenURI(BigInt(tokenId));
+  const c = contract(sub);
+  const encoded = await c.read.tokenURI([BigInt(tokenId)]);
   const decoded = decodeDataJsonTokenURI(encoded, SubscriptionTokenMetadataSchema);
 
   try {
@@ -215,7 +225,7 @@ export async function getSubscriptionData(
     const a = fromAttributes<SubscriptionTokenMetadataAttributes>(m.attributes ?? []);
     return {
       tokenId: BigInt(tokenId),
-      address: asChecksumAddress(await contract.getAddress()),
+      address: asChecksumAddress(sub.address),
       name: m.name,
       description: m.description,
       image: m.image,
@@ -405,16 +415,17 @@ export function setFlags(contract: Subscription): UpdateFlags {
 }
 
 export async function countUserSubscriptions(
-  contract: Subscription,
-  account: string
+  sub: Subscription,
+  account: Address
 ): Promise<number> {
-  const count = await contract.balanceOf(account);
+  const c = contract(sub)
+  const count = await c.read.balanceOf([account]);
   return Number(count);
 }
 
 export function listUserSubscriptionsRev(
-  contract: Subscription,
-  account: string,
+  sub: Subscription,
+  account: Address,
   pageSize: number,
   totalItems: number
 ): (page: number) => Promise<SubscriptionData[]> {
@@ -424,9 +435,11 @@ export function listUserSubscriptionsRev(
     const count = Math.max(Math.min(totalItems - index, pageSize), 0);
 
     const load = async (i: number): Promise<SubscriptionData> => {
+
+      const c = contract(sub)
       // reverse index here
-      const id = await contract.tokenOfOwnerByIndex(account, totalItems - 1 - (i + index));
-      const res = await getSubscriptionData(contract, id);
+      const id = await c.read.tokenOfOwnerByIndex([account, BigInt(totalItems - 1 - (i + index))]);
+      const res = await getSubscriptionData(sub, id);
       return res;
     };
 

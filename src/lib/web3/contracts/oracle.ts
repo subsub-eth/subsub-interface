@@ -1,11 +1,12 @@
 // https://reference-data-directory.vercel.app/feeds-matic-testnet.json
 
 import type { PriceFeeds } from '$lib/chain-config';
-import { formatEther, formatUnits, type Signer } from 'ethers';
 import type { Address, BigNumberish } from './common';
-import { AggregatorV3Interface__factory } from '@createz/contracts/types/ethers-contracts';
 import { log } from '$lib/logger';
 import { prettyNumber } from '$lib/helpers';
+import type { ReadClient } from '../viem';
+import { formatEther, formatUnits, getContract } from 'viem';
+import { aggregatorV3InterfaceAbi } from '../generated/createz';
 
 /**
  * tuple of price in USD as an integer and the number of decimals
@@ -18,7 +19,7 @@ export type Price = {
 export async function findPrice(
   asset: Address,
   priceFeeds: PriceFeeds,
-  signer: Signer
+  publicClient: ReadClient
 ): Promise<Price | undefined> {
   const feedAddr = priceFeeds[asset];
   if (!feedAddr) {
@@ -26,12 +27,16 @@ export async function findPrice(
     return undefined;
   }
 
-  const feed = AggregatorV3Interface__factory.connect(feedAddr, signer);
+  const feed = getContract({
+    abi: aggregatorV3InterfaceAbi,
+    address: feedAddr,
+    client: publicClient
+  });
 
   log.debug('Query price feed', feed, asset);
 
-  const decimals = Number(await feed.decimals());
-  const { answer } = await feed.latestRoundData();
+  const decimals = Number(await feed.read.decimals());
+  const [, answer] = await feed.read.latestRoundData();
 
   log.debug('Found price for asset', asset, answer, decimals);
 
@@ -47,7 +52,7 @@ export async function findPrice(
  * @param price conversion price
  */
 export function converted(amount: number, price: Price): number {
-  const p = Number(formatUnits(price.price, price.decimals));
+  const p = Number(formatUnits(BigInt(price.price), price.decimals));
   return amount * p;
 }
 
@@ -69,5 +74,5 @@ export function convertedPretty(amount: number, price: Price): string {
  * @returns a pretty printed string number
  */
 export function convertedEtherPretty(amount: bigint, price: Price): string {
-    return convertedPretty(Number(formatEther(amount)), price);
+  return convertedPretty(Number(formatEther(amount)), price);
 }

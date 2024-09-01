@@ -62,8 +62,8 @@
     derived([chainEnvironment, erc6551AccountAddress], ([chainEnvironment, addr]) => ({
       queryKey: erc6551Keys.account(addr.data!),
       queryFn: async () => {
-        const signer = chainEnvironment!.ethersSigner;
-        const account = await getErc6551Account(addr.data!, signer);
+        const publicClient = chainEnvironment!.publicClient;
+        const account = await getErc6551Account(addr.data!, publicClient);
         return account;
       },
       enabled: addr.isSuccess && !!addr.data

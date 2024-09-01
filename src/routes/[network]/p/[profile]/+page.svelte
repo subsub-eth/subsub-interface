@@ -131,6 +131,9 @@
                 {warnings}
               />
             {/if}
+            {#if subscriptionData.isError || subscriptionData.isLoadingError}
+            error!
+            {/if}
           </SubscriptionContractContext>
         {/each}
       </PaginatedList>

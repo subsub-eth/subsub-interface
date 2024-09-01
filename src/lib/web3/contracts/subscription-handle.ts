@@ -1,14 +1,25 @@
 import { z } from 'zod';
 import { AddressSchema, type Address } from './common';
 import { findLog } from '../ethers';
-import type { IERC6551Executable, ISubscriptionHandle } from '@createz/contracts/types/ethers-contracts';
-import type {
-  MetadataStructStruct,
-  SubSettingsStruct
-} from '@createz/contracts/types/ethers-contracts/ISubscriptionHandle.sol/ISubscriptionHandle';
 import { toBeHex } from 'ethers';
 import { log } from '$lib/logger';
 import { execute } from './erc6551';
+import type { ReadableContract, WritableContract } from '../viem';
+import { iSubscriptionHandleAbi } from '../generated/createz';
+import { getContract } from 'viem';
+
+
+
+export interface SubscriptionHandle extends ReadableContract {};
+export interface WritableSubscriptionHandle extends WritableContract {};
+
+function contract(subHandle: SubscriptionHandle) {
+  return getContract({
+    abi: iSubscriptionHandleAbi,
+    address: subHandle.address,
+    client: subHandle.publicClient
+  });
+}
 
 export const SubSettingsSchema = z.object({
   token: AddressSchema,
@@ -22,17 +33,18 @@ export const SubSettingsSchema = z.object({
 });
 
 export async function getSubscriptionContractAddresses(
-  contract: ISubscriptionHandle,
+  subHandle: SubscriptionHandle,
   owner: Address
 ): Promise<Array<Address>> {
-  const tokenBalance = await contract.balanceOf(owner);
+  const c = contract(subHandle)
+  const tokenBalance = await c.read.balanceOf([owner]);
 
-  log.debug('token balance', owner, tokenBalance, await contract.getAddress());
+  log.debug('token balance', owner, tokenBalance, subHandle.address);
   // TODO multicall
   const addresses = new Array<Address>();
   for (let i = 0; i < tokenBalance; i++) {
     // TODO add paging, move this on chain
-    const tokenId = await contract.tokenOfOwnerByIndex(owner, i);
+    const tokenId = await c.read.tokenOfOwnerByIndex([owner, BigInt(i)]);
     const hex = toBeHex(tokenId, 20);
     addresses.push(AddressSchema.parse(hex));
   }

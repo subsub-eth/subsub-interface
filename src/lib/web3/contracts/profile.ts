@@ -8,12 +8,31 @@ import {
   BigNumberishSchema,
   type Hash
 } from './common';
-import type { Profile } from '@createz/contracts/types/ethers-contracts';
 import { decodeDataJsonTokenURI } from '../helpers';
-import type { EventDispatcher } from 'svelte';
-import type { MintEvents } from '$lib/components/profile/action/profile-events';
-import { findLog } from '../ethers';
 import { log } from '$lib/logger';
+import type { ReadableContract, WritableContract } from '../viem';
+import { decodeEventLog, getContract } from 'viem';
+import { iProfileAbi } from '../generated/createz';
+
+export interface Profile extends ReadableContract {}
+
+export interface WritableProfile extends Profile, WritableContract {}
+
+function contract(profile: Profile) {
+  return getContract({
+    abi: iProfileAbi,
+    address: profile.address,
+    client: profile.publicClient
+  });
+}
+
+function writeableContract(profile: WritableProfile) {
+  return getContract({
+    abi: iProfileAbi,
+    address: profile.address,
+    client: { public: profile.publicClient, wallet: profile.walletClient }
+  });
+}
 
 export const ProfileTokenMetadataSchema = AttributesMetadataSchema.extend({});
 
@@ -38,7 +57,7 @@ async function mapProfileData(
   owner: Address
 ): Promise<ProfileData> {
   return {
-    address: AddressSchema.parse(await contract.getAddress()),
+    address: contract.address,
     tokenId: tokenId,
     owner: owner,
     name: metadata.name,
@@ -48,32 +67,33 @@ async function mapProfileData(
   };
 }
 
-export async function countUserProfiles(contract: Profile, account: string): Promise<number> {
-  log.debug('profile: ', contract);
-  const count = await contract.balanceOf(account);
+export async function countUserProfiles(profile: Profile, account: Address): Promise<number> {
+  log.debug('profile: ', profile);
+  const count = await contract(profile).read.balanceOf([account]);
   return Number(count);
 }
 
-export async function totalSupply(contract: Profile): Promise<number> {
-  const count = await contract.totalSupply();
+export async function totalSupply(profile: Profile): Promise<number> {
+  const count = await contract(profile).read.totalSupply();
   return Number(count);
 }
 
-export async function ownerOf(contract: Profile, tokenId: bigint): Promise<Address> {
-  const owner = AddressSchema.parse(await contract.ownerOf(tokenId));
+export async function ownerOf(profile: Profile, tokenId: bigint): Promise<Address> {
+  const owner = await contract(profile).read.ownerOf([tokenId]);
   return owner;
 }
 
-export async function findProfile(contract: Profile, tokenId: bigint): Promise<ProfileData> {
-  const encoded = await contract.tokenURI(tokenId);
+export async function findProfile(profile: Profile, tokenId: bigint): Promise<ProfileData> {
+  const c = contract(profile);
+  const encoded = await c.read.tokenURI([tokenId]);
   const metadata = decodeDataJsonTokenURI(encoded, ProfileTokenMetadataSchema);
 
   // TODO do multicall / on-chain
-  const owner = await ownerOf(contract, tokenId);
+  const owner = await ownerOf(profile, tokenId);
 
-  log.debug('Found profile', contract, tokenId, owner, metadata);
+  log.debug('Found profile', profile, tokenId, owner, metadata);
 
-  return mapProfileData(contract, tokenId, metadata, owner);
+  return mapProfileData(profile, tokenId, metadata, owner);
 }
 
 export type MintFunc = (
@@ -82,35 +102,40 @@ export type MintFunc = (
   image: string,
   externalUrl: string,
   events?: {
-    onMintTxSubmitted?: (hash: Hash) => void,
+    onMintTxSubmitted?: (hash: Hash) => void;
   }
-) => Promise<bigint>
+) => Promise<bigint>;
 
-export function mint(
-  contract: Profile,
-  account: string
-): MintFunc {
-  return async (
-    name,
-    description,
-    image,
-    externalUrl,
-    events
-  ): Promise<bigint> => {
-    const tx = await contract.mint(name, description, image, externalUrl);
-    events?.onMintTxSubmitted?.(tx.hash);
-    const mintEvent = await findLog(tx, contract, contract.filters.Minted(account));
-    if (!mintEvent) {
-      throw new Error('Transaction Log not found');
+export function mint(profile: WritableProfile, account: Address): MintFunc {
+  return async (name, description, image, externalUrl, events): Promise<bigint> => {
+    const c = writeableContract(profile);
+    const tx = await c.write.mint([name, description, image, externalUrl]);
+
+    events?.onMintTxSubmitted?.(tx);
+
+    const { logs } = await profile.publicClient.waitForTransactionReceipt({ hash: tx });
+    // TODO refactor boilerplate code
+    const [tokenId] = logs
+      .map((l) =>
+        decodeEventLog({
+          abi: iProfileAbi,
+          topics: l.topics,
+          data: l.data,
+          strict: false
+        })
+      )
+      .filter((l) => l.eventName === 'Minted' && l.args.to === account)
+      .map((l) => (l.eventName === 'Minted' ? l.args.tokenId : undefined));
+
+    if (!tokenId) {
+      throw new Error('Transaction Log not found, did the transaction revert?');
     }
-    const tokenId = mintEvent?.args.tokenId;
-
     return tokenId;
   };
 }
 
 export function listUserProfilesRev(
-  contract: Profile,
+  profile: Profile,
   account: string,
   pageSize: number,
   totalItems: number
@@ -120,13 +145,14 @@ export function listUserProfilesRev(
     const owner = AddressSchema.parse(account);
     const index = page * pageSize;
     const size = Math.max(Math.min(totalItems - index, pageSize), 0);
+    const c = contract(profile);
 
     const load = async (i: number): Promise<ProfileData> => {
       // reverse index here
-      const id = await contract.tokenOfOwnerByIndex(owner, totalItems - 1 - (i + index));
-      const encoded = await contract.tokenURI(id);
+      const id = await c.read.tokenOfOwnerByIndex([owner, BigInt(totalItems - 1 - (i + index))]);
+      const encoded = await c.read.tokenURI([id]);
       const data = decodeDataJsonTokenURI(encoded, ProfileTokenMetadataSchema);
-      return mapProfileData(contract, id, data, owner);
+      return mapProfileData(profile, id, data, owner);
     };
 
     const data = [...Array(size).keys()].map((i) => load(i));
@@ -137,7 +163,7 @@ export function listUserProfilesRev(
 }
 
 export function listAllProfilesRev(
-  contract: Profile,
+  profile: Profile,
   pageSize: number,
   totalItems: number
 ): (page: number) => Promise<Array<ProfileData>> {
@@ -145,14 +171,15 @@ export function listAllProfilesRev(
   const func = async (page: number): Promise<Array<ProfileData>> => {
     const index = page * pageSize;
     const size = Math.max(Math.min(totalItems - index, pageSize), 0);
+    const c = contract(profile);
 
     const load = async (i: number): Promise<ProfileData> => {
       // reverse index here
-      const id = await contract.tokenByIndex(totalItems - 1 - (i + index));
-      const owner = AddressSchema.parse(await contract.ownerOf(id));
-      const encoded = await contract.tokenURI(id);
+      const id = await c.read.tokenByIndex([BigInt(totalItems - 1 - (i + index))]);
+      const owner = AddressSchema.parse(await c.read.ownerOf([id]));
+      const encoded = await c.read.tokenURI([id]);
       const data = decodeDataJsonTokenURI(encoded, ProfileTokenMetadataSchema);
-      return mapProfileData(contract, id, data, owner);
+      return mapProfileData(profile, id, data, owner);
     };
 
     const data = [...Array(size).keys()].map((i) => load(i));

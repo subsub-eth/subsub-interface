@@ -6,12 +6,12 @@ import { erc20Keys, subKeys } from '$lib/query/keys';
 import {
   createSubscriptionContract,
   getContractData,
-  type SubscriptionContainer,
+  type Subscription,
   type SubscriptionContractData
 } from '$lib/web3/contracts/subscription';
 import {
   getErc20Contract,
-  type Erc20Container,
+  type Erc20,
   getErc20Data,
   type Erc20Data,
   getAllowance,
@@ -26,10 +26,10 @@ import {
 import { log } from '$lib/logger';
 
 export function subscriptionQueries(addr: Address) {
-  const subscriptionContract = createQuery<SubscriptionContainer>(
+  const subscriptionContract = createQuery<Subscription>(
     derived(chainEnvironment, (chainEnvironment) => ({
       queryKey: subKeys.contract(addr),
-      queryFn: () => createSubscriptionContract(addr, chainEnvironment!.ethersSigner)
+      queryFn: () => createSubscriptionContract(addr, chainEnvironment!.publicClient)
     }))
   );
 
@@ -38,7 +38,7 @@ export function subscriptionQueries(addr: Address) {
       queryKey: subKeys.contractUri(addr),
       queryFn: async () => {
         log.debug('Querying contract data for subscription contract', addr);
-        const data = await getContractData(subscriptionContract.data!.contract);
+        const data = await getContractData(subscriptionContract.data!);
         log.debug('Found contract data', data);
         return data;
       },
@@ -46,12 +46,12 @@ export function subscriptionQueries(addr: Address) {
     }))
   );
 
-  const erc20Contract = createQuery<Erc20Container>(
+  const erc20Contract = createQuery<Erc20>(
     derived(
       [chainEnvironment, subscriptionData],
       ([chainEnvironment, { isSuccess, data: subData }]) => ({
         queryKey: erc20Keys.contract(subData?.token),
-        queryFn: () => getErc20Contract(subData!.token, chainEnvironment!.ethersSigner),
+        queryFn: () => getErc20Contract(subData!.token, chainEnvironment!.publicClient),
         enabled: isSuccess && !!subData?.token
       })
     )
@@ -60,7 +60,7 @@ export function subscriptionQueries(addr: Address) {
   const subscriptionErc20Balance = createQuery<bigint>(
     derived([erc20Contract], ([{ isSuccess, data: erc20 }]) => ({
       queryKey: erc20Keys.balance(erc20?.address, addr),
-      queryFn: async () => await getBalance(erc20!.contract, addr),
+      queryFn: async () => await getBalance(erc20!, addr),
       enabled: isSuccess && !!currentAccount
     }))
   );
@@ -68,7 +68,7 @@ export function subscriptionQueries(addr: Address) {
   const erc20Data = createQuery<Erc20Data>(
     derived(erc20Contract, ({ isSuccess, data }) => ({
       queryKey: erc20Keys.metadata(data?.address),
-      queryFn: async () => getErc20Data(data!.contract),
+      queryFn: async () => getErc20Data(data!),
       enabled: isSuccess
     }))
   );
@@ -78,7 +78,7 @@ export function subscriptionQueries(addr: Address) {
       [erc20Contract, subscriptionContract, currentAccount],
       ([{ isSuccess, data: erc20 }, { data: sub }, currentAccount]) => ({
         queryKey: erc20Keys.allowance(erc20?.address, currentAccount, sub?.address),
-        queryFn: async () => await getAllowance(erc20!.contract, currentAccount!, sub!.address),
+        queryFn: async () => await getAllowance(erc20!, currentAccount!, sub!.address),
         enabled: isSuccess && !!currentAccount
       })
     )
@@ -87,7 +87,7 @@ export function subscriptionQueries(addr: Address) {
   const erc20Balance = createQuery<bigint>(
     derived([erc20Contract, currentAccount], ([{ isSuccess, data: erc20 }, currentAccount]) => ({
       queryKey: erc20Keys.balance(erc20?.address, currentAccount!),
-      queryFn: async () => await getBalance(erc20!.contract, currentAccount!),
+      queryFn: async () => await getBalance(erc20!, currentAccount!),
       enabled: isSuccess && !!currentAccount
     }))
   );
@@ -101,7 +101,7 @@ export function subscriptionQueries(addr: Address) {
           (await findPrice(
             erc20Data!.address,
             chainEnvironment!.chainData.contracts.priceFeeds,
-            chainEnvironment!.ethersSigner
+            chainEnvironment!.publicClient
           )) ?? null,
         enabled: isSuccess
       })

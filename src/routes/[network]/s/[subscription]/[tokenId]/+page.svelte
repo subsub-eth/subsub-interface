@@ -11,9 +11,9 @@
     type SubscriptionContractData,
     type SubscriptionData,
     getSubscriptionData,
-    type SubscriptionContainer
+    type Subscription
   } from '$lib/web3/contracts/subscription';
-  import { approveFunc, type Erc20Container, type Erc20Data } from '$lib/web3/contracts/erc20';
+  import { approveFunc, type Erc20, type Erc20Data } from '$lib/web3/contracts/erc20';
   import { createQuery } from '@tanstack/svelte-query';
   import { derived } from 'svelte/store';
   import { queryClient, type QueryResult } from '$lib/query/config';
@@ -42,7 +42,7 @@
   const subDataQueryKey = subKeys.tokenUri(addr, tokenId);
 
   const subscriptionContract =
-    getContext<QueryResult<SubscriptionContainer>>(SUBSCRIPTION_CONTRACT_CTX);
+    getContext<QueryResult<Subscription>>(SUBSCRIPTION_CONTRACT_CTX);
 
   const subscriptionContractData =
     getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
@@ -50,12 +50,12 @@
   const subscriptionData = createQuery<SubscriptionData>(
     derived(subscriptionContract, (subscriptionContract) => ({
       queryKey: subDataQueryKey,
-      queryFn: async () => await getSubscriptionData(subscriptionContract.data!.contract, tokenId),
+      queryFn: async () => await getSubscriptionData(subscriptionContract.data!, tokenId),
       enabled: subscriptionContract.isSuccess
     }))
   );
 
-  const erc20Contract = getContext<QueryResult<Erc20Container>>(ERC20_CONTRACT_CTX);
+  const erc20Contract = getContext<QueryResult<Erc20>>(ERC20_CONTRACT_CTX);
   const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
   const erc20Allowance = getContext<QueryResult<bigint>>(ERC20_ALLOWANCE_CTX);
   const erc20Balance = getContext<QueryResult<bigint>>(ERC20_BALANCE_CTX);
@@ -87,9 +87,9 @@
 
 <div>
   {#if $subscriptionContract.isSuccess && $subscriptionContractData.isSuccess && $subscriptionData.isSuccess && $erc20Contract.isSuccess && $erc20Data.isSuccess && $erc20Allowance.isSuccess && $erc20Balance.isSuccess}
-    {@const subContract = $subscriptionContract.data.contract}
+    {@const subContract = $subscriptionContract.data}
     {@const contractData = $subscriptionContractData.data}
-    {@const erc20 = $erc20Contract.data.contract}
+    {@const erc20 = $erc20Contract.data}
     {@const erc20Data = $erc20Data.data}
     <div>
       <!-- LEFT -->

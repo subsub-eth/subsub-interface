@@ -9,7 +9,7 @@
     countUserSubscriptions,
     listUserSubscriptionsRev,
     type SubscriptionContractData,
-    type SubscriptionContainer,
+    type Subscription,
     claim
   } from '$lib/web3/contracts/subscription';
   import { SubscriptionTeaser } from '$lib/components/subscription/token';
@@ -43,7 +43,7 @@
   const pageSize = 5;
 
   const subscriptionContract =
-    getContext<QueryResult<SubscriptionContainer>>(SUBSCRIPTION_CONTRACT_CTX);
+    getContext<QueryResult<Subscription>>(SUBSCRIPTION_CONTRACT_CTX);
 
   const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
 
@@ -60,7 +60,7 @@
     derived([subscriptionContract, currentAccount], ([subscriptionContract, currentAccount]) => ({
       queryKey: subKeys.balance(addr, currentAccount!),
       queryFn: async () =>
-        countUserSubscriptions(subscriptionContract.data!.contract, currentAccount!),
+        countUserSubscriptions(subscriptionContract.data!, currentAccount!),
       enabled: subscriptionContract.isSuccess && !!currentAccount
     }))
   );
@@ -74,7 +74,7 @@
           isValidSigner(
             currentAccount!,
             subscriptionData.data!.owner,
-            chainEnvironment!.ethersSigner
+            chainEnvironment!.publicClient
           ),
         enabled: subscriptionData.isSuccess && !!currentAccount
       })
@@ -124,7 +124,7 @@ Subscription Contract: {addr}
         {#if $validSigner.isSuccess && $validSigner.data}
           <ClaimControl
             data={$subscriptionData.data}
-            claim={claim($subscriptionContract.data.contract)}
+            claim={claim($subscriptionContract.data)}
             claimTo={currAcc}
             on:claimed={claimed}
           />
@@ -159,7 +159,7 @@ Subscription Contract: {addr}
       {/if}
       {#if $userSubsCount.isSuccess && $currentAccount}
         {@const load = listUserSubscriptionsRev(
-          $subscriptionContract.data.contract,
+          $subscriptionContract.data,
           $currentAccount,
           pageSize,
           $userSubsCount.data
