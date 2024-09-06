@@ -11,16 +11,18 @@ import {
 import { decodeDataJsonTokenURI } from '../helpers';
 import { log } from '$lib/logger';
 import type { ReadableContract, WritableContract } from '../viem';
-import { decodeEventLog, getContract } from 'viem';
+import { getContract, parseEventLogs } from 'viem';
 import { iProfileAbi } from '../generated/createz';
 
 export interface Profile extends ReadableContract {}
 
 export interface WritableProfile extends Profile, WritableContract {}
 
+const abi = iProfileAbi;
+
 function contract(profile: Profile) {
   return getContract({
-    abi: iProfileAbi,
+    abi,
     address: profile.address,
     client: profile.publicClient
   });
@@ -28,7 +30,7 @@ function contract(profile: Profile) {
 
 function writeableContract(profile: WritableProfile) {
   return getContract({
-    abi: iProfileAbi,
+    abi,
     address: profile.address,
     client: { public: profile.publicClient, wallet: profile.walletClient }
   });
@@ -115,22 +117,11 @@ export function mint(profile: WritableProfile, account: Address): MintFunc {
 
     const { logs } = await profile.publicClient.waitForTransactionReceipt({ hash: tx });
     // TODO refactor boilerplate code
-    const [tokenId] = logs
-      .map((l) =>
-        decodeEventLog({
-          abi: iProfileAbi,
-          topics: l.topics,
-          data: l.data,
-          strict: false
-        })
-      )
-      .filter((l) => l.eventName === 'Minted' && l.args.to === account)
-      .map((l) => (l.eventName === 'Minted' ? l.args.tokenId : undefined));
-
-    if (!tokenId) {
+    const [minted] = parseEventLogs({abi, logs, eventName: 'Minted', args: {to: account}})
+    if (!minted) {
       throw new Error('Transaction Log not found, did the transaction revert?');
     }
-    return tokenId;
+    return minted.args.tokenId;
   };
 }
 

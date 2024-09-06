@@ -7,11 +7,10 @@
   import { erc6551CreateSubscription } from '$lib/web3/contracts/subscription-handle';
   import Url from '$lib/components/Url.svelte';
   import { addressEquals } from '$lib/web3/helpers';
-  import { chainEnvironment } from '$lib/chain-context';
+  import { writableChainEnvironment as chainEnvironment} from '$lib/chain-context';
   import { currentAccount } from '$lib/web3/onboard';
   import toast from '$lib/toast';
   import { createQuery } from '@tanstack/svelte-query';
-  import { log } from '$lib/logger';
   import { ownerOf } from '$lib/web3/contracts/profile';
   import Button from '$lib/components/Button.svelte';
   import NewAccount from '$lib/components/erc6551/NewAccount.svelte';
@@ -25,7 +24,7 @@
   import { queryClient } from '$lib/query/config';
   import { erc6551Keys, profileKeys, subHandleKeys } from '$lib/query/keys';
   import { getErc20Contract, getErc20Data } from '$lib/web3/contracts/erc20';
-    import { knownErc20Tokens } from '$lib/chain-config';
+  import { knownErc20Tokens } from '$lib/chain-config';
 
   export let data: PageData;
 
@@ -63,7 +62,8 @@
       queryKey: erc6551Keys.account(addr.data!),
       queryFn: async () => {
         const publicClient = chainEnvironment!.publicClient;
-        const account = await getErc6551Account(addr.data!, publicClient);
+        const walletClient = chainEnvironment!.walletClient;
+        const account = await getErc6551Account(addr.data!, publicClient, walletClient);
         return account;
       },
       enabled: addr.isSuccess && !!addr.data
@@ -80,8 +80,8 @@
     );
 
   $: tokenByAddress = async (addr: Address) => {
-    const signer = $chainEnvironment!.ethersSigner;
-    const { contract } = getErc20Contract(addr, signer);
+    const client = $chainEnvironment!.publicClient;
+    const contract = getErc20Contract(addr, client);
 
     return await getErc20Data(contract);
   };
@@ -116,6 +116,7 @@
 </Url>
 <h1>New Subscription Contract</h1>
 
+TODO: handle erc6551 properly for write access
 {#if $isOwner.isPending || $erc6551Account.isPending}
   Loading...
 {:else if $isOwner.isError}
@@ -133,7 +134,7 @@
         formId={`${$erc6551AccountAddress.data}`}
         create={erc6551CreateSubscription(erc6551Account[1], subHandle)}
         {tokenByAddress}
-        knownTokens={knownTokens}
+        {knownTokens}
         on:txFailed={onTxFailed}
         on:createTxSubmitted={onTxSubmitted}
         on:created={onContractCreated}

@@ -40,8 +40,8 @@
         onFlagsTxSubmitted: (hash) => dispatch('flagsTxSubmitted', hash)
       }),
     onError: (error) => dispatch('txFailed', error),
-    onSuccess: ([flags, hash]) => {
-      dispatch('flagsChanged', [flags, hash]);
+    onSuccess: ( hash) => {
+      dispatch('flagsChanged', hash);
     }
   });
 

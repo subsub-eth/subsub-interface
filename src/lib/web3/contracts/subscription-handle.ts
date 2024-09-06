@@ -1,25 +1,39 @@
 import { z } from 'zod';
 import { AddressSchema, type Address } from './common';
-import { findLog } from '../ethers';
-import { toBeHex } from 'ethers';
 import { log } from '$lib/logger';
-import { execute } from './erc6551';
+import { execute, type IERC6551Executable } from './erc6551';
 import type { ReadableContract, WritableContract } from '../viem';
 import { iSubscriptionHandleAbi } from '../generated/createz';
-import { getContract } from 'viem';
+import { getContract, pad, parseEventLogs, toHex } from 'viem';
 
+export interface SubscriptionHandle extends ReadableContract {}
+export interface WritableSubscriptionHandle extends WritableContract {}
 
-
-export interface SubscriptionHandle extends ReadableContract {};
-export interface WritableSubscriptionHandle extends WritableContract {};
+const abi = iSubscriptionHandleAbi;
 
 function contract(subHandle: SubscriptionHandle) {
   return getContract({
-    abi: iSubscriptionHandleAbi,
+    abi,
     address: subHandle.address,
     client: subHandle.publicClient
   });
 }
+
+function writableContract(subHandle: WritableSubscriptionHandle) {
+  return getContract({
+    abi,
+    address: subHandle.address,
+    client: { public: subHandle.publicClient, wallet: subHandle.walletClient }
+  });
+}
+
+export const MetadataSchema = z.object({
+  description: z.string(),
+  image: z.string(),
+  externalUrl: z.string()
+});
+
+export type Metadata = z.infer<typeof MetadataSchema>;
 
 export const SubSettingsSchema = z.object({
   token: AddressSchema,
@@ -32,11 +46,18 @@ export const SubSettingsSchema = z.object({
   maxSupply: z.bigint()
 });
 
+export type SubSettings = z.infer<typeof SubSettingsSchema>;
+
+export function tokenIdToAddress(tokenId: bigint): Address {
+    const hex = pad(toHex(tokenId), {size: 20});
+    return AddressSchema.parse(hex);
+}
+
 export async function getSubscriptionContractAddresses(
   subHandle: SubscriptionHandle,
   owner: Address
 ): Promise<Array<Address>> {
-  const c = contract(subHandle)
+  const c = contract(subHandle);
   const tokenBalance = await c.read.balanceOf([owner]);
 
   log.debug('token balance', owner, tokenBalance, subHandle.address);
@@ -45,60 +66,62 @@ export async function getSubscriptionContractAddresses(
   for (let i = 0; i < tokenBalance; i++) {
     // TODO add paging, move this on chain
     const tokenId = await c.read.tokenOfOwnerByIndex([owner, BigInt(i)]);
-    const hex = toBeHex(tokenId, 20);
-    addresses.push(AddressSchema.parse(hex));
+    const addr = tokenIdToAddress(tokenId);
+    addresses.push(addr);
   }
+  console.log('addresses', addresses);
   return addresses;
 }
 
 export type CreateSubscriptionFunc = (
   name: string,
   symbol: string,
-  metadata: MetadataStructStruct,
-  subSettings: SubSettingsStruct,
+  metadata: Metadata,
+  subSettings: SubSettings,
   events?: {
     onCreateTxSubmitted?: (hash: string) => void;
   }
 ) => Promise<string>;
 
-export function createSubscription(
-  contract: ISubscriptionHandle,
-): CreateSubscriptionFunc {
+export function createSubscription(subHandle: WritableSubscriptionHandle): CreateSubscriptionFunc {
   return async (name, symbol, metadata, subSettings, events) => {
-    const tx = await contract.mint(name, symbol, metadata, subSettings);
-    if (events?.onCreateTxSubmitted) events.onCreateTxSubmitted(tx.hash);
-    const createEvent = await findLog(
-      tx,
-      contract,
-      contract.filters.SubscriptionContractCreated()
-    );
-    if (!createEvent) {
+    const c = writableContract(subHandle);
+    const tx = await c.write.mint([name, symbol, metadata, subSettings]);
+    if (events?.onCreateTxSubmitted) events.onCreateTxSubmitted(tx);
+
+    const { logs } = await subHandle.publicClient.waitForTransactionReceipt({ hash: tx });
+
+    const [created] = parseEventLogs({abi, logs, eventName: 'SubscriptionContractCreated'});
+
+    if (!created) {
       throw new Error('Transaction Log not found');
     }
-    const address = createEvent?.args.contractAddress;
-    if (events?.onCreated) events.onCreated(address, tx.hash);
-    return address;
+    return created.args.contractAddress;
   };
 }
 
 export function erc6551CreateSubscription(
   account: IERC6551Executable,
-  contract: ISubscriptionHandle,
+  subHandle: WritableSubscriptionHandle
 ): CreateSubscriptionFunc {
   return async (name, symbol, metadata, subSettings, events) => {
-    const tx = await execute(account, contract, 'mint', [name, symbol, metadata, subSettings])
+    const tx = await execute(account, subHandle.address, iSubscriptionHandleAbi, 'mint', [
+      name,
+      symbol,
+      metadata,
+      subSettings
+    ]);
 
-    if (events?.onCreateTxSubmitted) events.onCreateTxSubmitted(tx.hash);
-    const createEvent = await findLog(
-      tx,
-      contract,
-      contract.filters.SubscriptionContractCreated()
-    );
-    if (!createEvent) {
+    // TODO refactor to use same implementation
+    if (events?.onCreateTxSubmitted) events.onCreateTxSubmitted(tx);
+
+    const { logs } = await account.publicClient.waitForTransactionReceipt({ hash: tx });
+
+    const [created] = parseEventLogs({abi, logs, eventName: 'SubscriptionContractCreated'});
+
+    if (!created) {
       throw new Error('Transaction Log not found');
     }
-    const address = createEvent?.args.contractAddress;
-    if (events?.onCreated) events.onCreated(address, tx.hash);
-    return address;
+    return created.args.contractAddress;
   };
 }

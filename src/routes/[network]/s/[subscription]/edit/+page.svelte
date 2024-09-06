@@ -7,14 +7,16 @@
     setExternalUrl,
     setImage,
     setFlags,
-    type SubscriptionContainer,
-    type SubscriptionContractData
+    type SubscriptionContractData,
+
+    type WritableSubscription
+
   } from '$lib/web3/contracts/subscription';
   import { queryClient, type QueryResult } from '$lib/query/config';
   import { getContext } from 'svelte';
-  import { SUBSCRIPTION_CONTRACT_CTX, SUBSCRIPTION_DATA_CTX } from '../+layout.svelte';
+  import { WRITABLE_SUBSCRIPTION_CONTRACT_CTX, SUBSCRIPTION_DATA_CTX } from '../+layout.svelte';
   import toast from '$lib/toast';
-  import type { BigNumberish, Hash } from '$lib/web3/contracts/common';
+  import type { Hash } from '$lib/web3/contracts/common';
   import { subKeys } from '$lib/query/keys';
   import Url from '$lib/components/Url.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -25,7 +27,7 @@
   const addr = data.subscriptionAddr;
 
   const subscriptionContract =
-    getContext<QueryResult<SubscriptionContainer>>(SUBSCRIPTION_CONTRACT_CTX);
+    getContext<QueryResult<WritableSubscription>>(WRITABLE_SUBSCRIPTION_CONTRACT_CTX);
   const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
 
   const invalidateSubData = () =>
@@ -36,15 +38,16 @@
 
   const updated =
     (msg: (hash: Hash) => string) =>
-    ({ detail: [, hash] }: CustomEvent<[string, Hash]>) => {
+    ({ detail: hash }: CustomEvent<Hash>) => {
       toast.info(msg(hash));
       invalidateSubData();
     };
-  const flagsUpdated = ({ detail: [flags, hash] }: CustomEvent<[BigNumberish, Hash]>) => {
+  const flagsUpdated = ({ detail: hash }: CustomEvent<Hash>) => {
     toast.info(`Contract Flags updated in ${hash}`);
     invalidateSubData();
   };
 
+  // TODO check if writable contract is available
   // TODO tx failed msgs
 </script>
 
@@ -59,7 +62,7 @@
 
 <!-- TODO add all event function -->
 {#if $subscriptionContract.isSuccess && $subscriptionData.isSuccess}
-  {@const contract = $subscriptionContract.data.contract}
+  {@const contract = $subscriptionContract.data}
   <EditSubscriptionContractForm
     data={$subscriptionData.data}
     setDescription={setDescription(contract)}
@@ -75,7 +78,7 @@
   <FlagsSubscriptionContractForm
     formId={`flags-${data.address}`}
     data={$subscriptionData.data}
-    setFlags={setFlags($subscriptionContract.data.contract)}
+    setFlags={setFlags($subscriptionContract.data)}
     on:flagsChanged={flagsUpdated}
     on:txFailed
     on:flagsTxSubmitted={updateScheduled}

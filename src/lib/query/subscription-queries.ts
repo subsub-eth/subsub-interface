@@ -1,13 +1,15 @@
 import type { Address } from '$lib/web3/contracts/common';
 import { derived } from 'svelte/store';
-import { chainEnvironment } from '$lib/chain-context';
+import { chainEnvironment, writableChainEnvironment } from '$lib/chain-context';
 import { currentAccount } from '$lib/web3/onboard';
 import { erc20Keys, subKeys } from '$lib/query/keys';
 import {
   createSubscriptionContract,
+  createWritableSubscriptionContract,
   getContractData,
   type Subscription,
-  type SubscriptionContractData
+  type SubscriptionContractData,
+  type WritableSubscription
 } from '$lib/web3/contracts/subscription';
 import {
   getErc20Contract,
@@ -30,6 +32,18 @@ export function subscriptionQueries(addr: Address) {
     derived(chainEnvironment, (chainEnvironment) => ({
       queryKey: subKeys.contract(addr),
       queryFn: () => createSubscriptionContract(addr, chainEnvironment!.publicClient)
+    }))
+  );
+
+  const writableSubscriptionContract = createQuery<WritableSubscription>(
+    derived(writableChainEnvironment, (ce) => ({
+      queryKey: subKeys.writableContract(addr),
+      queryFn: () =>
+        createWritableSubscriptionContract(
+          addr,
+          ce!.publicClient,
+          ce!.walletClient
+        )
     }))
   );
 
@@ -128,6 +142,7 @@ export function subscriptionQueries(addr: Address) {
 
   return {
     subscriptionContract,
+    writableSubscriptionContract,
     subscriptionData,
     subscriptionErc20Balance,
     erc20Contract,

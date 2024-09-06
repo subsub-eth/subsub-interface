@@ -4822,7 +4822,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      abitype: 1.0.5(typescript@5.3.3)(zod@3.22.4)
+      abitype: 1.0.6(typescript@5.3.3)(zod@3.22.4)
       bundle-require: 4.2.1(esbuild@0.19.10)
       cac: 6.7.14
       change-case: 5.4.4
@@ -5044,6 +5044,21 @@ packages:
     dependencies:
       typescript: 5.3.3
       zod: 3.22.4
+
+  /abitype@1.0.6(typescript@5.3.3)(zod@3.22.4):
+    resolution: {integrity: sha512-MMSqYh4+C/aVqI2RQaWqbvI4Kxo5cQV40WQ4QFtDnNzCkqChm8MuENhElmynZlO0qUy/ObkEUaXtKqYnx1Kp3A==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+      zod: ^3 >=3.22.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      zod:
+        optional: true
+    dependencies:
+      typescript: 5.3.3
+      zod: 3.22.4
+    dev: true
 
   /accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
@@ -11957,7 +11972,7 @@ packages:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
 
   file:../contracts/createz-contracts-0.2.0-alpha.14.tgz:
-    resolution: {integrity: sha512-zdIJRcNEHAgLouq9wn2SgF3VCtETx8RgT6OlKqjOXQxwiwf7Rn8gMnD5Jy37/ZsstO0WrBjD9Eyp2QczBG1HTw==, tarball: file:../contracts/createz-contracts-0.2.0-alpha.14.tgz}
+    resolution: {integrity: sha512-p9QR28ukbVhqpY2Fg+HIqNgMrfqK3cYOqHJYxOIJDEPlZ1y5XL1TbvAvw8E9+bMeM6fBzEObl5Affyw9lojyTA==, tarball: file:../contracts/createz-contracts-0.2.0-alpha.14.tgz}
     name: '@createz/contracts'
     version: 0.2.0-alpha.14
     dev: false

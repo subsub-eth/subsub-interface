@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   export type FieldChangeEvents = {
     txSubmitted: Hash;
-    valueChanged: [string, Hash];
+    valueChanged: Hash;
   };
 </script>
 
@@ -13,7 +13,7 @@
   import type { TxFailedEvents } from '../common-events';
   import { z, ZodSchema } from 'zod';
   import { createMutation } from '@tanstack/svelte-query';
-  import SuperDebug, { defaults, setError, superForm } from 'sveltekit-superforms';
+  import SuperDebug, { setError, superForm } from 'sveltekit-superforms';
   import { zod } from 'sveltekit-superforms/adapters';
   import TextareaInput from './TextareaInput.svelte';
 
@@ -26,7 +26,7 @@
   export let handle: (
     s: string,
     events?: { onTxSubmitted?: (hash: Hash) => void }
-  ) => Promise<[string, Hash]>;
+  ) => Promise<Hash>;
 
   const dispatch = createEventDispatcher<FieldChangeEvents & TxFailedEvents>();
   const schema = z.object({ field: validatorSchema });
@@ -35,8 +35,8 @@
     mutationFn: async ([value]: Parameters<typeof handle>) =>
       handle(value, { onTxSubmitted: (hash) => dispatch('txSubmitted', hash) }),
     onError: (error) => dispatch('txFailed', error),
-    onSuccess: ([value, hash]) => {
-      dispatch('valueChanged', [value, hash]);
+    onSuccess: (hash) => {
+      dispatch('valueChanged', hash);
     }
   });
 
@@ -55,9 +55,7 @@
         }
         const val = form.data.field ?? '';
         try {
-          const result = await $handleMutation.mutateAsync([
-            val
-          ]);
+          const result = await $handleMutation.mutateAsync([val]);
 
           return result;
         } catch (err) {

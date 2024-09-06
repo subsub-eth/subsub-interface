@@ -30,22 +30,22 @@ export type ClaimEvents = {
 
 export type FlagsChangeEvents = {
   flagsTxSubmitted: Hash;
-  flagsChanged: [BigNumberish, Hash];
+  flagsChanged: Hash;
 };
 
 export type DescriptionChangeEvents = {
   descriptionTxSubmitted: Hash;
-  descriptionChanged: [string, Hash];
+  descriptionChanged: Hash;
 };
 
 export type ImageChangeEvents = {
   imageTxSubmitted: Hash;
-  imageChanged: [string, Hash];
+  imageChanged: Hash;
 };
 
 export type ExternalUrlChangeEvents = {
   externalUrlTxSubmitted: Hash;
-  externalUrlChanged: [string, Hash];
+  externalUrlChanged: Hash;
 };
 
 export type DepositSubscriptionEvents = DepositEvents & ApprovalEvents & TxFailedEvents;

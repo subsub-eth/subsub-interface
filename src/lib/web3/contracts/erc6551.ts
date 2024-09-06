@@ -4,22 +4,21 @@ import { log } from '$lib/logger';
 import { addressEquals, zero32Bytes } from '../helpers';
 import type { ReadClient, ReadableContract, WritableContract, WriteClient } from '../viem';
 import {
-  decodeEventLog,
   getContract,
   toHex,
   type Abi,
-  erc20Abi,
   type ContractFunctionName,
   type ContractFunctionArgs,
   encodeFunctionData,
-  type EncodeFunctionDataParameters
+  type EncodeFunctionDataParameters,
+  type Hash,
+  parseEventLogs
 } from 'viem';
 import {
   ierc6551AccountAbi,
   ierc6551ExecutableAbi,
   ierc6551RegistryAbi
 } from '../generated/createz';
-import { writeContract } from 'viem/actions';
 
 export interface IERC6551Registry extends ReadableContract {}
 export interface WritableIERC6551Registry extends WritableContract {}
@@ -169,28 +168,18 @@ export async function createErc6551Account(
   if (events?.onTxSubmitted) events.onTxSubmitted(tx);
 
   const { logs } = await registry.publicClient.waitForTransactionReceipt({ hash: tx });
-  const [account] = logs
-    .map((l) =>
-      decodeEventLog({
-        abi: ierc6551RegistryAbi,
-        topics: l.topics,
-        data: l.data,
-        strict: false
-      })
-    )
-    .filter(
-      (l) =>
-        l.eventName === 'ERC6551AccountCreated' &&
-        l.args.tokenContract === contract &&
-        l.args.tokenId === tokenId
-    )
-    .map((l) => (l.eventName === 'ERC6551AccountCreated' ? l.args.account : undefined));
+  const [createdEvent] = parseEventLogs({
+    abi: ierc6551RegistryAbi,
+    logs,
+    eventName: 'ERC6551AccountCreated',
+    args: { tokenContract: contract, tokenId: tokenId }
+  });
 
-  if (!account) {
+  if (!createdEvent) {
     throw new Error('Transaction Log not found, did the transaction revert?');
   }
 
-  return asChecksumAddress(account);
+  return asChecksumAddress(createdEvent.args.account);
 }
 
 export async function execute<
@@ -204,7 +193,7 @@ export async function execute<
   func: functionName,
   args: args,
   value: bigint = 0n
-) {
+): Promise<Hash> {
   log.debug('ERC6551Execute:', account, target, func, args, value);
 
   const encoded = encodeFunctionData({
@@ -215,7 +204,7 @@ export async function execute<
   log.debug('ERC6551Execute: encoded', target, func, args, encoded);
   const ex = executable(exec);
   const tx = await ex.write.execute([target, value, encoded, 0]);
-  exec.publicClient.waitForTransactionReceipt({ hash: tx });
+  return tx;
 }
 
 /**

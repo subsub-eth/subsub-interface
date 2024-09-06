@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Hash as ViemHash} from 'viem';
 
 import { ethers, getAddress as ethersGetAddress } from 'ethers';
 
@@ -17,7 +18,7 @@ export type KeyOfType<T, V> = keyof {
   [P in keyof T as T[P] extends V ? CamelToSnakeCase<P & string> : never]: any;
 };
 
-export type Hash = string;
+export type Hash = ViemHash;
 
 export type OnTxSubmitted = (hash: Hash) => void;
 

@@ -10,7 +10,10 @@
     listUserSubscriptionsRev,
     type SubscriptionContractData,
     type Subscription,
-    claim
+    claim,
+
+    type WritableSubscription
+
   } from '$lib/web3/contracts/subscription';
   import { SubscriptionTeaser } from '$lib/components/subscription/token';
   import ClaimControl from '$lib/components/subscription/ClaimControl.svelte';
@@ -26,7 +29,10 @@
     SUBSCRIPTION_DATA_CTX,
     SUBSCRIPTION_ERC20_BALANCE_CTX,
     SUBSCRIPTION_WARNIGNS_CTX,
-    TOKEN_PRICE_CTX
+    TOKEN_PRICE_CTX,
+
+    WRITABLE_SUBSCRIPTION_CONTRACT_CTX
+
   } from './+layout.svelte';
   import { erc6551Keys, subKeys } from '$lib/query/keys';
   import { type Price } from '$lib/web3/contracts/oracle';
@@ -44,6 +50,9 @@
 
   const subscriptionContract =
     getContext<QueryResult<Subscription>>(SUBSCRIPTION_CONTRACT_CTX);
+
+  const writableSubscriptionContract =
+    getContext<QueryResult<WritableSubscription>>(WRITABLE_SUBSCRIPTION_CONTRACT_CTX);
 
   const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
 
@@ -121,10 +130,10 @@ Subscription Contract: {addr}
           tokenPrice={$tokenPrice}
           warnings={$subscriptionWarnings}
         />
-        {#if $validSigner.isSuccess && $validSigner.data}
+        {#if $validSigner.isSuccess && $validSigner.data && $writableSubscriptionContract.isSuccess && $writableSubscriptionContract.data}
           <ClaimControl
             data={$subscriptionData.data}
-            claim={claim($subscriptionContract.data)}
+            claim={claim($writableSubscriptionContract.data)}
             claimTo={currAcc}
             on:claimed={claimed}
           />

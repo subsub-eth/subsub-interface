@@ -13,9 +13,9 @@ import {
 } from './common';
 import { decodeDataJsonTokenURI } from '../helpers';
 import { log } from '$lib/logger';
-import type { ReadClient, ReadableContract, WritableContract } from '../viem';
-import { getContract } from 'viem';
-import { iSubscriptionAbi } from '../generated/createz';
+import { type ReadClient, type ReadableContract, type WritableContract, type WriteClient } from '../viem';
+import { getContract, parseEventLogs } from 'viem';
+import { subscriptionAbi as abi } from '../generated/createz';
 
 export const MULTIPLIER_BASE = 100;
 
@@ -23,12 +23,19 @@ export interface Subscription extends ReadableContract {}
 
 export interface WritableSubscription extends Subscription, WritableContract {}
 
-
 function contract(sub: Subscription) {
   return getContract({
-    abi: iSubscriptionAbi,
+    abi,
     address: sub.address,
     client: sub.publicClient
+  });
+}
+
+function writableContract(sub: WritableSubscription) {
+  return getContract({
+    abi,
+    address: sub.address,
+    client: { public: sub.publicClient, wallet: sub.walletClient }
   });
 }
 
@@ -165,11 +172,12 @@ export function activeSubscriptions(activeShares: bigint, totalSupply: number): 
   return Math.min(Math.floor(Number(BigInt(activeShares) / BigInt(100))), totalSupply);
 }
 
-export function createSubscriptionContract(
-  address: Address,
-  client: ReadClient
-): Subscription {
+export function createSubscriptionContract(address: Address, client: ReadClient): Subscription {
   return { address: address, publicClient: client };
+}
+
+export function createWritableSubscriptionContract(address: Address, publicClient: ReadClient, walletClient: WriteClient): WritableSubscription {
+  return { address, publicClient, walletClient };
 }
 
 export async function getContractData(sub: Subscription): Promise<SubscriptionContractData> {
@@ -344,81 +352,90 @@ export type ClaimFunc = (
   }
 ) => Promise<[bigint, Hash]>;
 
-export function claim(contract: Subscription): ClaimFunc {
+export function claim(contract: WritableSubscription): ClaimFunc {
   return async (address, events) => {
+    const c = writableContract(contract);
     // we increase the gas estimate as `claim` iterates over epochs which
     // might require more gas between estimate and actual execution
-    const gasEstimate = await contract.claim.estimateGas(address);
+    const gasEstimate = await c.estimateGas.claim([address], {}); // pass empty option for compiler
 
     // increase to 110% of original estimate
     const increasedGas = (gasEstimate * 11n) / 10n;
-    const tx = await contract.claim(address, { gasLimit: increasedGas });
-    events?.onClaimTxSubmitted?.(tx.hash);
-    const claimEvent = await findLog(tx, contract, contract.filters.FundsClaimed());
+    const tx = await c.write.claim([address], { gas: increasedGas });
+    events?.onClaimTxSubmitted?.(tx);
+    const { logs } = await contract.publicClient.waitForTransactionReceipt({ hash: tx });
+    const [claimEvent] = parseEventLogs({ abi, logs, eventName: 'FundsClaimed' });
     if (!claimEvent) {
-      throw new Error('Transaction Log not found');
+      throw new Error('Transaction Log not found, did the transaction revert?');
     }
-    return [claimEvent.args.amount, tx.hash];
+
+    return [claimEvent.args.amount, tx];
   };
 }
 
 export type UpdateDescription = (
   description: string,
   events?: { onDescriptionTxSubmitted?: (hash: Hash) => void }
-) => Promise<[string, Hash]>;
+) => Promise<Hash>;
 export type UpdateImage = (
   image: string,
   events?: { onImageTxSubmitted?: (hash: Hash) => void }
-) => Promise<[string, Hash]>;
+) => Promise<Hash>;
 export type UpdateExternalUrl = (
   externalUrl: string,
   events?: { onExternalUrlTxSubmitted?: (hash: Hash) => void }
-) => Promise<[string, Hash]>;
+) => Promise<Hash>;
 export type UpdateFlags = (
   flags: bigint,
   events?: { onFlagsTxSubmitted?: (hash: Hash) => void }
-) => Promise<[bigint, Hash]>;
+) => Promise<Hash>;
 
-async function setProperty<T>(
-  func: (s: T) => Promise<ContractTransactionResponse>,
-  value: T,
+async function setProperty(
+  sub: WritableSubscription,
+  func: (w: ReturnType<typeof writableContract>['write']) => Promise<Hash>,
   onSubmitted?: (hash: Hash) => void
-): Promise<[T, Hash]> {
-  const tx = await func(value);
-  onSubmitted?.(tx.hash);
-  await tx.wait();
-  return [value, tx.hash];
+): Promise<Hash> {
+  const c = writableContract(sub);
+  const tx = await func(c.write);
+  onSubmitted?.(tx);
+  await sub.publicClient.waitForTransactionReceipt({hash: tx});
+  return tx;
 }
 
-export function setDescription(contract: Subscription): UpdateDescription {
+export function setDescription(contract: WritableSubscription): UpdateDescription {
   return async (description, events) => {
-    return setProperty(contract.setDescription, description, events?.onDescriptionTxSubmitted);
+    return setProperty(
+      contract,
+      (w) => w.setDescription([description]),
+      events?.onDescriptionTxSubmitted
+    );
   };
 }
 
-export function setImage(contract: Subscription): UpdateImage {
+export function setImage(contract: WritableSubscription): UpdateImage {
   return async (image, events) => {
-    return setProperty(contract.setImage, image, events?.onImageTxSubmitted);
+    return setProperty(contract, (w) => w.setImage([image]), events?.onImageTxSubmitted);
   };
 }
 
-export function setExternalUrl(contract: Subscription): UpdateExternalUrl {
+export function setExternalUrl(contract: WritableSubscription): UpdateExternalUrl {
   return async (externalUrl, events) => {
-    return setProperty(contract.setExternalUrl, externalUrl, events?.onExternalUrlTxSubmitted);
+    return setProperty(
+      contract,
+      (w) => w.setExternalUrl([externalUrl]),
+      events?.onExternalUrlTxSubmitted
+    );
   };
 }
 
-export function setFlags(contract: Subscription): UpdateFlags {
+export function setFlags(contract: WritableSubscription): UpdateFlags {
   return async (flags, events) => {
-    return setProperty(contract.setFlags, flags, events?.onFlagsTxSubmitted);
+    return setProperty(contract, (w) => w.setFlags([flags]), events?.onFlagsTxSubmitted);
   };
 }
 
-export async function countUserSubscriptions(
-  sub: Subscription,
-  account: Address
-): Promise<number> {
-  const c = contract(sub)
+export async function countUserSubscriptions(sub: Subscription, account: Address): Promise<number> {
+  const c = contract(sub);
   const count = await c.read.balanceOf([account]);
   return Number(count);
 }
@@ -435,8 +452,7 @@ export function listUserSubscriptionsRev(
     const count = Math.max(Math.min(totalItems - index, pageSize), 0);
 
     const load = async (i: number): Promise<SubscriptionData> => {
-
-      const c = contract(sub)
+      const c = contract(sub);
       // reverse index here
       const id = await c.read.tokenOfOwnerByIndex([account, BigInt(totalItems - 1 - (i + index))]);
       const res = await getSubscriptionData(sub, id);
