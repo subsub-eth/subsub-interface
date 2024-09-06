@@ -5,7 +5,7 @@
 <script lang="ts" generics="T extends Record<string, unknown>, U extends FormPath<T>">
   import { log } from '$lib/logger';
 
-  import { formatUnits, parseUnits } from 'ethers';
+  import { formatUnits, parseUnits } from '$lib/web3/helpers';
 
   import type { SuperForm, FormPath } from 'sveltekit-superforms';
 

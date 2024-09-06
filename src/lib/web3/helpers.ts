@@ -1,7 +1,9 @@
-import { ZeroAddress } from 'ethers';
+import { zeroAddress as zd } from 'viem';
 import { AddressSchema } from './contracts/common';
 import type { ZodType } from 'zod';
 import { log } from '$lib/logger';
+
+export { maxUint256, formatUnits, formatEther, parseUnits, isAddress } from 'viem';
 
 const dataJsonPrelude = 'data:application/json;base64,';
 
@@ -36,5 +38,5 @@ export function addressEquals(a: string | null | undefined, b: string | null | u
   return a?.toLowerCase() === b?.toLowerCase();
 }
 
-export const zeroAddress = AddressSchema.parse(ZeroAddress);
+export const zeroAddress = AddressSchema.parse(zd);
 export const zero32Bytes = new Uint8Array(32);

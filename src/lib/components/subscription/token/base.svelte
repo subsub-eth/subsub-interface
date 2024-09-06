@@ -13,7 +13,7 @@
 
 <script lang="ts">
   import type { SubscriptionData } from '$lib/web3/contracts/subscription';
-  import { formatUnits } from 'ethers';
+  import { formatUnits } from '$lib/web3/helpers';
   import { prettyNumber } from '$lib/helpers';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import type { BigNumberish } from '$lib/web3/contracts/common';

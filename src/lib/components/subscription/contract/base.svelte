@@ -33,7 +33,7 @@
   import { type Price } from '$lib/web3/contracts/oracle';
   import type { ObservedQueryResult } from '$lib/query/config';
   import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
-  import { formatEther } from 'ethers';
+  import { formatEther } from '$lib/web3/helpers';
 
   /**
    * Data of the subscription plan

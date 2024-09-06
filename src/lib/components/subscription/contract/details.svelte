@@ -11,7 +11,7 @@
   import { ExplorerTokenUrl } from '$lib/components/url/explorer';
   import Base from './base.svelte';
   import type { Props } from './base.svelte';
-  import { formatUnits } from 'ethers';
+  import { formatUnits } from '$lib/web3/helpers';
   import type { BigNumberish } from '$lib/web3/contracts/common';
   import WarningCollapsible from '$lib/components/ui2/WarningCollapsible.svelte';
   import { convertedEtherPretty } from '$lib/web3/contracts/oracle';

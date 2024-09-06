@@ -1,7 +1,5 @@
 import { z } from 'zod';
-import type { Hash as ViemHash} from 'viem';
-
-import { ethers, getAddress as ethersGetAddress } from 'ethers';
+import { type Hash as ViemHash, isAddress, getAddress as getChecksumAddress} from 'viem';
 
 type RemoveUnderscoreFirstLetter<S extends string> = S extends `${infer FirstLetter}${infer U}`
   ? `${FirstLetter extends '_' ? U : `${FirstLetter}${U}`}`
@@ -27,13 +25,13 @@ export const BigNumberishSchema = z.union([z.string(), z.number(), z.bigint()]);
 export type BigNumberish = z.infer<typeof BigNumberishSchema>;
 
 export const AddressSchema = z.custom<`0x${string}`>((val) => {
-  return ethers.isAddress(val);
+  return typeof val === 'string' &&  isAddress(val);
 }, 'Invalid address');
 
 export type Address = z.infer<typeof AddressSchema>;
 export type address = Address;
 
-export const asChecksumAddress = (addr: string) => AddressSchema.parse(ethersGetAddress(addr));
+export const asChecksumAddress = (addr: string) => AddressSchema.parse(getChecksumAddress(addr));
 
 export const AttributeSchema = z.object({
   trait_type: z.string(),

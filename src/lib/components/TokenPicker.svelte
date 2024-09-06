@@ -8,8 +8,7 @@
   import { derived, writable } from 'svelte/store';
   import type { Erc20Data, Erc20Token } from '$lib/web3/contracts/erc20';
   import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
-  import { isAddress } from 'ethers';
-  import { addressEquals } from '$lib/web3/helpers';
+  import { addressEquals, isAddress } from '$lib/web3/helpers';
   import { log } from '$lib/logger';
   import { tokenSearch } from '$lib/query/keys';
 

@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  const MAX = MaxUint256;
+  const MAX = maxUint256;
 </script>
 
 <script lang="ts" generics="T extends Record<string, unknown>, U extends FormPath<T>">
@@ -7,7 +7,7 @@
 
   import { log } from '$lib/logger';
 
-  import { MaxUint256 } from 'ethers';
+  import { maxUint256 } from '$lib/web3/helpers';
 
   import type { SuperForm, FormPath } from 'sveltekit-superforms';
 

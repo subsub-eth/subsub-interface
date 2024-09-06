@@ -12,7 +12,7 @@
   import type { ObservedQueryResult } from '$lib/query/config';
   import { convertedPretty, type Price } from '$lib/web3/contracts/oracle';
   import { prettyNumber } from '$lib/helpers';
-  import { formatEther, formatUnits } from 'ethers';
+  import { formatEther, formatUnits } from '$lib/web3/helpers';
   import type { BigNumberish } from '$lib/web3/contracts/common';
   import { ExplorerAccountUrl, ExplorerNftUrl } from '$lib/components/url';
 
