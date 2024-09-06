@@ -11,9 +11,10 @@
     type SubscriptionContractData,
     type SubscriptionData,
     getSubscriptionData,
-    type Subscription
+    type Subscription,
+    type WritableSubscription
   } from '$lib/web3/contracts/subscription';
-  import { approveFunc, type Erc20, type Erc20Data } from '$lib/web3/contracts/erc20';
+  import { approveFunc, type Erc20Data, type WritableErc20 } from '$lib/web3/contracts/erc20';
   import { createQuery } from '@tanstack/svelte-query';
   import { derived } from 'svelte/store';
   import { queryClient, type QueryResult } from '$lib/query/config';
@@ -21,18 +22,17 @@
   import {
     ERC20_ALLOWANCE_CTX,
     ERC20_BALANCE_CTX,
-    ERC20_CONTRACT_CTX,
     ERC20_DATA_CTX,
     SUBSCRIPTION_CONTRACT_CTX,
     SUBSCRIPTION_DATA_CTX,
-
-    TOKEN_PRICE_CTX
-
+    TOKEN_PRICE_CTX,
+    WRITABLE_ERC20_CONTRACT_CTX,
+    WRITABLE_SUBSCRIPTION_CONTRACT_CTX
   } from '../+layout.svelte';
   import toast from '$lib/toast';
   import { currentAccount } from '$lib/web3/onboard';
   import { erc20Keys, subKeys } from '$lib/query/keys';
-    import type { Price } from '$lib/web3/contracts/oracle';
+  import type { Price } from '$lib/web3/contracts/oracle';
 
   export let data: PageData;
 
@@ -41,8 +41,10 @@
 
   const subDataQueryKey = subKeys.tokenUri(addr, tokenId);
 
-  const subscriptionContract =
-    getContext<QueryResult<Subscription>>(SUBSCRIPTION_CONTRACT_CTX);
+  const subscriptionContract = getContext<QueryResult<Subscription>>(SUBSCRIPTION_CONTRACT_CTX);
+  const writableSubscriptionContract = getContext<QueryResult<WritableSubscription>>(
+    WRITABLE_SUBSCRIPTION_CONTRACT_CTX
+  );
 
   const subscriptionContractData =
     getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
@@ -55,7 +57,7 @@
     }))
   );
 
-  const erc20Contract = getContext<QueryResult<Erc20>>(ERC20_CONTRACT_CTX);
+  const erc20Contract = getContext<QueryResult<WritableErc20>>(WRITABLE_ERC20_CONTRACT_CTX);
   const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
   const erc20Allowance = getContext<QueryResult<bigint>>(ERC20_ALLOWANCE_CTX);
   const erc20Balance = getContext<QueryResult<bigint>>(ERC20_BALANCE_CTX);
@@ -87,7 +89,7 @@
 
 <div>
   {#if $subscriptionContract.isSuccess && $subscriptionContractData.isSuccess && $subscriptionData.isSuccess && $erc20Contract.isSuccess && $erc20Data.isSuccess && $erc20Allowance.isSuccess && $erc20Balance.isSuccess}
-    {@const subContract = $subscriptionContract.data}
+    {@const subContract = $writableSubscriptionContract.data}
     {@const contractData = $subscriptionContractData.data}
     {@const erc20 = $erc20Contract.data}
     {@const erc20Data = $erc20Data.data}

@@ -3,30 +3,16 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import MintSubscriptionForm from '$lib/components/subscription/action/MintSubscriptionForm.svelte';
-  import {
-    mint,
-    type Subscription,
-    type SubscriptionContractData,
-
-    type WritableSubscription
-
-  } from '$lib/web3/contracts/subscription';
-  import { approveFunc, type Erc20, type Erc20Data, type WritableErc20 } from '$lib/web3/contracts/erc20';
+  import { mint, type WritableSubscription } from '$lib/web3/contracts/subscription';
+  import { approveFunc, type WritableErc20 } from '$lib/web3/contracts/erc20';
   import toast from '$lib/toast';
   import { queryClient, type QueryResult } from '$lib/query/config';
   import { getContext } from 'svelte';
   import {
     ERC20_ALLOWANCE_CTX,
     ERC20_BALANCE_CTX,
-    ERC20_CONTRACT_CTX,
-    ERC20_DATA_CTX,
-    SUBSCRIPTION_CONTRACT_CTX,
-    SUBSCRIPTION_DATA_CTX,
-
     WRITABLE_ERC20_CONTRACT_CTX,
-
     WRITABLE_SUBSCRIPTION_CONTRACT_CTX
-
   } from '../+layout.svelte';
   import { currentAccount } from '$lib/web3/onboard';
   import type { Hash } from '$lib/web3/contracts/common';
@@ -43,13 +29,11 @@
     goto($page.url.pathname + '../' + id);
   };
 
-  const subscriptionContract =
-    getContext<QueryResult<WritableSubscription>>(WRITABLE_SUBSCRIPTION_CONTRACT_CTX);
-
-  const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
+  const subscriptionContract = getContext<QueryResult<WritableSubscription>>(
+    WRITABLE_SUBSCRIPTION_CONTRACT_CTX
+  );
 
   const erc20Contract = getContext<QueryResult<WritableErc20>>(WRITABLE_ERC20_CONTRACT_CTX);
-  const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
 
   const erc20Allowance = getContext<QueryResult<bigint>>(ERC20_ALLOWANCE_CTX);
   const erc20Balance = getContext<QueryResult<bigint>>(ERC20_BALANCE_CTX);

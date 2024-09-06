@@ -267,13 +267,14 @@ export type WithdrawalFunc = (
   events?: { onWithdrawTxSubmitted?: OnTxSubmitted }
 ) => Promise<[bigint, Hash]>;
 
-export function withdraw(contract: Subscription, tokenId: bigint): WithdrawalFunc {
+export function withdraw(contract: WritableSubscription, tokenId: bigint): WithdrawalFunc {
   return async (amount, events) => {
-    const tx = await contract.withdraw(tokenId, amount);
-    events?.onWithdrawTxSubmitted?.(tx.hash);
+    const c = writableContract(contract);
+    const tx = await c.write.withdraw([tokenId, amount]);
+    events?.onWithdrawTxSubmitted?.(tx);
 
-    const receipt = await getReceipt(tx);
-    return [amount, receipt.hash];
+    await contract.publicClient.waitForTransactionReceipt({ hash: tx });
+    return [amount, tx];
   };
 }
 
@@ -281,21 +282,25 @@ export type CancelFunc = (events?: {
   onWithdrawTxSubmitted?: OnTxSubmitted;
 }) => Promise<[bigint, Hash]>;
 
-export function cancel(contract: Subscription, tokenId: bigint): CancelFunc {
+export function cancel(contract: WritableSubscription, tokenId: bigint): CancelFunc {
   return async (events) => {
-    const tx = await contract.cancel(tokenId);
-    events?.onWithdrawTxSubmitted?.(tx.hash);
+    const c = writableContract(contract);
+    const tx = await c.write.cancel([tokenId]);
+    events?.onWithdrawTxSubmitted?.(tx);
 
-    const withdrawnEvent = await findLog(
-      tx,
-      contract,
-      contract.filters.SubscriptionWithdrawn(tokenId)
-    );
+    const { logs } = await contract.publicClient.waitForTransactionReceipt({ hash: tx });
+
+    const [withdrawnEvent] = parseEventLogs({
+      abi,
+      logs,
+      eventName: 'SubscriptionWithdrawn',
+      args: { tokenId }
+    });
     if (!withdrawnEvent) {
       throw new Error('Transaction Log not found');
     }
     const amount = withdrawnEvent?.args.removedAmount;
-    return [amount, tx.hash];
+    return [amount, tx];
   };
 }
 
@@ -307,23 +312,25 @@ export type DepositFunc = (
   }
 ) => Promise<[bigint, string, Hash]>;
 
-export function renew(contract: Subscription, tokenId: bigint): DepositFunc {
+export function renew(contract: WritableSubscription, tokenId: bigint): DepositFunc {
   return async (amount, message, events) => {
-    const tx = await contract.renew(tokenId, amount, message);
-    events?.onDepositTxSubmitted?.(tx.hash);
-    const receipt = await getReceipt(tx);
+    const c = writableContract(contract);
+    const tx = await c.write.renew([tokenId, amount, message]);
+    events?.onDepositTxSubmitted?.(tx);
+    await contract.publicClient.waitForTransactionReceipt({hash: tx});
 
-    return [amount, message, receipt.hash];
+    return [amount, message, tx];
   };
 }
 
-export function tip(contract: Subscription, tokenId: bigint): DepositFunc {
+export function tip(contract: WritableSubscription, tokenId: bigint): DepositFunc {
   return async (amount, message, events) => {
-    const tx = await contract.tip(tokenId, amount, message);
-    events?.onDepositTxSubmitted?.(tx.hash);
-    const receipt = await getReceipt(tx);
+    const c = writableContract(contract);
+    const tx = await c.write.tip([tokenId, amount, message]);
+    events?.onDepositTxSubmitted?.(tx);
+    await contract.publicClient.waitForTransactionReceipt({hash: tx});
 
-    return [amount, message, receipt.hash];
+    return [amount, message, tx];
   };
 }
 
