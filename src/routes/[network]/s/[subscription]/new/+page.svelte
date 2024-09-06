@@ -5,10 +5,13 @@
   import MintSubscriptionForm from '$lib/components/subscription/action/MintSubscriptionForm.svelte';
   import {
     mint,
-    type SubscriptionContainer,
-    type SubscriptionContractData
+    type Subscription,
+    type SubscriptionContractData,
+
+    type WritableSubscription
+
   } from '$lib/web3/contracts/subscription';
-  import { approveFunc, type Erc20Data, type Erc20Container } from '$lib/web3/contracts/erc20';
+  import { approveFunc, type Erc20, type Erc20Data, type WritableErc20 } from '$lib/web3/contracts/erc20';
   import toast from '$lib/toast';
   import { queryClient, type QueryResult } from '$lib/query/config';
   import { getContext } from 'svelte';
@@ -18,7 +21,12 @@
     ERC20_CONTRACT_CTX,
     ERC20_DATA_CTX,
     SUBSCRIPTION_CONTRACT_CTX,
-    SUBSCRIPTION_DATA_CTX
+    SUBSCRIPTION_DATA_CTX,
+
+    WRITABLE_ERC20_CONTRACT_CTX,
+
+    WRITABLE_SUBSCRIPTION_CONTRACT_CTX
+
   } from '../+layout.svelte';
   import { currentAccount } from '$lib/web3/onboard';
   import type { Hash } from '$lib/web3/contracts/common';
@@ -36,11 +44,11 @@
   };
 
   const subscriptionContract =
-    getContext<QueryResult<SubscriptionContainer>>(SUBSCRIPTION_CONTRACT_CTX);
+    getContext<QueryResult<WritableSubscription>>(WRITABLE_SUBSCRIPTION_CONTRACT_CTX);
 
   const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
 
-  const erc20Contract = getContext<QueryResult<Erc20Container>>(ERC20_CONTRACT_CTX);
+  const erc20Contract = getContext<QueryResult<WritableErc20>>(WRITABLE_ERC20_CONTRACT_CTX);
   const erc20Data = getContext<QueryResult<Erc20Data>>(ERC20_DATA_CTX);
 
   const erc20Allowance = getContext<QueryResult<bigint>>(ERC20_ALLOWANCE_CTX);
@@ -65,8 +73,8 @@
     formId={addr}
     allowance={$erc20Allowance.data}
     balance={$erc20Balance.data}
-    mint={mint($subscriptionContract.data.contract, $currentAccount)}
-    approve={approveFunc($erc20Contract.data.contract, addr)}
+    mint={mint($subscriptionContract.data, $currentAccount)}
+    approve={approveFunc($erc20Contract.data, addr)}
     on:minted={onMinted}
     on:approved={approved}
     on:mintTxSubmitted={(ev) => toast.info(`Mint Transaction submitted: ${ev.detail}`)}

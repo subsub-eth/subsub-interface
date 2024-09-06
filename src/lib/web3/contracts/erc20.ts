@@ -1,7 +1,7 @@
 import { type Hash, AddressSchema, type Address } from './common';
 import { z } from 'zod';
 import { log } from '$lib/logger';
-import type { ReadClient, ReadableContract, WritableContract } from '../viem';
+import type { ReadClient, ReadableContract, WritableContract, WriteClient } from '../viem';
 import { erc20Abi, getContract } from 'viem';
 
 const Erc20TokenSchema = z.object({
@@ -33,13 +33,22 @@ function writableErc20(token: WritableErc20) {
   return getContract({
     abi: erc20Abi,
     address: token.address,
-    client: {public: token.publicClient, wallet: token.walletClient}
+    client: { public: token.publicClient, wallet: token.walletClient }
   });
 }
 
 export function getErc20Contract(address: Address, client: ReadClient): Erc20 {
   log.debug('Created ERC20 contract for', address, client);
-  return { address: address, publicClient: client};
+  return { address: address, publicClient: client };
+}
+
+export function getWritableErc20Contract(
+  address: Address,
+  publicClient: ReadClient,
+  walletClient: WriteClient
+): WritableErc20 {
+  log.debug('Created ERC20 contract for', address, publicClient, walletClient);
+  return { address, publicClient, walletClient };
 }
 
 export async function getErc20Data(contract: Erc20): Promise<Erc20Data> {
@@ -49,7 +58,7 @@ export async function getErc20Data(contract: Erc20): Promise<Erc20Data> {
 
   const name = await c.read.name();
   const symbol = await c.read.symbol();
-  const decimals = Number(await c.read. decimals());
+  const decimals = Number(await c.read.decimals());
 
   return {
     address: address,
@@ -104,11 +113,11 @@ export type ApproveFunc = (
 
 export function approveFunc(token: WritableErc20, spender: Address): ApproveFunc {
   return async (amount, events) => {
-    const c = writableErc20(token)
+    const c = writableErc20(token);
     if (amount > 0 && token) {
       const apprTx = await c.write.approve([spender, amount]);
       events?.onApprovalTxSubmitted?.(apprTx);
-      await token.publicClient.waitForTransactionReceipt({hash: apprTx});
+      await token.publicClient.waitForTransactionReceipt({ hash: apprTx });
       return [amount, apprTx];
     } else {
       throw new Error('Approval of 0 amount or token not found');

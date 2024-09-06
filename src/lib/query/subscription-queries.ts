@@ -17,7 +17,9 @@ import {
   getErc20Data,
   type Erc20Data,
   getAllowance,
-  getBalance
+  getBalance,
+  type WritableErc20,
+  getWritableErc20Contract
 } from '$lib/web3/contracts/erc20';
 import { createQuery } from '@tanstack/svelte-query';
 import { findPrice, type Price } from '$lib/web3/contracts/oracle';
@@ -66,6 +68,17 @@ export function subscriptionQueries(addr: Address) {
       ([chainEnvironment, { isSuccess, data: subData }]) => ({
         queryKey: erc20Keys.contract(subData?.token),
         queryFn: () => getErc20Contract(subData!.token, chainEnvironment!.publicClient),
+        enabled: isSuccess && !!subData?.token
+      })
+    )
+  );
+
+  const writableErc20Contract = createQuery<WritableErc20>(
+    derived(
+      [writableChainEnvironment, subscriptionData],
+      ([chainEnvironment, { isSuccess, data: subData }]) => ({
+        queryKey: erc20Keys.writableContract(subData?.token),
+        queryFn: () => getWritableErc20Contract(subData!.token, chainEnvironment!.publicClient, chainEnvironment!.walletClient),
         enabled: isSuccess && !!subData?.token
       })
     )
@@ -146,6 +159,7 @@ export function subscriptionQueries(addr: Address) {
     subscriptionData,
     subscriptionErc20Balance,
     erc20Contract,
+    writableErc20Contract,
     erc20Data,
     erc20Allowance,
     erc20Balance,

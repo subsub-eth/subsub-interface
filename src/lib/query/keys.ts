@@ -33,6 +33,7 @@ function hash(val: unknown): string {
 
 export const erc20Keys = {
   contract: (address?: Address) => key(ERC20, address),
+  writableContract: (address?: Address) => key(ERC20, address, WRITABLE),
   metadata: (address?: Address) => key(ERC20, address, CONTRACT_DATA),
   allowance: (address?: Address, owner?: Address, spender?: Address) =>
     key(ERC20, address, ALLOWANCE, owner, spender),

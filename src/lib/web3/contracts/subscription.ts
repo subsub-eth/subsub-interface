@@ -13,7 +13,12 @@ import {
 } from './common';
 import { decodeDataJsonTokenURI } from '../helpers';
 import { log } from '$lib/logger';
-import { type ReadClient, type ReadableContract, type WritableContract, type WriteClient } from '../viem';
+import {
+  type ReadClient,
+  type ReadableContract,
+  type WritableContract,
+  type WriteClient
+} from '../viem';
 import { getContract, parseEventLogs } from 'viem';
 import { subscriptionAbi as abi } from '../generated/createz';
 
@@ -176,7 +181,11 @@ export function createSubscriptionContract(address: Address, client: ReadClient)
   return { address: address, publicClient: client };
 }
 
-export function createWritableSubscriptionContract(address: Address, publicClient: ReadClient, walletClient: WriteClient): WritableSubscription {
+export function createWritableSubscriptionContract(
+  address: Address,
+  publicClient: ReadClient,
+  walletClient: WriteClient
+): WritableSubscription {
   return { address, publicClient, walletClient };
 }
 
@@ -327,21 +336,25 @@ export type MintFunc = (
   }
 ) => Promise<[bigint, bigint, string, Hash]>;
 
-export function mint(contract: Subscription, currentAccount: string): MintFunc {
+export function mint(contract: WritableSubscription, currentAccount: Address): MintFunc {
   return async (amount, multiplier, message, events) => {
-    const tx = await contract.mint(amount, multiplier, message);
-    events?.onMintTxSubmitted?.(tx.hash);
-    const mintEvent = await findLog(
-      tx,
-      contract,
-      contract.filters.Transfer(ZeroAddress, currentAccount)
-    );
+    const c = writableContract(contract);
+    const tx = await c.write.mint([amount, multiplier, message]);
+    events?.onMintTxSubmitted?.(tx);
+    const { logs } = await contract.publicClient.waitForTransactionReceipt({ hash: tx });
+    const [mintEvent] = parseEventLogs({
+      abi,
+      logs,
+      eventName: 'Transfer',
+      args: { to: currentAccount }
+    });
+
     if (!mintEvent) {
       throw new Error('Transaction Log not found');
     }
     const tokenId = mintEvent?.args.tokenId;
 
-    return [tokenId, amount, message, tx.hash];
+    return [tokenId, amount, message, tx];
   };
 }
 
@@ -398,7 +411,7 @@ async function setProperty(
   const c = writableContract(sub);
   const tx = await func(c.write);
   onSubmitted?.(tx);
-  await sub.publicClient.waitForTransactionReceipt({hash: tx});
+  await sub.publicClient.waitForTransactionReceipt({ hash: tx });
   return tx;
 }
 
