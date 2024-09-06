@@ -49,8 +49,8 @@ export const SubSettingsSchema = z.object({
 export type SubSettings = z.infer<typeof SubSettingsSchema>;
 
 export function tokenIdToAddress(tokenId: bigint): Address {
-    const hex = pad(toHex(tokenId), {size: 20});
-    return AddressSchema.parse(hex);
+  const hex = pad(toHex(tokenId), { size: 20 });
+  return AddressSchema.parse(hex);
 }
 
 export async function getSubscriptionContractAddresses(
@@ -91,7 +91,7 @@ export function createSubscription(subHandle: WritableSubscriptionHandle): Creat
 
     const { logs } = await subHandle.publicClient.waitForTransactionReceipt({ hash: tx });
 
-    const [created] = parseEventLogs({abi, logs, eventName: 'SubscriptionContractCreated'});
+    const [created] = parseEventLogs({ abi, logs, eventName: 'SubscriptionContractCreated' });
 
     if (!created) {
       throw new Error('Transaction Log not found');
@@ -117,11 +117,17 @@ export function erc6551CreateSubscription(
 
     const { logs } = await account.publicClient.waitForTransactionReceipt({ hash: tx });
 
-    const [created] = parseEventLogs({abi, logs, eventName: 'SubscriptionContractCreated'});
+    const [created] = parseEventLogs({ abi, logs, eventName: 'SubscriptionContractCreated' });
 
     if (!created) {
       throw new Error('Transaction Log not found');
     }
     return created.args.contractAddress;
   };
+}
+
+export async function isManaged(tokenId: bigint, handle: SubscriptionHandle): Promise<boolean> {
+  const c = contract(handle);
+  const isManaged = await c.read.isManaged([tokenId]);
+  return isManaged;
 }

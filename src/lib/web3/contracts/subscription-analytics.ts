@@ -1,6 +1,6 @@
-import type { ISubscriptionHandle } from '@createz/contracts/types/ethers-contracts';
 import type { Address } from './common';
 import type { SubscriptionContractData } from './subscription';
+import { type SubscriptionHandle, isManaged as isHandleManaged } from './subscription-handle';
 
 export type WarningMessage = {
   type: 'error' | 'warning' | 'paused';
@@ -44,10 +44,10 @@ export async function analyzeSubscriptionContract(
 
 export async function isManaged(
   plan: Address,
-  handle: ISubscriptionHandle
+  handle: SubscriptionHandle
 ): Promise<Array<WarningMessage>> {
   const tokenId = BigInt(plan);
-  const isManaged = await handle.isManaged(tokenId);
+  const isManaged = await isHandleManaged(tokenId, handle);
 
   if (isManaged) {
     return [
