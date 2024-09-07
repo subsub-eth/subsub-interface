@@ -9,8 +9,8 @@ overrides:
 
 dependencies:
   '@createz/contracts':
-    specifier: file:../contracts/createz-contracts-0.2.0-alpha.14.tgz
-    version: file:../contracts/createz-contracts-0.2.0-alpha.14.tgz
+    specifier: 0.2.0-alpha.14
+    version: 0.2.0-alpha.14
   '@metamask/contract-metadata':
     specifier: ^2.4.0
     version: 2.4.0
@@ -1487,6 +1487,10 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@createz/contracts@0.2.0-alpha.14:
+    resolution: {integrity: sha512-RLVT01n07y/2vl4Xf6hqpWgvHIkpJmjAttuCi0Nl7fmQ+JkQGhcmy2+VjYJ57C/084nobLk2n7XWBd8TqQmEPA==}
+    dev: false
 
   /@discoveryjs/json-ext@0.5.7:
     resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
@@ -11910,9 +11914,3 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
-
-  file:../contracts/createz-contracts-0.2.0-alpha.14.tgz:
-    resolution: {integrity: sha512-X43U9y2+FL1k+yD02OEdRWStN1cPuVgxkQJtyLZdEpryjwc7veMndppdKh9JWdu7EY1EyzPIEEpdxhiZU8GfCw==, tarball: file:../contracts/createz-contracts-0.2.0-alpha.14.tgz}
-    name: '@createz/contracts'
-    version: 0.2.0-alpha.14
-    dev: false

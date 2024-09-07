@@ -60,7 +60,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@createz/contracts": "file:../contracts/createz-contracts-0.2.0-alpha.14.tgz",
+    "@createz/contracts": "0.2.0-alpha.14",
     "@metamask/contract-metadata": "^2.4.0",
     "@tanstack/svelte-query": "^5.17.9",
     "@types/object-hash": "^3.0.6",
