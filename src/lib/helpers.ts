@@ -71,6 +71,10 @@ export function prettyNumber(num: number): string {
   );
 }
 
+export function prettyNumberFromString(num: string): string {
+  return prettyNumber(Number(num));
+}
+
 /**
  * converts a value represented in currentDecimals into a representation based on targetDecimals
  */

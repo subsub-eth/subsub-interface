@@ -1,9 +1,9 @@
-import { zeroAddress as zd } from 'viem';
-import { AddressSchema } from './contracts/common';
+import { zeroAddress as zd, formatUnits as viemFormatUnits } from 'viem';
+import { AddressSchema, type BigNumberish } from './contracts/common';
 import type { ZodType } from 'zod';
 import { log } from '$lib/logger';
 
-export { maxUint256, formatUnits, formatEther, parseUnits, isAddress } from 'viem';
+export { maxUint256, formatEther, parseUnits, isAddress } from 'viem';
 
 const dataJsonPrelude = 'data:application/json;base64,';
 
@@ -36,6 +36,10 @@ export function addressEquals(a: string | null | undefined, b: string | null | u
     return false;
   }
   return a?.toLowerCase() === b?.toLowerCase();
+}
+
+export function formatUnits(value: BigNumberish, decimals: number) {
+  return viemFormatUnits(BigInt(value), decimals);
 }
 
 export const zeroAddress = AddressSchema.parse(zd);

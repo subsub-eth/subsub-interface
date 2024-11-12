@@ -15,6 +15,7 @@
   import type { BigNumberish } from '$lib/web3/contracts/common';
   import WarningCollapsible from '$lib/components/ui2/WarningCollapsible.svelte';
   import { convertedEtherPretty } from '$lib/web3/contracts/oracle';
+  import { prettyNumberFromString } from '$lib/helpers';
 
   /**
    * Data of the subscription plan
@@ -48,9 +49,9 @@
     externalUrl = null;
   }
 
-  const formatFromGwei = (amount: BigNumberish) => formatUnits(amount, 18);
-  const formatFromToken = (amount: BigNumberish) => formatUnits(amount, paymentTokenData.decimals);
-
+  const formatFromGwei = (amount: BigNumberish) => prettyNumberFromString(formatUnits(amount, 18));
+  const formatFromToken = (amount: BigNumberish) =>
+    prettyNumberFromString(formatUnits(amount, paymentTokenData.decimals));
 </script>
 
 <Base
