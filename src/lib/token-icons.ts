@@ -16,7 +16,7 @@ const a = asChecksumAddress;
 // hard coded lookup of common tokens
 const knownTokens: Map<Address, TokenData> = new Map([
   ['0x0000000000000000000000000000000000000000', { icon: Icons.test, symbol: 'NULL' }],
-  [a('0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE'), { icon: Icons.test, symbol: 'TestUSD' }],
+  [a('0xea9c5c286D93324C9643A8C4c0b1D95BeD451e66'), { icon: Icons.test, symbol: 'TestUSD' }],
   [a('0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a1'), { icon: Icons.dai, symbol: 'INV1' }],
   [a('0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a2'), { icon: Icons.usdc, symbol: 'INV2' }],
   [a('0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a3'), { icon: Icons.usdt, symbol: 'INV3' }],

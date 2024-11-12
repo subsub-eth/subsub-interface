@@ -43,13 +43,13 @@ const chains: Chains = {
     rpcUrl: 'http://localhost:8545',
     explorerUrl: 'https://etherscan.io',
     contracts: {
-      profile: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
-      subscriptionHandle: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
-      erc6551Registry: '0x9A676e781A523b5d0C0e43731313A708CB607508',
-      defaultErc6551Implementation: '0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1',
-      testErc20: '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE',
+      profile: '0x3bb54B2AF4d938E56c2341d5e64Bb19bFadd5284',
+      subscriptionHandle: '0x224691F778f3A0eA90E7EDBE5C8BCB5f62E44CfB',
+      erc6551Registry: '0xe5807706A0d8fBb97ADAD8187241aA3a5E09f974',
+      defaultErc6551Implementation: '0x8dA7166a4316fA5fc36010F0C7F14676AfC65507',
+      testErc20: '0xea9c5c286D93324C9643A8C4c0b1D95BeD451e66',
       priceFeeds: {
-        '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE': '0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44'
+        '0xea9c5c286D93324C9643A8C4c0b1D95BeD451e66': '0x0C99B8449108DD3C047195f2e4E0a43D122aa505'
       }
     }
   },
@@ -109,7 +109,7 @@ export const getChainByName = function (name: string): ChainData | undefined {
 export const knownErc20Tokens = (chainId: number): Array<Erc20Token> => {
   // TODO proper implementation
   return [
-    { address: '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE', symbol: 'TestUSD', name: 'test USD' },
+    { address: '0xea9c5c286D93324C9643A8C4c0b1D95BeD451e66', symbol: 'TestUSD', name: 'test USD' },
     { address: '0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a1', symbol: 'INV1', name: 'invalid 1' },
     { address: '0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a2', symbol: 'INV2', name: 'invalid 2' },
     { address: '0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a3', symbol: 'INV3', name: 'invalid 3' },
