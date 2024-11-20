@@ -43,8 +43,8 @@ const chains: Chains = {
     rpcUrl: 'http://localhost:8545',
     explorerUrl: 'https://etherscan.io',
     contracts: {
-      profile: '0x3bb54B2AF4d938E56c2341d5e64Bb19bFadd5284',
-      subscriptionHandle: '0x224691F778f3A0eA90E7EDBE5C8BCB5f62E44CfB',
+      profile: '0xf983714d87AFE606D38571759138ee088dbFc5da',
+      subscriptionHandle: '0x38A0759EdBe82E3A53405dF797be4d24C5f4C94f',
       erc6551Registry: '0xe5807706A0d8fBb97ADAD8187241aA3a5E09f974',
       defaultErc6551Implementation: '0x8dA7166a4316fA5fc36010F0C7F14676AfC65507',
       testErc20: '0xea9c5c286D93324C9643A8C4c0b1D95BeD451e66',
