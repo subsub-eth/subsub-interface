@@ -2,18 +2,23 @@
   import * as Tooltip from '$lib/components/ui/tooltip';
   import { HelpCircle } from 'lucide-svelte';
   import { cn } from '$lib/utils';
+  import type { Snippet } from 'svelte';
 
-  /** Title of the property */
-  export let title: string;
-  /** Property value */
-  export let value: string | undefined = undefined;
-  /** Help text */
-  export let help: string | undefined = undefined;
-  /**
-   * Additional css classes
-   */
-  let clazz: string = '';
-  export { clazz as class };
+  interface Props {
+    /** Title of the property */
+    title: string;
+    /** Property value */
+    value?: string | Snippet;
+    /** Help text */
+    help?: string;
+
+    /**
+     * Additional css classes
+     */
+    class?: string;
+  }
+
+  let { title, value, help, class: clazz = '' }: Props = $props();
 
   const defaultClasses = 'flex items-center justify-between pt-2';
   let classes = cn(defaultClasses, clazz);
@@ -35,9 +40,11 @@
   </div>
   <div>
     {#if value}
-      <div class="">{value}</div>
-    {:else if $$slots.value}
-      <slot name="value" />
+      {#if typeof value == 'string'}
+        <div class="">{value}</div>
+      {:else}
+        {@render value()}
+      {/if}
     {/if}
   </div>
 </div>

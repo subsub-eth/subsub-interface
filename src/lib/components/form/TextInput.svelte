@@ -3,24 +3,40 @@
   import * as Form from '$lib/components/ui/form';
   import { Input } from '$lib/components/ui/input';
 
-  export let name: U;
-  export let label: string;
-  export let description: string | undefined = undefined;
-  export let form: SuperForm<T>;
-  export let value: unknown;
-  export let placeholder: string = '';
-  export let disabled: boolean = false;
-  export let required: boolean = false;
-  export let minlength: number | undefined = undefined;
-  export let maxlength: number | undefined = undefined;
+  interface Props<T extends Record<string, unknown>, U extends FormPath<T>> {
+    name: U;
+    label: string;
+    description?: string | undefined;
+    form: SuperForm<T>;
+    value: unknown;
+    placeholder?: string;
+    disabled?: boolean;
+    required?: boolean;
+    minlength?: number | undefined;
+    maxlength?: number | undefined;
+  }
 
+  let {
+    name,
+    label,
+    description = undefined,
+    form,
+    value = $bindable(),
+    placeholder = '',
+    disabled = false,
+    required = false,
+    minlength = undefined,
+    maxlength = undefined
+  }: Props<T, U> = $props();
 </script>
 
 <div>
-  <Form.Field {form} {name} {placeholder}>
-    <Form.Control let:attrs>
-      <Form.Label>{label}</Form.Label>
-      <Input {...attrs} bind:value {placeholder} {required} {disabled} {minlength} {maxlength} />
+  <Form.Field {form} {name}>
+    <Form.Control>
+      {#snippet children({ attrs })}
+        <Form.Label>{label}</Form.Label>
+        <Input {...attrs} bind:value {placeholder} {required} {disabled} {minlength} {maxlength} />
+      {/snippet}
     </Form.Control>
     {#if description}
       <Form.Description>{description}</Form.Description>

@@ -2,8 +2,8 @@
   import { currentChains, getChain } from '$lib/chain-config';
   import { currentChainId } from './web3/onboard';
 
-  $: currentChain = getChain($currentChainId ? $currentChainId : 0)?.[1].displayName;
-  $: dropdownVisibility = 'hidden';
+  let currentChain = $derived(getChain($currentChainId ? $currentChainId : 0)?.[1].displayName);
+  let dropdownVisibility = $state('hidden');
 
   const onOpen = () => {
     dropdownVisibility = 'block';
@@ -13,7 +13,7 @@
 <button
   class="inline-flex items-center rounded-lg bg-blue-700 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
   type="button"
-  on:click={onOpen}>{currentChain ? currentChain : '???'}</button
+  onclick={onOpen}>{currentChain ? currentChain : '???'}</button
 >
 <!-- Dropdown menu -->
 <div

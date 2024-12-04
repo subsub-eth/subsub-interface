@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import { rangeArray, waitFor } from '$lib/helpers';
 
@@ -28,17 +28,25 @@
   import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
 </script>
 
-<Template let:args>
-  <QueryClientContext>
-    <PaginatedLoadedList {...args} let:items let:isLoading>
-      {@const loading = isLoading ? 'text-red-500' : ''}
-      {#each items as item}
-        <div class={cn('text-xl font-bold text-foreground', loading)}>{item}</div>
-      {/each}
-      <div slot="error">Error</div>
-      <div slot="loading">Loading</div>
-    </PaginatedLoadedList>
-  </QueryClientContext>
+<Template >
+  {#snippet children({ args })}
+    <QueryClientContext>
+      <PaginatedLoadedList {...args}  >
+        {#snippet children({ items, isLoading })}
+            {@const loading = isLoading ? 'text-red-500' : ''}
+          {#each items as item}
+            <div class={cn('text-xl font-bold text-foreground', loading)}>{item}</div>
+          {/each}
+          {/snippet}
+          {#snippet error()}
+            <div >Error</div>
+          {/snippet}
+        {#snippet loading()}
+            <div >Loading</div>
+          {/snippet}
+      </PaginatedLoadedList>
+    </QueryClientContext>
+  {/snippet}
 </Template>
 
 <Story name="Default" args={{}} />

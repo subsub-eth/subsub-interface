@@ -18,13 +18,16 @@
   import type { Hash } from '$lib/web3/contracts/common';
   import { erc20Keys } from '$lib/query/keys';
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const addr = data.subscriptionAddr;
 
-  const onMinted = async (ev: CustomEvent<[bigint, string]>) => {
-    const [id, hash] = ev.detail;
-    toast.info(`New Subscription minted: ${id} in ${hash}`);
+  const onMinted = (id: bigint, tx: Hash) => {
+    toast.info(`New Subscription minted: ${id} in ${tx}`);
     // TODO FIXME
     goto($page.url.pathname + '../' + id);
   };
@@ -38,7 +41,7 @@
   const erc20Allowance = getContext<QueryResult<bigint>>(ERC20_ALLOWANCE_CTX);
   const erc20Balance = getContext<QueryResult<bigint>>(ERC20_BALANCE_CTX);
 
-  const approved = ({ detail: [amount, hash] }: CustomEvent<[bigint, Hash]>) => {
+  const approved = (amount: bigint, tx: Hash) => {
     queryClient.invalidateQueries({
       queryKey: erc20Keys.allowance(
         $erc20Contract!.data!.address,
@@ -46,7 +49,7 @@
         $subscriptionContract!.data!.address
       )
     });
-    toast.info(`Amount of ${amount} approved in tx ${hash}`);
+    toast.info(`Amount of ${amount} approved in tx ${tx}`);
   };
 </script>
 
@@ -59,10 +62,10 @@
     balance={$erc20Balance.data}
     mint={mint($subscriptionContract.data, $currentAccount)}
     approve={approveFunc($erc20Contract.data, addr)}
-    on:minted={onMinted}
-    on:approved={approved}
-    on:mintTxSubmitted={(ev) => toast.info(`Mint Transaction submitted: ${ev.detail}`)}
-    on:approvalTxSubmitted={(ev) => toast.info(`Approval Transaction submitted: ${ev.detail}`)}
-    on:txFailed={(ev) => toast.error(`Transaction failed: ${ev.detail}`)}
+    {onMinted}
+    onApproved={approved}
+    onMintTxSubmitted={(tx) => toast.info(`Mint Transaction submitted: ${tx}`)}
+    onApprovalTxSubmitted={(tx) => toast.info(`Approval Transaction submitted: ${tx}`)}
+    onTxFailed={(tx) => toast.error(`Transaction failed: ${tx}`)}
   ></MintSubscriptionForm>
 {/if}

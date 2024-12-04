@@ -2,19 +2,32 @@
   import type { ApproveFunc } from '$lib/web3/contracts/erc20';
   import type { DepositFunc } from '$lib/web3/contracts/subscription';
   import DepositForm from './deposit/DepositForm.svelte';
+  import type { DepositEvents, ApprovalEvents, TxFailedEvents } from './subscription-events';
 
-  export let tokenId: bigint;
-  export let allowance: bigint;
-  export let balance: bigint;
+  interface Props extends DepositEvents, ApprovalEvents, TxFailedEvents {
+    tokenId: bigint;
+    allowance: bigint;
+    balance: bigint;
+    approve: ApproveFunc;
+    renew: DepositFunc;
+    tip: DepositFunc;
+    rate: bigint;
+  }
 
-  export let approve: ApproveFunc;
-
-  export let renew: DepositFunc;
-
-  export let tip: DepositFunc;
-
-  export let rate: bigint;
-
+  let {
+    tokenId,
+    allowance,
+    balance,
+    approve,
+    renew,
+    tip,
+    rate,
+    onDeposited,
+    onTxFailed,
+    onDepositTxSubmitted,
+    onApproved,
+    onApprovalTxSubmitted
+  }: Props = $props();
 </script>
 
 <div>
@@ -29,11 +42,11 @@
       deposit={renew}
       maxAmount={balance}
       minAmount={rate}
-      on:approved
-      on:deposited
-      on:txFailed
-      on:depositTxSubmitted
-      on:approvalTxSubmitted
+      {onApproved}
+      {onDeposited}
+      {onTxFailed}
+      {onDepositTxSubmitted}
+      {onApprovalTxSubmitted}
     />
   </div>
   <div>
@@ -47,11 +60,11 @@
       deposit={tip}
       maxAmount={balance}
       minAmount={1n}
-      on:approved
-      on:deposited
-      on:txFailed
-      on:depositTxSubmitted
-      on:approvalTxSubmitted
+      {onApproved}
+      {onDeposited}
+      {onTxFailed}
+      {onDepositTxSubmitted}
+      {onApprovalTxSubmitted}
     />
   </div>
 </div>

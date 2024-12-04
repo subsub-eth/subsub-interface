@@ -12,19 +12,28 @@
   import { log } from '$lib/logger';
   import { tokenSearch } from '$lib/query/keys';
 
-  /** address of the selected token */
-  export let token: Address | undefined = undefined;
-  /** symbol of the selected token if any, initially derived from known tokens and token */
-  export let tokenSymbol: string | undefined = undefined;
-  /** load function to search token on a specific address */
-  export let tokenByAddress: (address: Address) => Promise<Erc20Data>;
-  /** list of known tokens to display for quick pick */
-  export let knownTokens: Array<Erc20Token> = [];
+  interface Props {
+    /** address of the selected token */
+    token?: Address | undefined;
+    /** symbol of the selected token if any, initially derived from known tokens and token */
+    tokenSymbol?: string | undefined;
+    /** load function to search token on a specific address */
+    tokenByAddress: (address: Address) => Promise<Erc20Data>;
+    /** list of known tokens to display for quick pick */
+    knownTokens?: Array<Erc20Token>;
+    disabled?: boolean;
+  }
 
-  export let disabled = false;
+  let {
+    token = $bindable(undefined),
+    tokenSymbol = $bindable(undefined),
+    tokenByAddress,
+    knownTokens = [],
+    disabled = false
+  }: Props = $props();
 
   tokenSymbol = tokenSymbol ?? knownTokens.find((t) => addressEquals(t.address, token))?.symbol;
-  let open: boolean = false;
+  let open: boolean = $state(false);
   let searchString = writable('');
 
   const searchQuery = createQuery<Array<Erc20Token>>(
@@ -117,7 +126,7 @@
               <li>
                 <button
                   class="my-2 flex w-full cursor-pointer gap-4 p-2 hover:bg-secondary"
-                  on:click={() => selectToken(t.address, t.symbol)}
+                  onclick={() => selectToken(t.address, t.symbol)}
                 >
                   <TokenLogo
                     address={t.address}

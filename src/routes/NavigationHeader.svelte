@@ -1,4 +1,9 @@
 <script lang="ts">
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
 </script>
 
 <header class="flex bg-black text-white">
@@ -7,8 +12,8 @@
   </div>
 
   <nav>
-    <ul />
+    <ul></ul>
   </nav>
 
-  <slot />
+  {@render children?.()}
 </header>

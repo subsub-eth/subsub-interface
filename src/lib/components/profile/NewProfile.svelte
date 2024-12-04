@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   const NewProfileSchema = z.object({
     name: z.string().min(3, 'Name must be at least 3 chars'),
     description: z.string().optional(),
@@ -8,7 +8,6 @@
 </script>
 
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import type { MintProfileEvents } from './action/profile-events';
   import type { MintFunc } from '$lib/web3/contracts/profile';
   import { log } from '$lib/logger';
@@ -21,16 +20,18 @@
   import { z } from 'zod';
   import { ImageUrlSchema, ExternalUrlSchema } from '$lib/web3/contracts/common';
 
-  export let formId: string;
-  export let mint: MintFunc;
+  interface Props extends MintProfileEvents {
+    formId: string;
+    mint: MintFunc;
+  }
 
-  const dispatch = createEventDispatcher<MintProfileEvents>();
+  let { formId, mint, onTxFailed, onMinted, onMintTxSubmitted }: Props = $props();
 
   const mintProfile = createMutation({
     mutationFn: async ([name, description, image, externalUrl, events]: Parameters<typeof mint>) =>
       mint(name, description, image, externalUrl, events),
-    onError: (error) => dispatch('txFailed', error),
-    onSuccess: (profileId) => dispatch('minted', profileId)
+    onError: (error) => onTxFailed?.(error),
+    onSuccess: (profileId) => onMinted?.(profileId)
   });
 
   const form = superForm(defaults(zod(NewProfileSchema)), {
@@ -53,7 +54,7 @@
           val.imageUrl ?? '',
           val.externalUrl ?? '',
           {
-            onMintTxSubmitted: (hash) => dispatch('mintTxSubmitted', hash)
+            onMintTxSubmitted
           }
         ]);
         setMessage(form, 'success ' + res);

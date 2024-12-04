@@ -3,6 +3,11 @@
   import { chainEnvironment } from '$lib/chain-context';
   import { isAccountConnected } from '$lib/web3/onboard';
   import NavigationHeader from '../NavigationHeader.svelte';
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
 
   // TODO distinguish provider and signer
 </script>
@@ -12,7 +17,7 @@
 </NavigationHeader>
 
 {#if $isAccountConnected && $chainEnvironment}
-  <slot />
+  {@render children?.()}
 {:else}
   <div>please connect</div>
 {/if}

@@ -1,21 +1,37 @@
 <script lang="ts" generics="T extends Record<string, unknown>, U extends FormPath<T>">
-    import { log } from '$lib/logger';
+  import { log } from '$lib/logger';
 
   import type { FormPath, SuperForm } from 'sveltekit-superforms';
   import * as Form from '$lib/components/ui/form';
   import { Input } from '$lib/components/ui/input';
 
-  export let name: U;
-  export let label: string;
-  export let description: string | undefined = undefined;
-  export let placeholder: string | undefined = undefined;
-  export let form: SuperForm<T>;
-  export let value: number | undefined;
-  export let disabled = false;
-  export let required = false;
-  export let step: string | number | undefined = undefined;
-  export let min: number | undefined = undefined;
-  export let max: number | undefined = undefined;
+  interface Props<T extends Record<string, unknown>, U extends FormPath<T>> {
+    name: U;
+    label: string;
+    description?: string | undefined;
+    placeholder?: string | undefined;
+    form: SuperForm<T>;
+    value: number | undefined;
+    disabled?: boolean;
+    required?: boolean;
+    step?: string | number | undefined;
+    min?: number | undefined;
+    max?: number | undefined;
+  }
+
+  let {
+    name,
+    label,
+    description = undefined,
+    placeholder = undefined,
+    form,
+    value = $bindable(),
+    disabled = false,
+    required = false,
+    step = undefined,
+    min = undefined,
+    max = undefined
+  }: Props<T, U> = $props();
 
   const setValue = (val: string | bigint) => {
     try {
@@ -27,28 +43,31 @@
     }
   };
 
-  $: stringValue = value ? Number(value).toString() : '';
-  $: {
+  let stringValue = $state(value ? Number(value).toString() : '');
+
+  $effect(() => {
     setValue(stringValue);
-  }
+  });
 </script>
 
 <div>
-  <Form.Field {form} {name} {placeholder}>
-    <Form.Control let:attrs>
-      <Form.Label>{label}</Form.Label>
-      <Input
-        class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-        {...attrs}
-        bind:value={stringValue}
-        type="number"
-        {step}
-        {required}
-        {disabled}
-        {min}
-        {max}
-        {placeholder}
-      />
+  <Form.Field {form} {name} >
+    <Form.Control>
+      {#snippet children({ attrs })}
+        <Form.Label>{label}</Form.Label>
+        <Input
+          class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          {...attrs}
+          bind:value={stringValue}
+          type="number"
+          {step}
+          {required}
+          {disabled}
+          {min}
+          {max}
+          {placeholder}
+        />
+      {/snippet}
     </Form.Control>
     {#if description}
       <Form.Description>{description}</Form.Description>

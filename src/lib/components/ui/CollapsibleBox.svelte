@@ -3,20 +3,23 @@
   import * as Collapsible from '$lib/components/ui/collapsible';
   import { ChevronsDownUp, ChevronsUpDown } from 'lucide-svelte';
 
-  /** Title */
-  export let title: string;
+  interface Props {
+    /** Title */
+    title: string;
+    /** Collapsible is opened */
+    open?: boolean;
+    /**
+     * Additional css classes for the root container
+     */
+    rootClass?: string | undefined;
+    children?: import('svelte').Snippet;
+  }
 
-  /** Collapsible is opened */
-  export let open: boolean = false;
-
-  /**
-   * Additional css classes for the root container
-   */
-  export let rootClass: string | undefined = undefined;
+  let { title, open = $bindable(false), rootClass = undefined, children }: Props = $props();
 </script>
 
 <Card.Root class={rootClass}>
-  <Collapsible.Root bind:open={open}>
+  <Collapsible.Root bind:open>
     <Card.Header>
       <Collapsible.Trigger class="flex justify-between">
         <Card.Title class="flex-none">{title}</Card.Title>
@@ -29,7 +32,7 @@
     </Card.Header>
     <Collapsible.Content>
       <Card.Content>
-        <slot />
+        {@render children?.()}
       </Card.Content>
     </Collapsible.Content>
   </Collapsible.Root>

@@ -2,14 +2,26 @@
   import WithdrawForm from './withdraw/WithdrawForm.svelte';
   import CancelForm from './withdraw/CancelForm.svelte';
   import type { CancelFunc, WithdrawalFunc } from '$lib/web3/contracts/subscription';
+  import type { WithdrawalEvents, TxFailedEvents } from './subscription-events';
 
-  export let tokenId: bigint;
-  export let deposited: bigint;
-  export let withdrawable: bigint;
+  interface Props extends WithdrawalEvents, TxFailedEvents {
+    tokenId: bigint;
+    deposited: bigint;
+    withdrawable: bigint;
+    withdraw: WithdrawalFunc;
+    cancel: CancelFunc;
+  }
 
-  export let withdraw: WithdrawalFunc;
-  export let cancel: CancelFunc;
-
+  let {
+    tokenId,
+    deposited,
+    withdrawable,
+    withdraw,
+    cancel,
+    onTxFailed,
+    onWithdrawn,
+    onWithdrawTxSubmitted
+  }: Props = $props();
 </script>
 
 <div>
@@ -23,9 +35,9 @@
       {withdraw}
       maxAmount={withdrawable}
       minAmount={1n}
-      on:withdrawn
-      on:txFailed
-      on:withdrawTxSubmitted
+      {onWithdrawn}
+      {onTxFailed}
+      {onWithdrawTxSubmitted}
     />
   </div>
   <div>
@@ -34,9 +46,9 @@
       {withdrawable}
       {cancel}
       submitLabel="Cancel"
-      on:withdrawn
-      on:txFailed
-      on:withdrawTxSubmitted
+      {onWithdrawn}
+      {onTxFailed}
+      {onWithdrawTxSubmitted}
     />
   </div>
 </div>

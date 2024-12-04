@@ -12,11 +12,11 @@
 </script>
 
 {#if $isAccountConnected}
-  <button on:click={disconnect}>
+  <button onclick={disconnect}>
     {truncateAddress($currentAccount + '')}
   </button>
 {:else}
-  <button on:click={connect}>Connect Wallet</button>
+  <button onclick={connect}>Connect Wallet</button>
 {/if}
 
 <style>

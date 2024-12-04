@@ -8,9 +8,7 @@
     setImage,
     setFlags,
     type SubscriptionContractData,
-
     type WritableSubscription
-
   } from '$lib/web3/contracts/subscription';
   import { queryClient, type QueryResult } from '$lib/query/config';
   import { getContext } from 'svelte';
@@ -18,31 +16,34 @@
   import toast from '$lib/toast';
   import type { Hash } from '$lib/web3/contracts/common';
   import { subKeys } from '$lib/query/keys';
-  import Url from '$lib/components/Url.svelte';
   import { Button } from '$lib/components/ui/button';
   import { ChevronLeft } from 'lucide-svelte';
+  import { url } from '$lib/url';
+  import { page } from '$app/stores';
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const addr = data.subscriptionAddr;
 
-  const subscriptionContract =
-    getContext<QueryResult<WritableSubscription>>(WRITABLE_SUBSCRIPTION_CONTRACT_CTX);
+  const subscriptionContract = getContext<QueryResult<WritableSubscription>>(
+    WRITABLE_SUBSCRIPTION_CONTRACT_CTX
+  );
   const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
 
   const invalidateSubData = () =>
     queryClient.invalidateQueries({ queryKey: subKeys.contractUri(addr) });
 
-  const updateScheduled = ({ detail: hash }: CustomEvent<Hash>) =>
-    toast.info(`Update scheduled in Tx ${hash}`);
+  const updateScheduled = (hash: Hash) => toast.info(`Update scheduled in Tx ${hash}`);
 
-  const updated =
-    (msg: (hash: Hash) => string) =>
-    ({ detail: hash }: CustomEvent<Hash>) => {
-      toast.info(msg(hash));
-      invalidateSubData();
-    };
-  const flagsUpdated = ({ detail: hash }: CustomEvent<Hash>) => {
+  const updated = (msg: (hash: Hash) => string) => (hash: Hash) => {
+    toast.info(msg(hash));
+    invalidateSubData();
+  };
+  const flagsUpdated = (hash: Hash) => {
     toast.info(`Contract Flags updated in ${hash}`);
     invalidateSubData();
   };
@@ -51,12 +52,14 @@
   // TODO tx failed msgs
 </script>
 
-<Url template={`/[network]/s/${addr}/`} let:path>
-  <Button href={path} size="icon" class="ml-auto self-center justify-self-end">
-    <ChevronLeft className="h-4 w-4" />
-    Back
-  </Button>
-</Url>
+<Button
+  href={url(`/[network]/s/${addr}/`, $page)}
+  size="icon"
+  class="ml-auto self-center justify-self-end"
+>
+  <ChevronLeft className="h-4 w-4" />
+  Back
+</Button>
 
 <h1>Edit Subscription Contract</h1>
 
@@ -68,19 +71,18 @@
     setDescription={setDescription(contract)}
     setImage={setImage(contract)}
     setExternalUrl={setExternalUrl(contract)}
-    on:descriptionTxSubmitted={updateScheduled}
-    on:imageTxSubmitted={updateScheduled}
-    on:externalUrlTxSubmitted={updateScheduled}
-    on:descriptionChanged={updated((h) => `Description updated in Tx ${h}`)}
-    on:imageChanged={updated((h) => `Image updated in Tx ${h}`)}
-    on:externalUrlChanged={updated((h) => `External URL updated in Tx ${h}`)}
+    onDescriptionTxSubmitted={updateScheduled}
+    onImageTxSubmitted={updateScheduled}
+    onExternalUrlTxSubmitted={updateScheduled}
+    onDescriptionChanged={updated((h) => `Description updated in Tx ${h}`)}
+    onImageChanged={updated((h) => `Image updated in Tx ${h}`)}
+    onExternalUrlChanged={updated((h) => `External URL updated in Tx ${h}`)}
   />
   <FlagsSubscriptionContractForm
     formId={`flags-${data.address}`}
     data={$subscriptionData.data}
     setFlags={setFlags($subscriptionContract.data)}
-    on:flagsChanged={flagsUpdated}
-    on:txFailed
-    on:flagsTxSubmitted={updateScheduled}
+    onFlagsChanged={flagsUpdated}
+    onFlagsTxSubmitted={updateScheduled}
   />
 {/if}

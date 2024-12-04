@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import WarningCollapsible from '$lib/components/ui2/WarningCollapsible.svelte';
   import { createMessages } from './fixtures';
 
@@ -17,8 +17,10 @@
   import { Story, Template } from '@storybook/addon-svelte-csf';
 </script>
 
-<Template let:args>
-  <WarningCollapsible {...args} />
+<Template >
+  {#snippet children({ args })}
+    <WarningCollapsible {...args} />
+  {/snippet}
 </Template>
 
 <Story name="default" args={{}} />

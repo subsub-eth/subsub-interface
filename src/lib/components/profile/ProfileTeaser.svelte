@@ -3,11 +3,15 @@
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import { ChevronRight } from 'lucide-svelte';
-  import Url from '$lib/components/Url.svelte';
   import type { ProfileData } from '$lib/web3/contracts/profile';
+  import { url } from '$lib/url.svelte';
 
-  /** profile data */
-  export let profile: ProfileData;
+  interface Props {
+    /** profile data */
+    profile: ProfileData;
+  }
+
+  let { profile }: Props = $props();
 </script>
 
 <Card.Root class="flex flex-row p-4">
@@ -22,9 +26,11 @@
       <Card.Description>{profile.description}</Card.Description>
     {/if}
   </div>
-  <Url template={`/[network]/p/${profile.tokenId}/`} let:path>
-    <Button href={path} size="icon" class="ml-auto self-center justify-self-end">
-      <ChevronRight className="h-4 w-4" />
-    </Button>
-  </Url>
+  <Button
+    href={url(`/[network]/p/${profile.tokenId}/`)}
+    size="icon"
+    class="ml-auto self-center justify-self-end"
+  >
+    <ChevronRight className="h-4 w-4" />
+  </Button>
 </Card.Root>

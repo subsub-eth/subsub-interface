@@ -34,7 +34,11 @@
   import { erc20Keys, subKeys } from '$lib/query/keys';
   import type { Price } from '$lib/web3/contracts/oracle';
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const addr = data.subscriptionAddr;
   const tokenId = data.tokenId;
@@ -89,10 +93,10 @@
 
 <div>
   {#if $subscriptionContract.isSuccess && $subscriptionContractData.isSuccess && $subscriptionData.isSuccess && $erc20Contract.isSuccess && $erc20Data.isSuccess && $erc20Allowance.isSuccess && $erc20Balance.isSuccess}
-    {@const subContract = $writableSubscriptionContract.data}
-    {@const contractData = $subscriptionContractData.data}
-    {@const erc20 = $erc20Contract.data}
-    {@const erc20Data = $erc20Data.data}
+    {@const subContract = $writableSubscriptionContract.data!}
+    {@const contractData = $subscriptionContractData.data!}
+    {@const erc20 = $erc20Contract.data!}
+    {@const _erc20Data = $erc20Data.data!}
     <div>
       <!-- LEFT -->
       <!-- TODO proper details -->
@@ -106,7 +110,7 @@
         <SubscriptionDetails
           subscriptionData={$subscriptionData.data}
           rate={contractData.rate}
-          paymentToken={erc20Data}
+          paymentToken={_erc20Data}
           tokenPrice={$tokenPrice}
         />
       {/if}
@@ -129,15 +133,15 @@
         renew={renew(subContract, tokenId)}
         tip={tip(subContract, tokenId)}
         rate={BigInt($subscriptionContractData.data?.rate)}
-        on:approved={({ detail: [amount, tx] }) => {
+        onApproved={(amount, tx) => {
           invalidateErc20Approval();
           toast.info(`Token approved for ${amount} in Tx ${tx}`);
         }}
-        on:deposited={({ detail: [amount, tx] }) => {
+        onDeposited={(amount, tx) => {
           invalidateBalances();
           toast.info(`Token approved for ${amount} in Tx ${tx}`);
         }}
-        on:txFailed={({ detail: err }) => {
+        onTxFailed={(err) => {
           toast.error(`Transaction failed: ${err}`);
         }}
       />
@@ -150,14 +154,14 @@
         cancel={cancel(subContract, tokenId)}
         withdrawable={BigInt($subscriptionData.data.withdrawable)}
         deposited={BigInt($subscriptionData.data.deposited)}
-        on:txFailed={({ detail: err }) => {
+        onTxFailed={(err) => {
           toast.error(`Transaction failed: ${err}`);
         }}
-        on:withdrawn={({ detail: [amount, tx] }) => {
+        onWithdrawn={(amount, tx) => {
           invalidateBalances();
           toast.info(`Token approved for ${amount} in Tx ${tx}`);
         }}
-        on:withdrawTxSubmitted={({ detail: tx }) => toast.info(`Withdrawal submitted in Tx ${tx}`)}
+        onWithdrawTxSubmitted={(tx) => toast.info(`Withdrawal submitted in Tx ${tx}`)}
       />
     </div>
   {/if}

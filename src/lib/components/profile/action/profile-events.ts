@@ -1,9 +1,8 @@
-import type { Hash } from '$lib/web3/contracts/common';
-import type { TxFailedEvents } from '$lib/components/common-events';
+import type { OnTx, TxFailedEvents } from '$lib/components/common-events';
 
 export type MintEvents = {
-  mintTxSubmitted: Hash;
-  minted: bigint;
+  onMintTxSubmitted?: OnTx;
+  onMinted?: (tokenId: bigint) => void;
 };
 
 export type MintProfileEvents = MintEvents & TxFailedEvents;

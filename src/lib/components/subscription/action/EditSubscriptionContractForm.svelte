@@ -6,17 +6,29 @@
     UpdateExternalUrl,
     UpdateImage
   } from '$lib/web3/contracts/subscription';
-  import { createEventDispatcher } from 'svelte';
   import type { MetadataChangeContractEvents } from './subscription-events';
   import { ExternalUrlSchema, ImageUrlSchema } from '$lib/web3/contracts/common';
 
-  export let data: SubscriptionContractData;
+  interface Props extends MetadataChangeContractEvents {
+    data: SubscriptionContractData;
+    setDescription: UpdateDescription;
+    setImage: UpdateImage;
+    setExternalUrl: UpdateExternalUrl;
+  }
 
-  export let setDescription: UpdateDescription;
-  export let setImage: UpdateImage;
-  export let setExternalUrl: UpdateExternalUrl;
-
-  const dispatch = createEventDispatcher<MetadataChangeContractEvents>();
+  let {
+    data,
+    setDescription,
+    setImage,
+    setExternalUrl,
+    onTxFailed,
+    onImageChanged,
+    onImageTxSubmitted,
+    onDescriptionChanged,
+    onExternalUrlChanged,
+    onDescriptionTxSubmitted,
+    onExternalUrlTxSubmitted
+  }: Props = $props();
 </script>
 
 <SingleStringFieldForm
@@ -27,9 +39,9 @@
   handle={async (s, e) => {
     return setDescription(s, { onDescriptionTxSubmitted: e?.onTxSubmitted });
   }}
-  on:txFailed
-  on:txSubmitted={({ detail }) => dispatch('descriptionTxSubmitted', detail)}
-  on:valueChanged={({ detail }) => dispatch('descriptionChanged', detail)}
+  {onTxFailed}
+  onTxSubmitted={onDescriptionTxSubmitted}
+  onValueChanged={onDescriptionChanged}
 />
 <SingleStringFieldForm
   formId={`image`}
@@ -39,9 +51,9 @@
     return setImage(s, { onImageTxSubmitted: e?.onTxSubmitted });
   }}
   validatorSchema={ImageUrlSchema}
-  on:txFailed
-  on:txSubmitted={({ detail }) => dispatch('imageTxSubmitted', detail)}
-  on:valueChanged={({ detail }) => dispatch('imageChanged', detail)}
+  {onTxFailed}
+  onTxSubmitted={onImageTxSubmitted}
+  onValueChanged={onImageChanged}
 />
 <SingleStringFieldForm
   formId={`externalUrl`}
@@ -51,7 +63,7 @@
     return setExternalUrl(s, { onExternalUrlTxSubmitted: e?.onTxSubmitted });
   }}
   validatorSchema={ExternalUrlSchema}
-  on:txFailed
-  on:txSubmitted={({ detail }) => dispatch('externalUrlTxSubmitted', detail)}
-  on:valueChanged={({ detail }) => dispatch('externalUrlChanged', detail)}
+  {onTxFailed}
+  onTxSubmitted={onExternalUrlTxSubmitted}
+  onValueChanged={onExternalUrlChanged}
 />

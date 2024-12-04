@@ -4,26 +4,27 @@
   import type { Address } from '$lib/web3/contracts/common';
   import { cn } from '$lib/utils';
 
-  /** address of the token */
-  export let address: Address;
-
-  /** fallback symbol name to show */
-  export let fallbackSymbol: string;
-
   /** show loading state indicator */
-  // TODO
-  export let isLoading: boolean = false;
 
   /**
    * Additional css classes
    */
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  interface Props {
+    /** address of the token */
+    address: Address;
+    /** fallback symbol name to show */
+    fallbackSymbol: string;
+    // TODO
+    isLoading?: boolean;
+    class?: string | undefined;
+  }
+
+  let { address, fallbackSymbol, isLoading = false, class: clazz = undefined }: Props = $props();
 
   const defaultClasses = 'h-16 w-16';
   const classes = cn(defaultClasses, clazz);
 
-  $: icon = findTokenIcon(address);
+  let icon = $derived(findTokenIcon(address));
 </script>
 
 <Avatar.Root class={classes}>

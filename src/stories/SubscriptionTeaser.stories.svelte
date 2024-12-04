@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import { SubscriptionTeaser } from '$lib/components/subscription/token';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import type { SubscriptionData } from '$lib/web3/contracts/subscription';
@@ -56,8 +56,10 @@
   import { Story, Template } from '@storybook/addon-svelte-csf';
 </script>
 
-<Template let:args>
-  <SubscriptionTeaser {...args} />
+<Template >
+  {#snippet children({ args })}
+    <SubscriptionTeaser {...args} />
+  {/snippet}
 </Template>
 
 <Story name="Default" args={{}} />

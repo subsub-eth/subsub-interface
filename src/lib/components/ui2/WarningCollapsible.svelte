@@ -4,27 +4,28 @@
   import { AlertTriangle, ChevronsDownUp, ChevronsUpDown } from 'lucide-svelte';
   import * as Collapsible from '$lib/components/ui/collapsible';
 
-  /** warning messages to be displayed */
-  export let messages: Array<WarningMessage> | undefined;
+  interface Props {
+    /** warning messages to be displayed */
+    messages: Array<WarningMessage> | undefined;
+    /** Collapsible is opened */
+    open?: boolean;
+    class?: string;
+  }
 
-  /** Collapsible is opened */
-  export let open: boolean = false;
-
-  let clazz: string = 'h-8 w-8';
-  export { clazz as class };
+  let { messages, open = $bindable(false), class: clazz = 'h-8 w-8' }: Props = $props();
 
   const colorError = 'stroke-red-500';
   const colorWarning = 'stroke-yellow-500';
   const colorPaused = 'stroke-yellow-500';
 
-  $: msgs = messages ?? [];
-  $: errors = msgs?.filter((msg) => msg.type === 'error');
-  $: warnings = msgs?.filter((msg) => msg.type === 'warning');
-  $: paused = msgs?.filter((msg) => msg.type === 'paused');
+  let msgs = $derived(messages ?? []);
+  let errors = $derived(msgs?.filter((msg) => msg.type === 'error'));
+  let warnings = $derived(msgs?.filter((msg) => msg.type === 'warning'));
+  let paused = $derived(msgs?.filter((msg) => msg.type === 'paused'));
 </script>
 
 {#if messages && messages.length > 0}
-  <Collapsible.Root bind:open={open}>
+  <Collapsible.Root bind:open>
     <div class="flex justify-end text-white">
       <Collapsible.Trigger class="flex gap-4">
         {#if errors.length}

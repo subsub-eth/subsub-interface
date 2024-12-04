@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import { SubscriptionDetails } from '$lib/components/subscription/token/index';
   import { EXPLORER_URL } from '$lib/contexts';
   import type { ObservedQueryResult } from '$lib/query/config';
@@ -58,8 +58,10 @@
   setContext(EXPLORER_URL, 'http://example.com');
 </script>
 
-<Template let:args>
-  <SubscriptionDetails {...args} />
+<Template >
+  {#snippet children({ args })}
+    <SubscriptionDetails {...args} />
+  {/snippet}
 </Template>
 
 <Story name="Default" args={{}} />

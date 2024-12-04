@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import ProfileTeaser from '$lib/components/profile/ProfileTeaser.svelte';
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { zeroAddress } from '$lib/web3/helpers';
@@ -28,8 +28,10 @@
   import { Story, Template } from '@storybook/addon-svelte-csf';
 </script>
 
-<Template let:args>
-  <ProfileTeaser {...args} />
+<Template >
+  {#snippet children({ args })}
+    <ProfileTeaser {...args} />
+  {/snippet}
 </Template>
 
 <Story name="Default" args={{}} />

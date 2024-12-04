@@ -2,30 +2,50 @@
 <!-- Modfied from skeleton -->
 <script lang="ts">
   import { cn } from '$lib/utils';
-  import { afterUpdate } from 'svelte';
+  import { type Snippet } from 'svelte';
 
-  /** Sets the progress value between 0 and 100 */
-  export let value: number | undefined = undefined;
-  /** Sets the base stroke width. Scales responsively. */
-  export let stroke = 40; // px
-  /** Sets the base font size. Scales responsively. */
-  export let font = 56; // px
-  /** Provide classes to set the meter transition styles. */
-  export let transition = 'transition-[stroke-dashoffset]';
+  interface Props {
+    /** Sets the progress value between 0 and 100 */
+    value?: number;
+    children?: Snippet<[]>;
+    /** Sets the base stroke width. Scales responsively. */
+    stroke?: number; // px
+    /** Sets the base font size. Scales responsively. */
+    font?: number; // px
+    /** Provide classes to set the meter transition styles. */
+    transition?: string;
 
-  // Props (styles)
-  /** Provide classes to set the width. */
-  export let width = 'w-36';
-  /** Provide classes to set meter color. */
-  export let meter = 'stroke-primary';
-  /** Provide classes to set track color. */
-  export let track = 'stroke-muted';
-  /** Provide classes to set the SVG text fill color. */
-  export let fill = 'fill-primary';
+    // Props (styles)
+    /** Provide classes to set the width. */
+    width?: string;
+    /** Provide classes to set meter color. */
+    meter?: string;
+    /** Provide classes to set track color. */
+    track?: string;
+    /** Provide classes to set the SVG text fill color. */
+    fill?: string;
+    // base class
+    class?: string;
 
-  // Props A11y
-  /** Provide the ARIA labelledby value. */
-  export let labelledby = '';
+    // Props A11y
+    /** Provide the ARIA labelledby value. */
+    labelledby?: string;
+  }
+  let {
+    value = undefined,
+    children,
+    stroke = 40, // px
+    font = 56, // px
+    transition = 'transition-[stroke-dashoffset]',
+    class: clazz,
+
+    width = 'w-36',
+    meter = 'stroke-primary',
+    track = 'stroke-muted',
+    fill = 'fill-primary',
+
+    labelledby = ''
+  }: Props = $props();
 
   const strokeLinecap: 'butt' | 'round' | 'square' = 'butt';
 
@@ -37,8 +57,8 @@
   // Calculated Values
   const baseSize = 512; // px
   const radius: number = baseSize / 2 - stroke / 2;
-  let circumference: number = radius;
-  let dashoffset: number;
+  let circumference: number = $state(radius);
+  let dashoffset: number | undefined = $state();
 
   // Set Progress Amount
   function setProgress(percent: number) {
@@ -50,13 +70,13 @@
   setProgress(0);
 
   // Reactive
-  afterUpdate(() => {
+  $effect(() => {
     // If indeterminate set 25, else set the value
     setProgress(value === undefined ? 25 : value);
   });
 
   // Reactive
-  $: classesBase = cn(cBase, width, $$props.class ?? '');
+  let classesBase = $derived(cn(cBase, width, clazz ?? ''));
 </script>
 
 <figure
@@ -98,7 +118,7 @@
     />
 
     <!-- Center Text -->
-    {#if value != undefined && value >= 0 && $$slots.default}
+    {#if value != undefined && value >= 0 && children}
       <text
         x="50%"
         y="50%"
@@ -106,8 +126,10 @@
         dominant-baseline="middle"
         font-weight="bold"
         font-size={font}
-        class="progress-radial-text {fill}"><slot /></text
+        class="progress-radial-text {fill}"
       >
+        {@render children()}
+      </text>
     {/if}
   </svg>
 </figure>

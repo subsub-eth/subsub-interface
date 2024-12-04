@@ -6,7 +6,11 @@
   import type { Address } from '$lib/web3/contracts/common';
   import { createMutation } from '@tanstack/svelte-query';
 
-  export let create: () => Promise<Address>;
+  interface Props {
+    create: () => Promise<Address>;
+  }
+
+  let { create }: Props = $props();
 
   // TODO invalidate account query
   const mutation = createMutation({

@@ -45,7 +45,7 @@ function writableContract(sub: WritableSubscription) {
 }
 
 const FundsPropsSchema = z.object({
-  amount: z.bigint().min(0n, 'Amount must be larger or equal to 0')
+  amount: z.bigint().min(0n, 'Amount must be larger or equal to 0').default(undefined as unknown as bigint)
 });
 
 type FundsProps = z.infer<typeof FundsPropsSchema>;

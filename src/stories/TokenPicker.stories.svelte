@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import { zeroAddress } from '$lib/web3/helpers';
   import TokenPicker from '$lib/components/TokenPicker.svelte';
 
@@ -44,10 +44,12 @@
   import { waitFor } from '$lib/helpers';
 </script>
 
-<Template let:args>
-  <QueryClientContext>
-    <TokenPicker {...args} />
-  </QueryClientContext>
+<Template >
+  {#snippet children({ args })}
+    <QueryClientContext>
+      <TokenPicker {...args} />
+    </QueryClientContext>
+  {/snippet}
 </Template>
 
 <Story name="empty">

@@ -4,20 +4,34 @@
   import type { FormPath, SuperForm } from 'sveltekit-superforms';
   import * as Form from '$lib/components/ui/form';
 
-  export let name: U;
-  export let label: string;
-  export let description: string | undefined = undefined;
-  export let form: SuperForm<T>;
-  export let value: boolean;
-  export let disabled: boolean = false;
-  export let required: boolean = false;
+  interface Props<T extends Record<string, unknown>, U extends FormPath<T>> {
+    name: U;
+    label: string;
+    description?: string | undefined;
+    form: SuperForm<T>;
+    value: boolean;
+    disabled?: boolean;
+    required?: boolean;
+  }
+
+  let {
+    name,
+    label,
+    description = undefined,
+    form,
+    value = $bindable(),
+    disabled = false,
+    required = false
+  }: Props<T, U> = $props();
 </script>
 
 <div>
   <Form.Field {form} {name}>
-    <Form.Control let:attrs>
-      <Form.Label>{label}</Form.Label>
-      <Switch {...attrs} bind:checked={value} {required} {disabled} />
+    <Form.Control>
+      {#snippet children({ attrs })}
+        <Form.Label>{label}</Form.Label>
+        <Switch {...attrs} bind:checked={value} {required} {disabled} />
+      {/snippet}
     </Form.Control>
     {#if description}
       <Form.Description>{description}</Form.Description>

@@ -1,14 +1,16 @@
 <script lang="ts">
   import { type WarningMessage } from '$lib/web3/contracts/subscription-analytics';
   import { cn } from '$lib/utils';
-  import { AlertTriangle, ChevronsDownUp, ChevronsUpDown } from 'lucide-svelte';
+  import { AlertTriangle } from 'lucide-svelte';
   import * as Tooltip from '$lib/components/ui/tooltip';
 
-  /** warning messages to be displayed */
-  export let messages: Array<WarningMessage> | undefined;
+  interface Props {
+    /** warning messages to be displayed */
+    messages: Array<WarningMessage> | undefined;
+    class?: string;
+  }
 
-  let clazz: string = 'h-8 w-8';
-  export { clazz as class };
+  let { messages, class: clazz = 'h-8 w-8' }: Props = $props();
 
   const colorError = 'stroke-red-500';
   const colorWarning = 'stroke-yellow-500';
@@ -33,6 +35,7 @@
         <AlertTriangle class={cn(colorPaused, clazz)} />
       {/if}
     </Tooltip.Trigger>
-    <Tooltip.Content>There are {messages.length} issues with this subscription plan</Tooltip.Content>
+    <Tooltip.Content>There are {messages.length} issues with this subscription plan</Tooltip.Content
+    >
   </Tooltip.Root>
 {/if}

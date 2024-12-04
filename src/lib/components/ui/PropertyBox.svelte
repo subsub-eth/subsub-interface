@@ -1,24 +1,24 @@
 <script lang="ts">
   import * as Card from '$lib/components/ui/card';
-  import type { ComponentType, SvelteComponent } from 'svelte';
+  import type { ComponentType, Component, SvelteComponent, Snippet } from 'svelte';
 
-  /** Title of the property */
-  export let title: string;
+  interface Props {
+    title: string;
+    rootClass?: string;
 
-  /** Main property value */
-  export let value: string | undefined = undefined;
+    value?: string | Snippet;
+    subValue?: string | Snippet;
 
-  /** Muted secondary value */
-  export let subValue: string | undefined = undefined;
+    TitleIcon?: ComponentType<SvelteComponent> | Component;
+  }
 
-  /** Logo component to render */
-  export let titleLogo: ComponentType<SvelteComponent> | undefined = undefined;
+  let { title, rootClass, value, subValue, TitleIcon }: Props = $props();
 
-  /**
-   * Additional css classes for the root container
-   */
-  export let rootClass: string | undefined = undefined;
+  const extract = (v: undefined | string | Snippet): { st?: string; sn?: Snippet } => {
+    const isString = typeof v == 'string';
 
+    return { st: isString ? v : undefined, sn: !isString ? v : undefined };
+  };
 </script>
 
 <Card.Root class={rootClass}>
@@ -26,22 +26,22 @@
     <Card.Title class="text-sm font-medium">
       {title}
     </Card.Title>
-    {#if titleLogo}
-      <svelte:component this={titleLogo} class="h-4 w-4 text-muted-foreground" />
-    {:else if $$slots.titleLogo}
-      <slot name="titleLogo" />
+    {#if TitleIcon}
+      <TitleIcon class="h-4 w-4 text-muted-foreground" />
     {/if}
   </Card.Header>
   <Card.Content>
-    {#if value}
-      <div class="text-2xl font-bold">{value}</div>
-    {:else if $$slots.value}
-      <slot name="value" />
+    {@const v = extract(value)}
+    {#if v.st}
+      <div class="text-2xl font-bold">{v.st}</div>
+    {:else if v.sn}
+      {@render v.sn()}
     {/if}
-    {#if subValue}
-      <p class="text-xs text-muted-foreground">{subValue}</p>
-    {:else if $$slots.subValue}
-      <slot name="subValue" />
+    {@const sv = extract(subValue)}
+    {#if sv.st}
+      <p class="text-xs text-muted-foreground">{sv.st}</p>
+    {:else if sv.sn}
+      {@render sv.sn()}
     {/if}
   </Card.Content>
 </Card.Root>

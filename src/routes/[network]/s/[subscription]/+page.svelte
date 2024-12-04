@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import { derived } from 'svelte/store';
+  import { derived as derivedStore } from 'svelte/store';
   import { page } from '$app/stores';
   import { SubscriptionContractDetails } from '$lib/components/subscription/contract';
   import Button from '$lib/components/Button.svelte';
@@ -11,9 +11,7 @@
     type SubscriptionContractData,
     type Subscription,
     claim,
-
     type WritableSubscription
-
   } from '$lib/web3/contracts/subscription';
   import { SubscriptionTeaser } from '$lib/components/subscription/token';
   import ClaimControl from '$lib/components/subscription/ClaimControl.svelte';
@@ -30,29 +28,31 @@
     SUBSCRIPTION_ERC20_BALANCE_CTX,
     SUBSCRIPTION_WARNIGNS_CTX,
     TOKEN_PRICE_CTX,
-
     WRITABLE_SUBSCRIPTION_CONTRACT_CTX
-
   } from './+layout.svelte';
   import { erc6551Keys, subKeys } from '$lib/query/keys';
   import { type Price } from '$lib/web3/contracts/oracle';
   import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
   import toast from '$lib/toast';
   import { log } from '$lib/logger';
-  import Url from '$lib/components/Url.svelte';
   import type { BigNumberish, Hash } from '$lib/web3/contracts/common';
   import { chainEnvironment } from '$lib/chain-context';
+  import { url } from '$lib/url';
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const addr = data.subscriptionAddr;
   const pageSize = 5;
 
-  const subscriptionContract =
-    getContext<QueryResult<Subscription>>(SUBSCRIPTION_CONTRACT_CTX);
+  const subscriptionContract = getContext<QueryResult<Subscription>>(SUBSCRIPTION_CONTRACT_CTX);
 
-  const writableSubscriptionContract =
-    getContext<QueryResult<WritableSubscription>>(WRITABLE_SUBSCRIPTION_CONTRACT_CTX);
+  const writableSubscriptionContract = getContext<QueryResult<WritableSubscription>>(
+    WRITABLE_SUBSCRIPTION_CONTRACT_CTX
+  );
 
   const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
 
@@ -66,16 +66,18 @@
   const tokenPrice = getContext<QueryResult<Price | null>>(TOKEN_PRICE_CTX);
 
   const userSubsCount = createQuery<number>(
-    derived([subscriptionContract, currentAccount], ([subscriptionContract, currentAccount]) => ({
-      queryKey: subKeys.balance(addr, currentAccount!),
-      queryFn: async () =>
-        countUserSubscriptions(subscriptionContract.data!, currentAccount!),
-      enabled: subscriptionContract.isSuccess && !!currentAccount
-    }))
+    derivedStore(
+      [subscriptionContract, currentAccount],
+      ([subscriptionContract, currentAccount]) => ({
+        queryKey: subKeys.balance(addr, currentAccount!),
+        queryFn: async () => countUserSubscriptions(subscriptionContract.data!, currentAccount!),
+        enabled: subscriptionContract.isSuccess && !!currentAccount
+      })
+    )
   );
 
   const validSigner = createQuery<boolean>(
-    derived(
+    derivedStore(
       [chainEnvironment, subscriptionData, currentAccount],
       ([chainEnvironment, subscriptionData, currentAccount]) => ({
         queryKey: erc6551Keys.signer(subscriptionData.data?.owner, currentAccount!),
@@ -95,12 +97,12 @@
     queryClient.invalidateQueries({ queryKey: subKeys.contractUri(addr) });
   };
 
-  const claimed = ({ detail: [amount, hash] }: CustomEvent<[BigNumberish, Hash]>) => {
+  const claimed = (amount: bigint, hash: Hash) => {
     toast.info(`Funds claimed in ${hash}`);
     invalidateSub();
   };
 
-  $: currAcc = $currentAccount!;
+  let currAcc = $derived($currentAccount!);
 </script>
 
 <h1>Subscription Contract Details page</h1>
@@ -135,15 +137,13 @@ Subscription Contract: {addr}
             data={$subscriptionData.data}
             claim={claim($writableSubscriptionContract.data)}
             claimTo={currAcc}
-            on:claimed={claimed}
+            onClaimed={claimed}
           />
         {/if}
         {#if $validSigner.isError}
           {$validSigner.error}
         {/if}
-        <Url template="/[network]/s/[subscription]/edit/" let:path>
-          <Button label="Edit" href={path} />
-        </Url>
+        <Button label="Edit" href={url('/[network]/s/[subscription]/edit/', $page)} />
       </div>
     </div>
 
@@ -178,15 +178,16 @@ Subscription Contract: {addr}
           queryKeys={subKeys.ownerList(addr, $currentAccount)}
           totalItems={$userSubsCount.data}
           {pageSize}
-          let:items
         >
-          {#each items as item}
-            <SubscriptionTeaser
-              subscriptionData={item}
-              paymentToken={$erc20Data.data}
-              rate={BigInt($subscriptionData.data.rate)}
-            />
-          {/each}
+          {#snippet children({ items })}
+            {#each items as item}
+              <SubscriptionTeaser
+                subscriptionData={item}
+                paymentToken={$erc20Data.data}
+                rate={BigInt($subscriptionData.data.rate)}
+              />
+            {/each}
+          {/snippet}
         </PaginatedLoadedList>
       {/if}
     </div>

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import ProfileDetails from '$lib/components/profile/ProfileDetails.svelte';
   import { EXPLORER_URL } from '$lib/contexts';
   import type { ProfileData } from '$lib/web3/contracts/profile';
@@ -33,8 +33,10 @@
   setContext(EXPLORER_URL, 'https://example.com');
 </script>
 
-<Template let:args>
-  <ProfileDetails {...args} />
+<Template >
+  {#snippet children({ args })}
+    <ProfileDetails {...args} />
+  {/snippet}
 </Template>
 
 <Story name="Default" args={{}} />

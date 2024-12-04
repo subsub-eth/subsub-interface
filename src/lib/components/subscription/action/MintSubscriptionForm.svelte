@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   const amountSchema = z.bigint().min(0n, 'Amount must be larger or equal to 0');
 
   export const ApprovalSchema = z.object({
@@ -23,7 +23,6 @@
   import NumberInput from '../../form/NumberInput.svelte';
   import TextInput from '../../form/TextInput.svelte';
   import { type MintFunc } from '$lib/web3/contracts/subscription';
-  import { createEventDispatcher } from 'svelte';
   import type { MintSubscriptionEvents } from './subscription-events';
   import Button from '$lib/components/Button.svelte';
   import type { ApproveFunc } from '$lib/web3/contracts/erc20';
@@ -34,37 +33,45 @@
   import { z } from 'zod';
   import AmountInput from '$lib/components/form/AmountInput.svelte';
 
-  // TODO handle approval/permit, permit2?
-  export let formId: string;
+  interface Props extends MintSubscriptionEvents {
+    // TODO handle approval/permit, permit2?
+    formId: string;
+    allowance: bigint;
+    balance: bigint;
+    mint: MintFunc;
+    approve: ApproveFunc;
+  }
 
-  export let allowance: bigint;
-  export let balance: bigint;
-
-  export let mint: MintFunc;
-
-  export let approve: ApproveFunc;
-
-  const dispatch = createEventDispatcher<MintSubscriptionEvents>();
-
-  let needsApproval = true;
+  let {
+    formId,
+    allowance,
+    balance,
+    mint,
+    approve,
+    onTxFailed,
+    onApprovalTxSubmitted,
+    onMinted,
+    onApproved,
+    onMintTxSubmitted
+  }: Props = $props();
 
   const approveMutation = createMutation({
     mutationFn: async ([amount]: Parameters<typeof approve>) =>
-      approve(amount, { onApprovalTxSubmitted: (hash) => dispatch('approvalTxSubmitted', hash) }),
-    onError: (error) => dispatch('txFailed', error),
-    onSuccess: (amount) => {
-      dispatch('approved', amount);
+      approve(amount, { onApprovalTxSubmitted: (hash) => onApprovalTxSubmitted?.(hash) }),
+    onError: (error) => onTxFailed?.(error),
+    onSuccess: ([amount, tx]) => {
+      onApproved?.(amount, tx);
     }
   });
 
   const mintMutation = createMutation({
     mutationFn: async ([amount, multiplier, message]: Parameters<typeof mint>) =>
       mint(amount, multiplier, message, {
-        onMintTxSubmitted: (hash) => dispatch('mintTxSubmitted', hash)
+        onMintTxSubmitted: (hash) => onMintTxSubmitted?.(hash)
       }),
-    onError: (error) => dispatch('txFailed', error),
+    onError: (error) => onTxFailed?.(error),
     onSuccess: ([tokenId, , , hash]) => {
-      dispatch('minted', [tokenId, hash]);
+      onMinted?.(tokenId, hash);
     }
   });
 
@@ -104,16 +111,16 @@
         await action({ ...val, multiplier: multiplier });
       } catch (err) {
         log.error('Failed to create new subscripion', err);
-        dispatch('txFailed', err);
+        onTxFailed?.(err);
       }
     }
   });
 
-  const { form: formData, errors, enhance, options } = form;
+  const { form: formData, errors, enhance, options } = $state(form);
 
-  $: needsApproval = allowance < ($formData.amount ?? 0n);
+  let needsApproval = $derived(allowance < ($formData.amount ?? 0n));
 
-  $: {
+  $effect(() => {
     if (needsApproval) {
       options.validators = zod(ApprovalSchema);
       setAction(doApprove);
@@ -121,7 +128,7 @@
       options.validators = zod(MintSchema);
       setAction(doMint);
     }
-  }
+  });
 </script>
 
 <div>

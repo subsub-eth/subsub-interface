@@ -96,3 +96,10 @@ export function convertDecimals(
   const diff = targetDecimals - currentDecimals;
   return value * BigInt(Math.pow(10, diff));
 }
+
+
+export const isValidNumeric = (s: string, decimals: number): boolean => {
+  const regex = new RegExp(`^([0-9]*\\.?[0-9]{0,${decimals}})$`);
+
+  return regex.test(s);
+};

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import ProgressRadial from '$lib/components/ui/ProgressRadial.svelte';
 
   export const meta = {
@@ -29,12 +29,16 @@
   import { Story, Template } from '@storybook/addon-svelte-csf';
 </script>
 
-<Template let:args>
-  <ProgressRadial {...args}>{args.value}</ProgressRadial>
+<Template >
+  {#snippet children({ args })}
+    <ProgressRadial {...args}>{args.value}</ProgressRadial>
+  {/snippet}
 </Template>
 
-<Story name="no text" let:args>
-  <ProgressRadial {...args} />
+<Story name="no text" >
+  {#snippet children({ args })}
+    <ProgressRadial {...args} />
+  {/snippet}
 </Story>
 <Story name="half with text" args={{ value: 50 }} />
 <Story name="empty with text" args={{ value: 0 }} />

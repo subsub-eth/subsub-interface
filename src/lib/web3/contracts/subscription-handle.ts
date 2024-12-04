@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AddressSchema, type Address } from './common';
+import { AddressSchema, type Address, type Hash } from './common';
 import { log } from '$lib/logger';
 import { execute, type IERC6551Executable } from './erc6551';
 import type { ReadableContract, WritableContract } from '../viem';
@@ -79,9 +79,9 @@ export type CreateSubscriptionFunc = (
   metadata: Metadata,
   subSettings: SubSettings,
   events?: {
-    onCreateTxSubmitted?: (hash: string) => void;
+    onCreateTxSubmitted?: (hash: Hash) => void;
   }
-) => Promise<string>;
+) => Promise<[Address, Hash]>;
 
 export function createSubscription(subHandle: WritableSubscriptionHandle): CreateSubscriptionFunc {
   return async (name, symbol, metadata, subSettings, events) => {
@@ -96,7 +96,7 @@ export function createSubscription(subHandle: WritableSubscriptionHandle): Creat
     if (!created) {
       throw new Error('Transaction Log not found');
     }
-    return created.args.contractAddress;
+    return [created.args.contractAddress, tx];
   };
 }
 
@@ -122,7 +122,7 @@ export function erc6551CreateSubscription(
     if (!created) {
       throw new Error('Transaction Log not found');
     }
-    return created.args.contractAddress;
+    return [created.args.contractAddress, tx];
   };
 }
 

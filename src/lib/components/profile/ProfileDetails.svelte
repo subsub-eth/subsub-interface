@@ -2,19 +2,22 @@
   import * as Avatar from '$lib/components/ui/avatar';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
-  import { ExplorerAccountUrl, ExplorerNftUrl } from '$lib/components/url';
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { ClipboardCopy, ExternalLink } from 'lucide-svelte';
   import { truncateAddress } from '$lib/helpers';
   import { copyTextToClipboard } from '$lib/clipboard';
   import toast from '$lib/toast';
   import type { Address } from '$lib/web3/contracts/common';
+  import { accountUrl, nftUrl } from '$lib/blockexplorer-url.svelte';
 
-  /** profile data */
-  export let profile: ProfileData;
+  interface Props {
+    /** profile data */
+    profile: ProfileData;
+    /** tokenbound account of this profile */
+    tokenboundAccount?: Address | undefined;
+  }
 
-  /** tokenbound account of this profile */
-  export let tokenboundAccount: Address | undefined = undefined;
+  let { profile, tokenboundAccount = undefined }: Props = $props();
 
   // TODO extract?
   const toClipboard = (text: string) => async () => {
@@ -40,17 +43,15 @@
     <div class="basis-3/4 space-y-3 self-center justify-self-start">
       <div class="flex">
         <Card.Title class="self-center">{profile.name}</Card.Title>
-        <ExplorerNftUrl contract={profile.address} tokenId={BigInt(profile.tokenId)} let:url>
-          <Button
-            size="icon"
-            variant="ghost"
-            class="ml-auto h-6 w-6 self-center justify-self-end"
-            href={url}
-            target="_blank"
-          >
-            <ExternalLink className="h-4 w-4" />
-          </Button>
-        </ExplorerNftUrl>
+        <Button
+          size="icon"
+          variant="ghost"
+          class="ml-auto h-6 w-6 self-center justify-self-end"
+          href={nftUrl(profile.address, BigInt(profile.tokenId))}
+          target="_blank"
+        >
+          <ExternalLink className="h-4 w-4" />
+        </Button>
       </div>
       {#if profile.description}
         <Card.Description>{profile.description}</Card.Description>
@@ -79,17 +80,15 @@
             >
               <ClipboardCopy className="h-4 w-4" />
             </Button>
-            <ExplorerAccountUrl {address} let:url>
-              <Button
-                size="icon"
-                variant="ghost"
-                class="ml-2 h-4 w-4 self-center"
-                href={url}
-                target="_blank"
-              >
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            </ExplorerAccountUrl>
+            <Button
+              size="icon"
+              variant="ghost"
+              class="ml-2 h-4 w-4 self-center"
+              href={accountUrl(address)}
+              target="_blank"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
           </p>
         </div>
       {/if}

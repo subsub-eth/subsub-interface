@@ -4,23 +4,33 @@
   import { cn } from '$lib/utils';
 
   /** CSS classes */
-  let clazz: string = 'h-6 w-6';
-  export { clazz as class };
 
-  export let status: "green" | "yellow" | "red" = "green";
+  interface Props {
+    class?: string;
+    status?: 'green' | 'yellow' | 'red';
+    colorGreen?: string;
+    colorYellow?: string;
+    colorRed?: string;
+    textGreen?: string;
+    textYellow?: string;
+    textRed?: string;
+  }
 
-  export let colorGreen = 'fill-green-500 stroke-green-500';
-  export let colorYellow = 'fill-yellow-500 stroke-yellow-500';
-  export let colorRed = 'fill-red-500 stroke-red-500';
+  let {
+    class: clazz = 'h-6 w-6',
+    status = 'green',
+    colorGreen = 'fill-green-500 stroke-green-500',
+    colorYellow = 'fill-yellow-500 stroke-yellow-500',
+    colorRed = 'fill-red-500 stroke-red-500',
+    textGreen = 'Is active',
+    textYellow = 'Almost inactive',
+    textRed = 'Is inactive'
+  }: Props = $props();
 
-  export let textGreen = 'Is active';
-  export let textYellow = 'Almost inactive';
-  export let textRed = 'Is inactive';
+  let color: string = $state('');
+  let text: string = $state('');
 
-  let color: string = '';
-  let text: string = '';
-
-  $: {
+  $effect(() => {
     if (status === 'green') {
       color = colorGreen;
       text = textGreen;
@@ -31,9 +41,9 @@
       color = colorRed;
       text = textRed;
     }
-  }
+  });
 
-  $: classes = cn(clazz, color);
+  let classes = $derived(cn(clazz, color));
 </script>
 
 <Tooltip.Root>

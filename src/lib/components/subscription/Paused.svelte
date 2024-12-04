@@ -6,10 +6,13 @@
   /**
    * Classes
    */
-  let clazz: string = 'h-8 w-8';
-  export { clazz as class };
+  interface Props {
+    class?: string;
+  }
 
-  const colorClass = 'stroke-yellow-500'
+  let { class: clazz = 'h-8 w-8' }: Props = $props();
+
+  const colorClass = 'stroke-yellow-500';
   let classes = cn(colorClass, clazz);
 </script>
 

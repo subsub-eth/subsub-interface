@@ -1,16 +1,19 @@
 <script lang="ts">
   import * as Tooltip from '$lib/components/ui/tooltip';
-  import { AlertTriangle, PauseCircle } from 'lucide-svelte';
+  import { AlertTriangle } from 'lucide-svelte';
   import { cn } from '$lib/utils';
 
-  export let text: string;
   /**
    * Classes
    */
-  let clazz: string = 'h-8 w-8';
-  export { clazz as class };
+  interface Props {
+    text: string;
+    class?: string;
+  }
 
-  const colorClass = 'stroke-red-500'
+  let { text, class: clazz = 'h-8 w-8' }: Props = $props();
+
+  const colorClass = 'stroke-red-500';
   let classes = cn(colorClass, clazz);
 </script>
 

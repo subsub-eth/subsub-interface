@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import { zeroAddress } from '$lib/web3/helpers';
   import TokenLogo from '$lib/components/TokenLogo.svelte';
 
@@ -35,8 +35,10 @@
   import { Story, Template } from '@storybook/addon-svelte-csf';
 </script>
 
-<Template let:args>
-  <TokenLogo {...args} />
+<Template >
+  {#snippet children({ args })}
+    <TokenLogo {...args} />
+  {/snippet}
 </Template>
 
 <Story name="UST" args={{ address: zeroAddress }} />

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import PropertyBox from '$lib/components/ui/PropertyBox.svelte';
 
   export const meta = {
@@ -37,8 +37,10 @@
   import { PauseCircle } from 'lucide-svelte';
 </script>
 
-<Template let:args>
-  <PropertyBox {...args} titleLogo={PauseCircle}/>
+<Template >
+  {#snippet children({ args })}
+    <PropertyBox {...args} TitleIcon={PauseCircle}/>
+  {/snippet}
 </Template>
 
 <Story name="Default" />

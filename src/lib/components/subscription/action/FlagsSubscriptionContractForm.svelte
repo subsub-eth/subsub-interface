@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   const FlagsSchema = z.object({
     minting: z.boolean(),
     renewal: z.boolean(),
@@ -18,7 +18,6 @@
     type SubscriptionFlag,
     type UpdateFlags
   } from '$lib/web3/contracts/subscription';
-  import { createEventDispatcher } from 'svelte';
   import { type FlagsChangeContractEvents } from './subscription-events';
   import { createMutation } from '@tanstack/svelte-query';
   import { z } from 'zod';
@@ -27,21 +26,22 @@
   import Button from '$lib/components/Button.svelte';
   import SwitchInput from '$lib/components/form/SwitchInput.svelte';
 
-  export let data: SubscriptionContractData;
+  interface Props extends FlagsChangeContractEvents {
+    data: SubscriptionContractData;
+    formId: string;
+    setFlags: UpdateFlags;
+  }
 
-  export let formId: string;
-  export let setFlags: UpdateFlags;
-
-  const dispatch = createEventDispatcher<FlagsChangeContractEvents>();
+  let { data, formId, setFlags, onFlagsTxSubmitted, onFlagsChanged, onTxFailed }: Props = $props();
 
   const updateMutation = createMutation({
     mutationFn: async ([flags]: Parameters<typeof setFlags>) =>
       setFlags(flags, {
-        onFlagsTxSubmitted: (hash) => dispatch('flagsTxSubmitted', hash)
+        onFlagsTxSubmitted: (hash) => onFlagsTxSubmitted?.(hash)
       }),
-    onError: (error) => dispatch('txFailed', error),
-    onSuccess: ( hash) => {
-      dispatch('flagsChanged', hash);
+    onError: (error) => onTxFailed?.(error),
+    onSuccess: (hash) => {
+      onFlagsChanged?.(hash);
     }
   });
 
@@ -76,18 +76,18 @@
         const result = $updateMutation.mutateAsync([flagsValue]);
         return result;
       } catch (err) {
-        dispatch('txFailed', err);
+        onTxFailed?.(err);
         throw err;
       }
     }
   });
 
-  const { form: formData, errors, enhance, reset } = form;
+  const { form: formData, errors, enhance } = form;
 
-  $: {
-    // reset the form to the new data that is being passed down
-    reset({ data: fromData(data) });
-  }
+  // run(() => {
+  //   // reset the form to the new data that is being passed down
+  //   reset({ data: fromData(data) });
+  // });
 </script>
 
 <div>

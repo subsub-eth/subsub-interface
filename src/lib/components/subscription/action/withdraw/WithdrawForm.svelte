@@ -1,38 +1,44 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import type { TxFailedEvents, WithdrawalEvents } from '../subscription-events';
-  import NumberInput from '$lib/components/form/NumberInput.svelte';
   import Button from '$lib/components/Button.svelte';
-  import {
-    WithdrawPropsSchema,
-    type WithdrawProps,
-    type WithdrawalFunc
-  } from '$lib/web3/contracts/subscription';
+  import { WithdrawPropsSchema, type WithdrawalFunc } from '$lib/web3/contracts/subscription';
   import { createMutation } from '@tanstack/svelte-query';
   import { log } from '$lib/logger';
   import SuperDebug, { defaults, setError, superForm } from 'sveltekit-superforms';
   import { zod } from 'sveltekit-superforms/adapters';
   import AmountInput from '$lib/components/form/AmountInput.svelte';
 
-  export let formId: string;
-  export let submitLabel: string;
-  export let deposited: bigint;
-  export let withdrawable: bigint;
-  export let withdraw: WithdrawalFunc;
-  export let minAmount = 10n;
-  export let maxAmount = 100n;
+  interface Props extends WithdrawalEvents, TxFailedEvents {
+    formId: string;
+    submitLabel: string;
+    deposited: bigint;
+    withdrawable: bigint;
+    withdraw: WithdrawalFunc;
+    minAmount?: bigint;
+    maxAmount?: bigint;
+  }
 
-  const withdrawDispatch = createEventDispatcher<WithdrawalEvents>();
-  const failDispatch = createEventDispatcher<TxFailedEvents>();
+  let {
+    formId,
+    submitLabel,
+    deposited,
+    withdrawable,
+    withdraw,
+    minAmount = 10n,
+    maxAmount = 100n,
+    onTxFailed,
+    onWithdrawTxSubmitted,
+    onWithdrawn
+  }: Props = $props();
 
   const withdrawMutation = createMutation({
     mutationFn: async ([amount]: Parameters<typeof withdraw>) =>
       withdraw(amount, {
-        onWithdrawTxSubmitted: (hash) => withdrawDispatch('withdrawTxSubmitted', hash)
+        onWithdrawTxSubmitted: (tx) => onWithdrawTxSubmitted?.(tx)
       }),
-    onError: (error) => failDispatch('txFailed', error),
-    onSuccess: ([amount, hash]) => {
-      withdrawDispatch('withdrawn', [amount, hash]);
+    onError: (error) => onTxFailed?.(error),
+    onSuccess: ([amount, tx]) => {
+      onWithdrawn?.(amount, tx);
     }
   });
 
@@ -60,7 +66,7 @@
         await $withdrawMutation.mutateAsync([val.amount]);
       } catch (err) {
         log.error('An error occurred', err);
-        failDispatch('txFailed', err);
+        onTxFailed?.(err);
       }
     }
   });

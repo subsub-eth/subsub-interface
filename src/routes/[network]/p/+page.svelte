@@ -10,7 +10,7 @@
   import { currentAccount } from '$lib/web3/onboard';
   import Url from '$lib/components/Url.svelte';
   import { createQuery } from '@tanstack/svelte-query';
-  import { derived } from 'svelte/store';
+  import { derived as derivedStore } from 'svelte/store';
   import { log } from '$lib/logger';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import ProfileTeaser from '$lib/components/profile/ProfileTeaser.svelte';
@@ -18,12 +18,12 @@
 
   const pageSize = 5;
 
-  $: profileContract = $chainEnvironment!.profileContract;
-  $: profileAddr = $chainEnvironment!.chainData.contracts.profile;
-  $: currentAcc = $currentAccount!;
+  let profileContract = $derived($chainEnvironment!.profileContract);
+  let profileAddr = $derived($chainEnvironment!.chainData.contracts.profile);
+  let currentAcc = $derived($currentAccount!);
 
   const profileTotalSupply = createQuery<number>(
-    derived(chainEnvironment, (chainEnv) => ({
+    derivedStore(chainEnvironment, (chainEnv) => ({
       queryKey: profileKeys.totalSupply(chainEnv!.chainData.contracts.profile),
       queryFn: async () => {
         const supply = await totalSupply(chainEnv!.profileContract);
@@ -34,7 +34,7 @@
   );
 
   const userProfileBalance = createQuery<number>(
-    derived([chainEnvironment, currentAccount], ([chainEnv, currentAcc]) => ({
+    derivedStore([chainEnvironment, currentAccount], ([chainEnv, currentAcc]) => ({
       queryKey: profileKeys.balance(chainEnv!.chainData.contracts.profile, currentAcc!),
       queryFn: async () => {
         const balance = await countUserProfiles(chainEnv!.profileContract, currentAcc!);
@@ -52,8 +52,10 @@
     <h2>My Profiles</h2>
 
     <div>
-      <Url template={`/[network]/p/new/`} let:path>
-        <Button href={path} label="Mint new Profile" primary />
+      <Url template={`/[network]/p/new/`}>
+        {#snippet children({ path })}
+          <Button href={path} label="Mint new Profile" primary />
+        {/snippet}
       </Url>
     </div>
 
@@ -71,13 +73,14 @@
         <PaginatedLoadedList
           {load}
           queryKeys={profileKeys.ownerList(profileAddr, currentAcc)}
-          let:items
           totalItems={$userProfileBalance.data}
           {pageSize}
         >
-          {#each items as profileData}
-            <ProfileTeaser profile={profileData} />
-          {/each}
+          {#snippet children({ items })}
+            {#each items as profileData}
+              <ProfileTeaser profile={profileData} />
+            {/each}
+          {/snippet}
         </PaginatedLoadedList>
       {/if}
     </div>
@@ -93,13 +96,14 @@
       <PaginatedLoadedList
         {load}
         queryKeys={profileKeys.list(profileAddr)}
-        let:items
         totalItems={$profileTotalSupply.data}
         {pageSize}
       >
-        {#each items as profileData}
-          <ProfileTeaser profile={profileData} />
-        {/each}
+        {#snippet children({ items })}
+          {#each items as profileData}
+            <ProfileTeaser profile={profileData} />
+          {/each}
+        {/snippet}
       </PaginatedLoadedList>
     {/if}
   </div>

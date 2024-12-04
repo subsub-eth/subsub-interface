@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import { derived } from 'svelte/store';
+  import { derived as derivedStore } from 'svelte/store';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import NewSubscriptionContractForm from '$lib/components/subscription/NewSubscriptionContractForm.svelte';
   import { erc6551CreateSubscription } from '$lib/web3/contracts/subscription-handle';
   import Url from '$lib/components/Url.svelte';
   import { addressEquals } from '$lib/web3/helpers';
-  import { writableChainEnvironment as chainEnvironment} from '$lib/chain-context';
+  import { writableChainEnvironment as chainEnvironment } from '$lib/chain-context';
   import { currentAccount } from '$lib/web3/onboard';
   import toast from '$lib/toast';
   import { createQuery } from '@tanstack/svelte-query';
@@ -20,18 +20,22 @@
     createErc6551Account,
     type TokenBoundAccount
   } from '$lib/web3/contracts/erc6551';
-  import type { Address } from '$lib/web3/contracts/common';
+  import type { Address, Hash } from '$lib/web3/contracts/common';
   import { queryClient } from '$lib/query/config';
   import { erc6551Keys, profileKeys, subHandleKeys } from '$lib/query/keys';
   import { getErc20Contract, getErc20Data } from '$lib/web3/contracts/erc20';
   import { knownErc20Tokens } from '$lib/chain-config';
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const profileId = data.profile;
 
   const isOwner = createQuery<boolean>(
-    derived([chainEnvironment, currentAccount], ([chainEnvironment, currentAccount]) => ({
+    derivedStore([chainEnvironment, currentAccount], ([chainEnvironment, currentAccount]) => ({
       queryKey: profileKeys.tokenOwner(
         chainEnvironment!.chainData.contracts.profile,
         profileId,
@@ -46,7 +50,7 @@
   );
 
   const erc6551AccountAddress = createQuery<Address>(
-    derived(chainEnvironment, (chainEnvironment) => ({
+    derivedStore(chainEnvironment, (chainEnvironment) => ({
       queryKey: erc6551Keys.profileAccount(
         chainEnvironment!.chainData.contracts.erc6551Registry,
         chainEnvironment!.chainData.chainId,
@@ -58,7 +62,7 @@
   );
 
   const erc6551Account = createQuery<TokenBoundAccount | null>(
-    derived([chainEnvironment, erc6551AccountAddress], ([chainEnvironment, addr]) => ({
+    derivedStore([chainEnvironment, erc6551AccountAddress], ([chainEnvironment, addr]) => ({
       queryKey: erc6551Keys.account(addr.data!),
       queryFn: async () => {
         const publicClient = chainEnvironment!.publicClient;
@@ -70,30 +74,31 @@
     }))
   );
 
-  $: createAccount = async () =>
+  let createAccount = $derived(async () =>
     createErc6551Account(
       $chainEnvironment!.erc6551Registry,
       $chainEnvironment!.chainData.contracts.defaultErc6551Implementation,
       $chainEnvironment!.chainData.chainId,
       $chainEnvironment!.chainData.contracts.profile,
       profileId
-    );
+    )
+  );
 
-  $: tokenByAddress = async (addr: Address) => {
+  let tokenByAddress = $derived(async (addr: Address) => {
     const client = $chainEnvironment!.publicClient;
     const contract = getErc20Contract(addr, client);
 
     return await getErc20Data(contract);
+  });
+
+  let knownTokens = $derived(knownErc20Tokens($chainEnvironment!.chainData.chainId));
+
+  const onTxSubmitted = (tx: Hash) => {
+    toast.info(`Transaction submitted: ${tx}`);
   };
 
-  $: knownTokens = knownErc20Tokens($chainEnvironment!.chainData.chainId);
-
-  const onTxSubmitted = (event: CustomEvent<string>) => {
-    toast.info(`Transaction submitted: ${event.detail}`);
-  };
-
-  const onContractCreated = (event: CustomEvent<[string, string]>) => {
-    toast.info(`New Contract address: ${event.detail[0]}`);
+  const onContractCreated = (addr: Address, tx: Hash) => {
+    toast.info(`New Contract address: ${addr}`);
     queryClient.invalidateQueries({
       queryKey: subHandleKeys.ownerList(
         $chainEnvironment!.chainData.contracts.subscriptionHandle,
@@ -101,18 +106,20 @@
       )
     });
     // TODO FIXME
-    goto(`/${$page.params.network}/s/${event.detail[0]}/`);
+    goto(`/${$page.params.network}/s/${addr}/`);
   };
 
   const onTxFailed = () => {
     toast.error('Transaction failed');
   };
 
-  $: subHandle = $chainEnvironment!.subscriptionHandleContract;
+  let subHandle = $derived($chainEnvironment!.subscriptionHandleContract);
 </script>
 
-<Url template={`/[network]/p/${profileId}/`} let:path>
-  <Button label="back" href={path} />
+<Url template={`/[network]/p/${profileId}/`}>
+  {#snippet children({ path })}
+    <Button label="back" href={path} />
+  {/snippet}
 </Url>
 <h1>New Subscription Contract</h1>
 
@@ -124,20 +131,20 @@ TODO: handle erc6551 properly for write access
 {:else if $erc6551Account.isError}
   Unable to load token account: {$erc6551Account.error}
 {:else if $isOwner.isSuccess && $erc6551AccountAddress.isSuccess && $erc6551Account.isSuccess}
-  {@const isOwner = $isOwner.data}
-  {@const erc6551Account = $erc6551Account.data}
-  {#if isOwner}
-    {#if !erc6551Account}
+  {@const _isOwner = $isOwner.data}
+  {@const _erc6551Account = $erc6551Account.data}
+  {#if _isOwner}
+    {#if !_erc6551Account}
       <NewAccount create={createAccount} />
     {:else}
       <NewSubscriptionContractForm
         formId={`${$erc6551AccountAddress.data}`}
-        create={erc6551CreateSubscription(erc6551Account[1], subHandle)}
+        create={erc6551CreateSubscription(_erc6551Account[1], subHandle)}
         {tokenByAddress}
         {knownTokens}
-        on:txFailed={onTxFailed}
-        on:createTxSubmitted={onTxSubmitted}
-        on:created={onContractCreated}
+        {onTxFailed}
+        onCreateTxSubmitted={onTxSubmitted}
+        onCreated={onContractCreated}
       />
     {/if}
   {:else}

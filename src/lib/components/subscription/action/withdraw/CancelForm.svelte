@@ -1,25 +1,26 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import type { TxFailedEvents, WithdrawalEvents } from '../subscription-events';
   import Button from '$lib/components/Button.svelte';
   import type { CancelFunc } from '$lib/web3/contracts/subscription';
   import { createMutation } from '@tanstack/svelte-query';
 
-  export let submitLabel: string;
-  export let withdrawable: bigint;
-  export let cancel: CancelFunc;
+  interface Props extends WithdrawalEvents, TxFailedEvents {
+    submitLabel: string;
+    withdrawable: bigint;
+    cancel: CancelFunc;
+  }
 
-  const withdrawDispatch = createEventDispatcher<WithdrawalEvents>();
-  const failDispatch = createEventDispatcher<TxFailedEvents>();
+  let { submitLabel, withdrawable, cancel, onWithdrawTxSubmitted, onWithdrawn, onTxFailed }: Props =
+    $props();
 
   const cancelMutation = createMutation({
     mutationFn: async () =>
       cancel({
-        onWithdrawTxSubmitted: (hash) => withdrawDispatch('withdrawTxSubmitted', hash)
+        onWithdrawTxSubmitted: (tx) => onWithdrawTxSubmitted?.(tx)
       }),
-    onError: (error) => failDispatch('txFailed', error),
-    onSuccess: ([amount, hash]) => {
-      withdrawDispatch('withdrawn', [amount, hash]);
+    onError: (error) => onTxFailed?.(error),
+    onSuccess: ([amount, tx]) => {
+      onWithdrawn?.(amount, tx);
     }
   });
 </script>

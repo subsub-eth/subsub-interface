@@ -1,4 +1,4 @@
-<script context="module">
+<script module>
     import { Button } from '$lib/components/ui/button';
     import { ChevronRight } from "lucide-svelte";
     import { Loader2 } from "lucide-svelte";

@@ -1,25 +1,26 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import Button from '../Button.svelte';
   import type { SubscriptionContractData, ClaimFunc } from '$lib/web3/contracts/subscription';
   import type { ClaimSubscriptionContractEvents } from './action/subscription-events';
   import { createMutation } from '@tanstack/svelte-query';
   import type { Address } from '$lib/web3/contracts/common';
 
-  export let data: SubscriptionContractData;
-  export let claimTo: Address;
-  export let claim: ClaimFunc;
+  interface Props extends ClaimSubscriptionContractEvents {
+    data: SubscriptionContractData;
+    claimTo: Address;
+    claim: ClaimFunc;
+  }
 
-  const dispatch = createEventDispatcher<ClaimSubscriptionContractEvents>();
+  let { data, claimTo, claim, onTxFailed, onClaimTxSubmitted, onClaimed }: Props = $props();
 
   const claimMutation = createMutation({
     mutationFn: async ([address]: Parameters<typeof claim>) =>
       claim(address, {
-        onClaimTxSubmitted: (hash) => dispatch('claimTxSubmitted', hash)
+        onClaimTxSubmitted: (hash) => onClaimTxSubmitted?.(hash)
       }),
-    onError: (error) => dispatch('txFailed', error),
+    onError: (error) => onTxFailed?.(error),
     onSuccess: ([amount, hash]) => {
-      dispatch('claimed', [amount, hash]);
+      onClaimed?.(amount, hash);
     }
   });
 

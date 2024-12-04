@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import { SubscriptionContractTeaser } from '$lib/components/subscription/contract';
   import type { SubscriptionContractData } from '$lib/web3/contracts/subscription';
   import { contractDummy } from '$lib/static-content';
@@ -82,9 +82,11 @@
 </script>
 
 <QueryClientContext>
-  <Template let:args>
-    <SubscriptionContractTeaser {...args} />
-  </Template>
+  <Template >
+    {#snippet children({ args })}
+        <SubscriptionContractTeaser {...args} />
+          {/snippet}
+    </Template>
 
   <Story name="with Owner" args={{ showOwner: true }} />
 

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   export const SUBSCRIPTION_CONTRACT_CTX = 'subscriptionContract';
   export const WRITABLE_SUBSCRIPTION_CONTRACT_CTX = 'writableSubscriptionContract';
   export const SUBSCRIPTION_DATA_CTX = 'subscriptionData';
@@ -17,7 +17,12 @@
   import { setContext } from 'svelte';
   import { subscriptionQueries } from '$lib/query/subscription-queries';
 
-  export let data: LayoutData;
+  interface Props {
+    data: LayoutData;
+    children?: import('svelte').Snippet;
+  }
+
+  let { data, children }: Props = $props();
 
   const addr = data.subscriptionAddr;
 
@@ -38,4 +43,4 @@
   setContext(TOKEN_PRICE_CTX, q.tokenPrice);
 </script>
 
-<slot />
+{@render children?.()}

@@ -7,18 +7,18 @@
   import { mint } from '$lib/web3/contracts/profile';
   import { currentAccount } from '$lib/web3/onboard';
 
-  $: onSuccess = (id: bigint) => {
+  let onSuccess = $derived((id: bigint) => {
     goto(urlFromTemplate(`/[network]/p/${id}`, $page.params));
-  };
+  });
 
-  $: currAcc = $currentAccount!;
+  let currAcc = $derived($currentAccount!);
   // TODO disable when not writable
-  $: profileContract = $writableChainEnvironment!.profileContract;
+  let profileContract = $derived($writableChainEnvironment!.profileContract);
 </script>
 
 <h1>Create new Creator Token</h1>
 <NewProfile
   formId={currAcc}
   mint={mint(profileContract, currAcc)}
-  on:minted={(ev) => onSuccess(ev.detail)}
+  onMinted={(id) => onSuccess(id)}
 />

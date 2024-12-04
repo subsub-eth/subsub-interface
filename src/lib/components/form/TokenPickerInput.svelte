@@ -8,26 +8,40 @@
   import * as Form from '$lib/components/ui/form';
   import TokenPicker from '$lib/components/TokenPicker.svelte';
 
-  export let name: U;
-  export let label: string = 'Token';
-  export let description: string = 'Select a Token';
-  export let form: SuperForm<T>;
-  export let value: Address;
-  /** load function to search token on a specific address */
-  export let tokenByAddress: (address: Address) => Promise<Erc20Data>;
-  /** list of known tokens to display for quick pick */
-  export let knownTokens: Array<Erc20Token> = [];
-  export let disabled = false;
-  export let required = false;
+  interface Props<T extends Record<string, unknown>, U extends FormPath<T>> {
+    name: U;
+    label?: string;
+    description?: string;
+    form: SuperForm<T>;
+    value: Address;
+    /** load function to search token on a specific address */
+    tokenByAddress: (address: Address) => Promise<Erc20Data>;
+    /** list of known tokens to display for quick pick */
+    knownTokens?: Array<Erc20Token>;
+    disabled?: boolean;
+    required?: boolean; // TODO pass form name etc
+  }
 
-  // TODO pass form name etc
+  let {
+    name,
+    label = 'Token',
+    description = 'Select a Token',
+    form,
+    value = $bindable(),
+    tokenByAddress,
+    knownTokens = [],
+    disabled = false,
+    required = false
+  }: Props<T, U> = $props();
 </script>
 
 <div>
   <Form.Field {form} {name}>
-    <Form.Control let:attrs>
-      <Form.Label>{label}</Form.Label>
-      <TokenPicker bind:token={value} {tokenByAddress} {knownTokens} />
+    <Form.Control>
+      {#snippet children({ attrs })}
+        <Form.Label>{label}</Form.Label>
+        <TokenPicker bind:token={value} {tokenByAddress} {knownTokens} />
+      {/snippet}
     </Form.Control>
     <Form.Description>{description}</Form.Description>
     <Form.FieldErrors />

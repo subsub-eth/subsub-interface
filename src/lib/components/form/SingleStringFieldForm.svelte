@@ -1,42 +1,52 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   export type FieldChangeEvents = {
-    txSubmitted: Hash;
-    valueChanged: Hash;
+    onTxSubmitted?: OnTx;
+    onValueChanged?: OnTx;
   };
 </script>
 
 <script lang="ts">
   import Button from '../Button.svelte';
   import TextInput from './TextInput.svelte';
-  import { createEventDispatcher } from 'svelte';
   import type { Hash } from '$lib/web3/contracts/common';
-  import type { TxFailedEvents } from '../common-events';
+  import type { OnTx, TxFailedEvents } from '../common-events';
   import { z, ZodSchema } from 'zod';
   import { createMutation } from '@tanstack/svelte-query';
   import SuperDebug, { setError, superForm } from 'sveltekit-superforms';
   import { zod } from 'sveltekit-superforms/adapters';
   import TextareaInput from './TextareaInput.svelte';
 
-  export let formId: string;
-  export let type: 'input' | 'textarea' = 'input';
-  export let value: string | undefined;
-  export let label: string;
-  export let validatorSchema: ZodSchema = z.string().optional();
+  type Events = FieldChangeEvents & TxFailedEvents;
 
-  export let handle: (
-    s: string,
-    events?: { onTxSubmitted?: (hash: Hash) => void }
-  ) => Promise<Hash>;
+  interface Props extends Events {
+    formId: string;
+    type?: 'input' | 'textarea';
+    value: string | undefined;
+    label: string;
+    validatorSchema?: ZodSchema;
+    handle: (s: string, events?: { onTxSubmitted?: (hash: Hash) => void }) => Promise<Hash>;
+  }
 
-  const dispatch = createEventDispatcher<FieldChangeEvents & TxFailedEvents>();
+  let {
+    formId,
+    type = 'input',
+    value,
+    label,
+    validatorSchema = z.string().optional(),
+    handle,
+    onTxFailed,
+    onTxSubmitted,
+    onValueChanged
+  }: Props = $props();
+
   const schema = z.object({ field: validatorSchema });
 
   const handleMutation = createMutation({
     mutationFn: async ([value]: Parameters<typeof handle>) =>
-      handle(value, { onTxSubmitted: (hash) => dispatch('txSubmitted', hash) }),
-    onError: (error) => dispatch('txFailed', error),
+      handle(value, { onTxSubmitted: (hash) => onTxSubmitted?.(hash) }),
+    onError: (error) => onTxFailed?.(error),
     onSuccess: (hash) => {
-      dispatch('valueChanged', hash);
+      onValueChanged?.(hash);
     }
   });
 
@@ -59,7 +69,7 @@
 
           return result;
         } catch (err) {
-          dispatch('txFailed', err);
+          onTxFailed?.(err);
           throw err;
         }
       }

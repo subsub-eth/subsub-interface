@@ -1,51 +1,51 @@
-import type { BigNumberish, Hash } from '$lib/web3/contracts/common';
-import type { TxFailedEvents  } from '$lib/components/common-events';
+import type { Hash } from '$lib/web3/contracts/common';
+import type { TxFailedEvents, OnTx } from '$lib/components/common-events';
 export { type TxFailedEvents };
 
 export type ApprovalEvents = {
-  approvalTxSubmitted: Hash;
-  approved: [bigint, Hash];
+  onApprovalTxSubmitted?: OnTx;
+  onApproved?: (amount: bigint, tx: Hash) => void;
 };
 
 export type MintEvents = {
-  mintTxSubmitted: Hash;
-  minted: [bigint, Hash];
+  onMintTxSubmitted?: OnTx;
+  onMinted?: (id: bigint, tx: Hash) => void;
 };
 export type MintSubscriptionEvents = MintEvents & ApprovalEvents & TxFailedEvents;
 
 export type DepositEvents = {
-  depositTxSubmitted: Hash;
-  deposited: [bigint, Hash];
+  onDepositTxSubmitted?: OnTx;
+  onDeposited?: (amount: bigint, tx: Hash) => void;
 };
 
 export type WithdrawalEvents = {
-  withdrawTxSubmitted: Hash;
-  withdrawn: [bigint, Hash];
+  onWithdrawTxSubmitted?: OnTx;
+  onWithdrawn?: (amount: bigint, tx: Hash) => void;
 };
 
 export type ClaimEvents = {
-  claimTxSubmitted: Hash;
-  claimed: [BigNumberish, Hash];
+  onClaimTxSubmitted?: OnTx;
+  onClaimed?: (amount: bigint, tx: Hash) => void;
 };
 
 export type FlagsChangeEvents = {
-  flagsTxSubmitted: Hash;
-  flagsChanged: Hash;
+  onFlagsTxSubmitted?: OnTx;
+  onFlagsChanged?: OnTx;
 };
 
 export type DescriptionChangeEvents = {
-  descriptionTxSubmitted: Hash;
-  descriptionChanged: Hash;
+  onDescriptionTxSubmitted?: OnTx;
+  onDescriptionChanged?: OnTx;
 };
 
 export type ImageChangeEvents = {
-  imageTxSubmitted: Hash;
-  imageChanged: Hash;
+  onImageTxSubmitted?: OnTx;
+  onImageChanged?: OnTx;
 };
 
 export type ExternalUrlChangeEvents = {
-  externalUrlTxSubmitted: Hash;
-  externalUrlChanged: Hash;
+  onExternalUrlTxSubmitted?: OnTx;
+  onExternalUrlChanged?: OnTx;
 };
 
 export type DepositSubscriptionEvents = DepositEvents & ApprovalEvents & TxFailedEvents;

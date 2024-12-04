@@ -1,3 +1,5 @@
+import type { Page } from '@sveltejs/kit';
+
 const isDynamic = (segment: string) =>
   segment.length > 2 && segment.startsWith('[') && segment.endsWith(']');
 
@@ -15,4 +17,8 @@ export function urlFromTemplate(template: string, params: Record<string, string>
       return s;
     })
     .join('/');
+}
+
+export function url(template: string, page: Page): string {
+  return urlFromTemplate(template, page.params);
 }

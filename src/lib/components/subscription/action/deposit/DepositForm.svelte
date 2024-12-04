@@ -1,9 +1,5 @@
 <script lang="ts">
-  import {
-    DepositPropsSchema,
-    type DepositFunc
-  } from '$lib/web3/contracts/subscription';
-  import { createEventDispatcher } from 'svelte';
+  import { DepositPropsSchema, type DepositFunc } from '$lib/web3/contracts/subscription';
   import type { ApprovalEvents, DepositEvents, TxFailedEvents } from '../subscription-events';
   import TextInput from '$lib/components/form/TextInput.svelte';
   import Button from '$lib/components/Button.svelte';
@@ -14,42 +10,56 @@
   import { zod } from 'sveltekit-superforms/adapters';
   import AmountInput from '$lib/components/form/AmountInput.svelte';
 
-  export let formId: string = "subscription-deposit";
-  export let allowance: bigint;
-  export let balance: bigint;
-  export let submitLabel: string;
-  export let approve: ApproveFunc;
-  export let deposit: DepositFunc;
-  export let minAmount = 10n;
-  export let maxAmount = 100n;
+  interface Props extends DepositEvents, ApprovalEvents, TxFailedEvents {
+    formId?: string;
+    allowance: bigint;
+    balance: bigint;
+    submitLabel: string;
+    approve: ApproveFunc;
+    deposit: DepositFunc;
+    minAmount?: bigint;
+    maxAmount?: bigint;
+  }
 
-  const depositDispatch = createEventDispatcher<DepositEvents>();
-  const approvalDispatch = createEventDispatcher<ApprovalEvents>();
-  const failDispatch = createEventDispatcher<TxFailedEvents>();
+  let {
+    formId = 'subscription-deposit',
+    allowance,
+    balance,
+    submitLabel,
+    approve,
+    deposit,
+    minAmount = 10n,
+    maxAmount = 100n,
+    onApprovalTxSubmitted,
+    onApproved,
+    onDeposited,
+    onDepositTxSubmitted,
+    onTxFailed
+  }: Props = $props();
 
   const approveMutation = createMutation({
     mutationFn: async ([amount]: Parameters<typeof approve>) =>
       approve(amount, {
-        onApprovalTxSubmitted: (hash) => approvalDispatch('approvalTxSubmitted', hash)
+        onApprovalTxSubmitted: (tx) => onApprovalTxSubmitted?.(tx)
       }),
-    onError: (error) => failDispatch('txFailed', error),
-    onSuccess: ([amount, hash]) => {
-      approvalDispatch('approved', [amount, hash]);
+    onError: (error) => onTxFailed?.(error),
+    onSuccess: ([amount, tx]) => {
+      onApproved?.(amount, tx);
     }
   });
 
   const depositMutation = createMutation({
     mutationFn: async ([amount, message]: Parameters<typeof deposit>) =>
       deposit(amount, message, {
-        onDepositTxSubmitted: (hash) => depositDispatch('depositTxSubmitted', hash)
+        onDepositTxSubmitted: (tx) => onDepositTxSubmitted?.(tx)
       }),
-    onError: (error) => failDispatch('txFailed', error),
-    onSuccess: ([amount, , hash]) => {
-      depositDispatch('deposited', [amount, hash]);
+    onError: (error) => onTxFailed?.(error),
+    onSuccess: ([amount, , tx]) => {
+      onDeposited?.(amount, tx);
     }
   });
 
-  let approvalMode = true;
+  let approvalMode = $state(true);
 
   const form = superForm(defaults(zod(DepositPropsSchema)), {
     id: formId,
@@ -87,9 +97,9 @@
 
   const { form: formData, errors, enhance } = form;
 
-  $: {
+  $effect(() => {
     approvalMode = allowance < ($formData.amount ?? 0n);
-  }
+  });
 </script>
 
 <div>

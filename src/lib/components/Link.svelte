@@ -1,48 +1,54 @@
 <script lang="ts">
-    import { twMerge } from 'tailwind-merge';
-  
+  import { run } from 'svelte/legacy';
+
+  import { twMerge } from 'tailwind-merge';
+
+  /**
+   * Additional css classes
+   */
+  interface Props {
     /**
-     * Link text 
+     * Link text
      */
-    export let text: string;
+    text: string;
     /**
      * Href url of the link
      */
-    export let url: string;
+    url: string;
     /**
      * If the link should open a new window
      */
-    export let newWindow: boolean = false
+    newWindow?: boolean;
     /**
      * Show link as a fake button
-    */
-    export let showAsButton: boolean = false;
+     */
+    showAsButton?: boolean;
     /**
      * Is this a fake print button
      */
-     export let primary = false;
-    /**
-     * Additional css classes
-     */
-    let clazz: string = '';
-    export { clazz as class };
-  
-    let opts: any;
-    $: {
-      opts = {};
-      if (newWindow) opts.target = "_blank";
-    }
+    primary?: boolean;
+    class?: string;
+  }
 
-    $: btnMode = primary ? 'btn--primary' : 'btn--secondary';
+  let {
+    text,
+    url,
+    newWindow = false,
+    showAsButton = false,
+    primary = false,
+    class: clazz = ''
+  }: Props = $props();
 
-    $: base = showAsButton ? `btn ${btnMode}` : 'link';
+  let opts: any = $state();
+  run(() => {
+    opts = {};
+    if (newWindow) opts.target = '_blank';
+  });
 
-  </script>
-  
-  <a
-    class={twMerge(base, clazz)}
-    href={url}
-    {...opts}
-    >{text}</a
-  >
-  
+  let btnMode = $derived(primary ? 'btn--primary' : 'btn--secondary');
+
+  let base = $derived(showAsButton ? `btn ${btnMode}` : 'link');
+</script>
+
+<a class={twMerge(base, clazz)} href={url} {...opts}>{text}</a>
+

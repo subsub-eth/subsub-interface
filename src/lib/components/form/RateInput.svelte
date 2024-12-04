@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   const month = 60n * 60n * 24n * 30n;
 </script>
 
@@ -11,57 +11,74 @@
 
   import * as Form from '$lib/components/ui/form';
   import { Input } from '$lib/components/ui/input';
+  import { isValidNumeric } from '$lib/helpers';
 
-  export let name: U;
-  export let label: string = 'Rate';
-  export let placeholder: string = '10.01';
-  export let description: string = 'The price of a subscription per month';
-  export let form: SuperForm<T>;
-  export let value: bigint | undefined;
-  export let rateDecimals: number = 18;
-  export let disabled = false;
-  export let required = false;
+  interface Props<T extends Record<string, unknown>, U extends FormPath<T>> {
+    name: U;
+    label?: string;
+    placeholder?: string;
+    description?: string;
+    form: SuperForm<T>;
+    value: bigint | undefined;
+    rateDecimals?: number;
+    disabled?: boolean;
+    required?: boolean;
+  }
 
-  let displayValue: string;
+  let {
+    name,
+    label = 'Rate',
+    placeholder = '10.01',
+    description = 'The price of a subscription per month',
+    form,
+    value = $bindable(),
+    rateDecimals = 18,
+    disabled = false,
+    required = false
+  }: Props<T, U> = $props();
 
-  const setDisplayValue = (val: bigint | undefined) =>
-    (displayValue = val ? formatUnits(val, rateDecimals) : '');
+  const initValue = formatUnits(BigInt(value ?? 0), rateDecimals);
 
-  const setValue = (val: string) => {
-    // in case of error, pass bad value, that's zod's problem
-    try {
-      if (val) {
-        const monthly = parseUnits(val, rateDecimals);
-        value = monthly / month;
-      } else {
-        value = val as unknown as bigint;
+  let displayValue = {
+    // initialize with empty string if no value set
+    internalValue: initValue === '0' ? '' : initValue,
+
+    get value() {
+      return this.internalValue;
+    },
+    set value(v) {
+      // check if string is somewhat a valid number
+      if (!isValidNumeric(v, rateDecimals)) {
+        return;
       }
-    } catch (err) {
-      log.error(`Failed to convert value to valid bigint`, val);
-      value = 0n;
+      this.internalValue = v;
+      try {
+        const monthly = parseUnits(v ?? 0, rateDecimals);
+        value = monthly / month;
+      } catch (err) {
+        log.error(`Failed to convert value to valid bigint`, v, err);
+        value = 0n;
+      }
     }
   };
-
-  // create reactive dependencies while hiding cyclic dependencies in funcs
-  $: setDisplayValue(value);
-  $: setValue(displayValue);
 </script>
 
 <div>
   <Form.Field {form} {name}>
-    <Form.Control let:attrs>
-      <Form.Label>{label}</Form.Label>
-      <Input
-        class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-        {...attrs}
-        bind:value={displayValue}
-        {placeholder}
-        {disabled}
-        {required}
-        type="number"
-        min="0"
-        step={formatUnits(1n, rateDecimals)}
-      />
+    <Form.Control>
+      {#snippet children({ attrs })}
+        <Form.Label>{label}</Form.Label>
+        <Input
+          class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          {...attrs}
+          bind:value={displayValue.value}
+          {placeholder}
+          {disabled}
+          {required}
+          type="text"
+        />
+        rate per second: ${value}
+      {/snippet}
     </Form.Control>
     {#if description}
       <Form.Description>{description}</Form.Description>

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   const SubscriptionContractSchema = z.object({
     name: TokenNameSchema,
     symbol: TokenSymbolSchema,
@@ -28,24 +28,17 @@
 <script lang="ts">
   import TextInput from '../form/TextInput.svelte';
   import TextareaInput from '../form/TextareaInput.svelte';
-  import { type CreateSubscriptionFunc } from '$lib/web3/contracts/subscription-handle';
+  import {
+    type CreateSubscriptionFunc,
+    type Metadata,
+    type SubSettings
+  } from '$lib/web3/contracts/subscription-handle';
   import NumberInput from '../form/NumberInput.svelte';
-  import type {} from '@createz/contracts/types/ethers-contracts';
-  import { createEventDispatcher } from 'svelte';
   import Button from '../Button.svelte';
   import { type CreateSubscriptionContractEvents } from '$lib/components/subscription/action/subscription-handle-events';
-  import type {
-    MetadataStructStruct,
-    SubSettingsStruct
-  } from '@createz/contracts/types/ethers-contracts/ISubscription.sol/ISubscription';
   import { log } from '$lib/logger';
   import { createMutation } from '@tanstack/svelte-query';
-  import SuperDebug, {
-    defaults,
-    setError,
-    setMessage,
-    superForm
-  } from 'sveltekit-superforms';
+  import SuperDebug, { defaults, setError, setMessage, superForm } from 'sveltekit-superforms';
   import { zod } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
   import {
@@ -62,24 +55,33 @@
   import TokenPickerInput from '../form/TokenPickerInput.svelte';
   import type { Erc20Data, Erc20Token } from '$lib/web3/contracts/erc20';
 
-  export let formId: string;
-  export let create: CreateSubscriptionFunc;
-  /** load function to search token on a specific address */
-  export let tokenByAddress: (address: Address) => Promise<Erc20Data>;
-  /** list of known tokens to display for quick pick */
-  export let knownTokens: Array<Erc20Token> = [];
+  interface Props extends CreateSubscriptionContractEvents {
+    formId: string;
+    create: CreateSubscriptionFunc;
+    /** load function to search token on a specific address */
+    tokenByAddress: (address: Address) => Promise<Erc20Data>;
+    /** list of known tokens to display for quick pick */
+    knownTokens?: Array<Erc20Token>;
+  }
 
-  const dispatch = createEventDispatcher<CreateSubscriptionContractEvents>();
+  let {
+    formId,
+    create,
+    tokenByAddress,
+    knownTokens = [],
+    onCreateTxSubmitted,
+    onCreated,
+    onTxFailed
+  }: Props = $props();
 
   const createContract = createMutation({
     mutationFn: async ([name, symbol, metadata, subSettings]: Parameters<typeof create>) =>
       create(name, symbol, metadata, subSettings, {
-        onCreateTxSubmitted: (hash) => dispatch('createTxSubmitted', hash)
+        onCreateTxSubmitted: (hash) => onCreateTxSubmitted?.(hash)
       }),
-    onError: (error) => dispatch('txFailed', error),
-    // TODO pass hash and address?
-    onSuccess: (res) => {
-      dispatch('created', [res, res]);
+    onError: (error) => onTxFailed?.(error),
+    onSuccess: ([address, tx]) => {
+      onCreated?.(address, tx);
     }
   });
 
@@ -94,7 +96,7 @@
       log.info('errors', form.errors);
       if (form.valid) {
         const val = form.data;
-        const metadata: MetadataStructStruct = {
+        const metadata: Metadata = {
           description: val.description ?? '',
           image: val.imageUrl ?? '',
           externalUrl: val.externalUrl ?? ''
@@ -112,7 +114,7 @@
 
         const lock = BigInt(val.lock * 100);
 
-        const subSettings: SubSettingsStruct = {
+        const subSettings: SubSettings = {
           token: val.token,
           rate: val.rate,
           lock: lock,
@@ -158,7 +160,12 @@
     </fieldset>
     <fieldset disabled={$createContract.isPending}>
       <legend>Metadata</legend>
-      <TextareaInput {form} bind:value={$formData.description} name="description" label="Description" />
+      <TextareaInput
+        {form}
+        bind:value={$formData.description}
+        name="description"
+        label="Description"
+      />
       <TextInput {form} bind:value={$formData.imageUrl} name="imageUrl" label="Image URL" />
       <TextInput
         {form}

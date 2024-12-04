@@ -8,7 +8,7 @@
   import { chainEnvironment } from '$lib/chain-context';
   import { currentAccount } from '$lib/web3/onboard';
   import { createQuery } from '@tanstack/svelte-query';
-  import { derived } from 'svelte/store';
+  import { derived as derivedStore } from 'svelte/store';
   import type { Address } from '$lib/web3/contracts/common';
   import { findProfile } from '$lib/web3/contracts/profile';
   import Url from '$lib/components/Url.svelte';
@@ -20,16 +20,20 @@
   import { ChevronLeft } from 'lucide-svelte';
   import { SubscriptionContractContext } from '$lib/components/context/web3';
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const tokenId = data.profile;
 
   const pageSize = 5;
 
-  $: currentAcc = $currentAccount!;
+  let currentAcc = $derived($currentAccount!);
 
   const profile = createQuery<ProfileData>(
-    derived(chainEnvironment, (chainEnvironment) => ({
+    derivedStore(chainEnvironment, (chainEnvironment) => ({
       queryKey: profileKeys.tokenUri(chainEnvironment!.chainData.contracts.profile, tokenId),
       queryFn: async () => {
         log.debug('find profile', chainEnvironment);
@@ -40,7 +44,7 @@
   );
 
   const ownerAccount = createQuery<Address>(
-    derived(chainEnvironment, (chainEnvironment) => ({
+    derivedStore(chainEnvironment, (chainEnvironment) => ({
       queryKey: erc6551Keys.profileAccount(
         chainEnvironment!.chainData.contracts.erc6551Registry,
         chainEnvironment!.chainData.chainId,
@@ -52,7 +56,7 @@
   );
 
   const subscriptionContractAddresses = createQuery<Array<Address>>(
-    derived([chainEnvironment, ownerAccount], ([chainEnvironment, ownerAccount]) => ({
+    derivedStore([chainEnvironment, ownerAccount], ([chainEnvironment, ownerAccount]) => ({
       queryKey: subHandleKeys.ownerList(
         chainEnvironment!.chainData.contracts.subscriptionHandle,
         ownerAccount.data!
@@ -80,12 +84,14 @@
     {/if}
     {#if $profile.isSuccess}
       <!-- TODO "back link" to profile -->
-      <Url template={`/[network]/p/${data.ownerAddress}/`} let:path>
-        <a href={path}>
-          <div class="flex items-center gap-1">
-            <ChevronLeft className="h-4 w-4" /> <span>{'ownerName'}'s profile</span>
-          </div>
-        </a>
+      <Url template={`/[network]/p/${data.ownerAddress}/`}>
+        {#snippet children({ path })}
+          <a href={path}>
+            <div class="flex items-center gap-1">
+              <ChevronLeft className="h-4 w-4" /> <span>{'ownerName'}'s profile</span>
+            </div>
+          </a>
+        {/snippet}
       </Url>
 
       <ProfileDetails profile={$profile.data} />
@@ -97,12 +103,14 @@
     <h2>Subscription Plans</h2>
     {#if $profile.isSuccess}
       {#if addressEquals(currentAcc, $profile.data.owner)}
-        <Url template={`/[network]/p/${tokenId}/newsub/`} let:path>
-          <Button primary={true} label="New Subscription Contract" href={path} />
+        <Url template={`/[network]/p/${tokenId}/newsub/`}>
+          {#snippet children({ path })}
+            <Button primary={true} label="New Subscription Contract" href={path} />
+          {/snippet}
         </Url>
       {/if}
     {/if}
-    <div />
+    <div></div>
     <!-- TODO FIXME -->
     {#if $subscriptionContractAddresses.isPending}
       Loading ...
@@ -111,31 +119,29 @@
       Failed to load {$subscriptionContractAddresses.error}
     {/if}
     {#if $subscriptionContractAddresses.isSuccess}
-      <PaginatedList {pageSize} items={$subscriptionContractAddresses.data} let:currentItems>
-        {#each currentItems as planAddr}
-          <SubscriptionContractContext
-            address={planAddr}
-            let:subscriptionData
-            let:erc20Data
-            let:tokenPrice
-            let:warnings
-          >
-            {#if subscriptionData.isPending || erc20Data.isPending}
-              ... Loading ...
-            {/if}
-            {#if subscriptionData.isSuccess && erc20Data.isSuccess}
-              <SubscriptionContractTeaser
-                contractData={subscriptionData.data}
-                paymentTokenData={erc20Data.data}
-                {tokenPrice}
-                {warnings}
-              />
-            {/if}
-            {#if subscriptionData.isError || subscriptionData.isLoadingError}
-            error!
-            {/if}
-          </SubscriptionContractContext>
-        {/each}
+      <PaginatedList {pageSize} items={$subscriptionContractAddresses.data}>
+        {#snippet children({ currentItems })}
+          {#each currentItems as planAddr}
+            <SubscriptionContractContext address={planAddr}>
+              {#snippet children({ subscriptionData, erc20Data, tokenPrice, warnings })}
+                {#if subscriptionData.isPending || erc20Data.isPending}
+                  ... Loading ...
+                {/if}
+                {#if subscriptionData.isSuccess && erc20Data.isSuccess}
+                  <SubscriptionContractTeaser
+                    contractData={subscriptionData.data}
+                    paymentTokenData={erc20Data.data}
+                    {tokenPrice}
+                    {warnings}
+                  />
+                {/if}
+                {#if subscriptionData.isError || subscriptionData.isLoadingError}
+                  error!
+                {/if}
+              {/snippet}
+            </SubscriptionContractContext>
+          {/each}
+        {/snippet}
       </PaginatedList>
     {/if}
   </div>
