@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import { SubscriptionDetails } from '$lib/components/subscription/token/index';
   import { EXPLORER_URL } from '$lib/contexts';
   import type { ObservedQueryResult } from '$lib/query/config';
@@ -36,7 +37,7 @@
     data: { price: 99_000_000, decimals: 8 }
   };
 
-  export const meta = {
+  const { Story } = defineMeta({
     title: 'SubscriptionDetails',
     component: SubscriptionDetails,
     tags: ['autodocs'],
@@ -48,23 +49,27 @@
       technicalsOpen: true
     },
     argTypes: {}
-  };
+  });
 </script>
 
 <script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf';
   import { setContext } from 'svelte';
+  import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
+  import * as Tooltip from '$lib/components/ui/tooltip';
 
   setContext(EXPLORER_URL, 'http://example.com');
+  setTemplate(template);
 </script>
 
-<Template >
-  {#snippet children({ args })}
-    <SubscriptionDetails {...args} />
-  {/snippet}
-</Template>
+{#snippet template(args)}
+  <QueryClientContext>
+    <Tooltip.Provider>
+      <SubscriptionDetails {...args} />
+    </Tooltip.Provider>
+  </QueryClientContext>
+{/snippet}
 
-<Story name="Default" args={{}} />
+<Story name="Default" />
 
 <Story name="with multiplier" args={{ subscriptionData: { ...subData, multiplier: 120 } }} />
 

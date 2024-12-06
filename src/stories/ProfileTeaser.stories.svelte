@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import { defineMeta } from '@storybook/addon-svelte-csf';
   import ProfileTeaser from '$lib/components/profile/ProfileTeaser.svelte';
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { zeroAddress } from '$lib/web3/helpers';
@@ -13,28 +14,33 @@
     owner: zeroAddress
   };
 
-  export const meta = {
+  const { Story } = defineMeta({
     title: 'ProfileTeaser',
     component: ProfileTeaser,
     tags: ['autodocs'],
     args: {
       profile: profileData
     },
-    argTypes: {}
-  };
+    argTypes: {},
+    parameters: {
+      sveltekit_experimental: {
+        stores: {
+          page: {
+            params: {
+              network: 'mytest'
+            }
+          }
+        }
+      }
+    }
+  });
 </script>
 
-<script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf';
-</script>
-
-<Template >
-  {#snippet children({ args })}
+<Story name="Default" args={{}}>
+  {#snippet children(args)}
     <ProfileTeaser {...args} />
   {/snippet}
-</Template>
-
-<Story name="Default" args={{}} />
+</Story>
 
 <Story
   name="Image not found"

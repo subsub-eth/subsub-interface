@@ -1,8 +1,9 @@
 <script lang="ts" module>
+  import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import { zeroAddress } from '$lib/web3/helpers';
   import TokenLogo from '$lib/components/TokenLogo.svelte';
 
-  export const meta = {
+  const { Story } = defineMeta({
     title: 'TokenLogo',
     component: TokenLogo,
     tags: ['autodocs'],
@@ -28,18 +29,16 @@
         }
       }
     }
-  };
+  });
 </script>
 
 <script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf';
+  setTemplate(template);
 </script>
 
-<Template >
-  {#snippet children({ args })}
-    <TokenLogo {...args} />
-  {/snippet}
-</Template>
+{#snippet template(args)}
+  <TokenLogo {...args} />
+{/snippet}
 
 <Story name="UST" args={{ address: zeroAddress }} />
 <Story name="unknown address" args={{ address: '0xa8B52F02108AA5F4B675bDcC973760022D7C6020' }} />

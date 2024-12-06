@@ -5,7 +5,7 @@ import '../src/app.css';
 
 const preview: Preview = {
   parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
+    actions: {},
     backgrounds: {
       default: 'dark',
       values: [

@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import { SubscriptionContractDetails } from '$lib/components/subscription/contract';
   import type { SubscriptionContractData } from '$lib/web3/contracts/subscription';
   import { contractDummy } from '$lib/static-content';
@@ -47,13 +48,14 @@
     data: createMessages(1, 2, 3)
   };
 
-  export const meta = {
+  const { Story } = defineMeta({
     title: 'SubscriptionContractDetails',
     component: SubscriptionContractDetails,
     tags: ['autodocs'],
     args: {
       contractData: testData,
       paymentTokenData: erc20,
+      contractBalance: 100_000_000_000,
       tokenPrice: tokenPrice,
       warnings: warnings
     },
@@ -69,14 +71,14 @@
         }
       }
     }
-  };
+  });
 </script>
 
 <script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf';
   import { setContext } from 'svelte';
   import { EXPLORER_URL } from '$lib/contexts';
   import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
+  import * as Tooltip from '$lib/components/ui/tooltip';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import type { ObservedQueryResult } from '$lib/query/config';
   import type { Price } from '$lib/web3/contracts/oracle';
@@ -84,21 +86,24 @@
   import { createMessages } from './fixtures';
 
   setContext(EXPLORER_URL, 'http://example.com');
+  setTemplate(template);
 </script>
 
-<QueryClientContext>
-  <Template >
-    {#snippet children({ args })}
-        <SubscriptionContractDetails {...args} />
-          {/snippet}
-    </Template>
+{#snippet template(args)}
+  <QueryClientContext>
+    <Tooltip.Provider>
+      <SubscriptionContractDetails {...args} />
+    </Tooltip.Provider>
+  </QueryClientContext>
+{/snippet}
 
-  <Story name="technicals open" args={{ technicalsOpen: true }} />
-  <Story name="technicals closed" args={{}} />
+<Story name="Default" />
 
-  <Story name="paused" args={{ contractData: { ...testData, paused: true } }} />
+<Story name="technicals open" args={{ technicalsOpen: true }} />
+<Story name="technicals closed" args={{}} />
 
-  <Story name="pending price data" args={{ tokenPrice: { isPending: true } }} />
+<Story name="paused" args={{ contractData: { ...testData, paused: true } }} />
 
-  <Story name="error price data" args={{ tokenPrice: { isError: true } }} />
-</QueryClientContext>
+<Story name="pending price data" args={{ tokenPrice: { isPending: true } }} />
+
+<Story name="error price data" args={{ tokenPrice: { isError: true } }} />

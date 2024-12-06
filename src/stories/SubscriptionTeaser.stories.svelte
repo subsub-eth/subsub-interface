@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import { SubscriptionTeaser } from '$lib/components/subscription/token';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import type { SubscriptionData } from '$lib/web3/contracts/subscription';
@@ -28,7 +29,7 @@
     address: zeroAddress
   };
 
-  export const meta = {
+  const { Story } = defineMeta({
     title: 'SubscriptionTeaser',
     component: SubscriptionTeaser,
     tags: ['autodocs'],
@@ -49,20 +50,22 @@
         }
       }
     }
-  };
+  });
 </script>
 
 <script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf';
+  import * as Tooltip from '$lib/components/ui/tooltip';
+
+  setTemplate(template);
 </script>
 
-<Template >
-  {#snippet children({ args })}
+{#snippet template(args)}
+  <Tooltip.Provider>
     <SubscriptionTeaser {...args} />
-  {/snippet}
-</Template>
+  </Tooltip.Provider>
+{/snippet}
 
-<Story name="Default" args={{}} />
+<Story name="Default" />
 
 <Story
   name="Is inactive"

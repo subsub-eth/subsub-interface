@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import { SubscriptionContractTeaser } from '$lib/components/subscription/contract';
   import type { SubscriptionContractData } from '$lib/web3/contracts/subscription';
   import { contractDummy } from '$lib/static-content';
@@ -47,7 +48,7 @@
     data: createMessages(1, 2, 3)
   };
 
-  export const meta = {
+  const { Story } = defineMeta({
     title: 'SubscriptionContractTeaser',
     component: SubscriptionContractTeaser,
     tags: ['autodocs'],
@@ -68,45 +69,49 @@
         }
       }
     }
-  };
+  });
 </script>
 
 <script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf';
   import type { Price } from '$lib/web3/contracts/oracle';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
+  import * as Tooltip from '$lib/components/ui/tooltip';
   import type { ObservedQueryResult } from '$lib/query/config';
   import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
   import { createMessages } from './fixtures';
+
+  setTemplate(template);
 </script>
 
-<QueryClientContext>
-  <Template >
-    {#snippet children({ args })}
-        <SubscriptionContractTeaser {...args} />
-          {/snippet}
-    </Template>
+{#snippet template(args)}
+  <QueryClientContext>
+    <Tooltip.Provider>
+      <SubscriptionContractTeaser {...args} />
+    </Tooltip.Provider>
+  </QueryClientContext>
+{/snippet}
 
-  <Story name="with Owner" args={{ showOwner: true }} />
+<Story name="Default" />
 
-  <Story
-    name="no warnings"
-    args={{
-      contractData: { ...testData },
-      warnings: { ...warnings, data: createMessages(0, 0, 0) }
-    }}
-  />
+<Story name="with Owner" args={{ showOwner: true }} />
 
-  <Story
-    name="paused"
-    args={{
-      contractData: { ...testData },
-      warnings: { ...warnings, data: createMessages(0, 0, 1) }
-    }}
-  />
+<Story
+  name="no warnings"
+  args={{
+    contractData: { ...testData },
+    warnings: { ...warnings, data: createMessages(0, 0, 0) }
+  }}
+/>
 
-  <Story name="pending price data" args={{ tokenPrice: { isPending: true } }} />
+<Story
+  name="paused"
+  args={{
+    contractData: { ...testData },
+    warnings: { ...warnings, data: createMessages(0, 0, 1) }
+  }}
+/>
 
-  <Story name="error price data" args={{ tokenPrice: { isError: true } }} />
-</QueryClientContext>
+<Story name="pending price data" args={{ tokenPrice: { isPending: true } }} />
+
+<Story name="error price data" args={{ tokenPrice: { isError: true } }} />

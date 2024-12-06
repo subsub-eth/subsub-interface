@@ -1,7 +1,8 @@
 <script lang="ts" module>
+  import {defineMeta} from '@storybook/addon-svelte-csf';
   import ProgressRadial from '$lib/components/ui/ProgressRadial.svelte';
 
-  export const meta = {
+  const {Story} = defineMeta({
     title: 'ProgressRadial',
     component: ProgressRadial,
     tags: ['autodocs'],
@@ -22,24 +23,34 @@
       //   }
       // },
     }
-  };
+  });
 </script>
 
-<script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf';
-</script>
-
-<Template >
-  {#snippet children({ args })}
+<Story name="Default">
+  {#snippet children( args )}
     <ProgressRadial {...args}>{args.value}</ProgressRadial>
   {/snippet}
-</Template>
+</Story>
 
 <Story name="no text" >
-  {#snippet children({ args })}
+  {#snippet children( args )}
     <ProgressRadial {...args} />
   {/snippet}
 </Story>
-<Story name="half with text" args={{ value: 50 }} />
-<Story name="empty with text" args={{ value: 0 }} />
-<Story name="full with text" args={{ value: 100 }} />
+<Story name="half with text" args={{ value: 50 }} >
+  {#snippet children( args )}
+    <ProgressRadial {...args}>{args.value}</ProgressRadial>
+  {/snippet}
+</Story>
+
+<Story name="empty with text" args={{ value: 0 }} >
+  {#snippet children( args )}
+    <ProgressRadial {...args}>{args.value}</ProgressRadial>
+  {/snippet}
+</Story>
+
+<Story name="full with text" args={{ value: 100 }} >
+  {#snippet children( args )}
+    <ProgressRadial {...args}>{args.value}</ProgressRadial>
+  {/snippet}
+</Story>

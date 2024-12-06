@@ -1,14 +1,15 @@
 <script lang="ts" module>
+  import { defineMeta } from '@storybook/addon-svelte-csf';
   import PropertyBox from '$lib/components/ui/PropertyBox.svelte';
 
-  export const meta = {
+  const { Story } = defineMeta({
     title: 'PropertyBox',
     component: PropertyBox,
     tags: ['autodocs'],
     args: {
-      title: "My Property",
-      value: "12345",
-      subValue: "per Month",
+      title: 'My Property',
+      value: '12345',
+      subValue: 'per Month'
     },
     argTypes: {
       // address: {
@@ -29,18 +30,15 @@
       //   }
       // }
     }
-  };
+  });
 </script>
 
 <script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf';
   import { PauseCircle } from 'lucide-svelte';
 </script>
 
-<Template >
-  {#snippet children({ args })}
-    <PropertyBox {...args} TitleIcon={PauseCircle}/>
+<Story name="Default">
+  {#snippet children( args )}
+    <PropertyBox {...args} TitleIcon={PauseCircle} />
   {/snippet}
-</Template>
-
-<Story name="Default" />
+</Story>

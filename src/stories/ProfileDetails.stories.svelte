@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import { defineMeta } from '@storybook/addon-svelte-csf';
   import ProfileDetails from '$lib/components/profile/ProfileDetails.svelte';
   import { EXPLORER_URL } from '$lib/contexts';
   import type { ProfileData } from '$lib/web3/contracts/profile';
@@ -14,7 +15,7 @@
     owner: zeroAddress
   };
 
-  export const meta = {
+  const { Story } = defineMeta({
     title: 'ProfileDetails',
     component: ProfileDetails,
     tags: ['autodocs'],
@@ -23,23 +24,20 @@
       tokenboundAccount: zeroAddress
     },
     argTypes: {}
-  };
+  });
 </script>
 
 <script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf';
   import { setContext } from 'svelte';
 
   setContext(EXPLORER_URL, 'https://example.com');
 </script>
 
-<Template >
-  {#snippet children({ args })}
+<Story name="Default" args={{}}>
+  {#snippet children(args)}
     <ProfileDetails {...args} />
   {/snippet}
-</Template>
-
-<Story name="Default" args={{}} />
+</Story>
 
 <Story
   name="Image not found"
@@ -50,6 +48,6 @@
 
 <Story name="No description" args={{ profile: { ...profileData, description: undefined } }} />
 
-<Story name="No external url" args={{ profile: { ...profileData, external_url: undefined } }} />
+<Story name="No external url" args={{ profile: { ...profileData, externalUrl: undefined } }} />
 
 <Story name="No tokenboundAccount" args={{ profile: profileData, tokenboundAccount: undefined }} />

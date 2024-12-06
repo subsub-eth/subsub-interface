@@ -1,8 +1,9 @@
 <script lang="ts" module>
+  import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import WarningCollapsible from '$lib/components/ui2/WarningCollapsible.svelte';
   import { createMessages } from './fixtures';
 
-  export const meta = {
+  const { Story } = defineMeta({
     title: 'WarningCollapsible',
     component: WarningCollapsible,
     tags: ['autodocs'],
@@ -10,18 +11,16 @@
       messages: createMessages(1, 2, 3)
     },
     argTypes: {}
-  };
+  });
 </script>
 
 <script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf';
+  setTemplate(template);
 </script>
 
-<Template >
-  {#snippet children({ args })}
-    <WarningCollapsible {...args} />
-  {/snippet}
-</Template>
+{#snippet template(args)}
+  <WarningCollapsible {...args} />
+{/snippet}
 
 <Story name="default" args={{}} />
 
