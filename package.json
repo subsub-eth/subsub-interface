@@ -81,8 +81,6 @@
     "zod": "^3.23.8"
   },
   "pnpm": {
-    "overrides": {
-      "@vinejs/vine": "../_EXCLUDED_"
-    }
+    "overrides": {}
   }
 }
