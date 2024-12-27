@@ -38,7 +38,7 @@
 </script>
 
 <Story name="Default">
-  {#snippet children( args )}
+  {#snippet children(args)}
     <PropertyBox {...args} TitleIcon={PauseCircle} />
   {/snippet}
 </Story>

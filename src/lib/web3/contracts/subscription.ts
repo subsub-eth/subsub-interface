@@ -45,7 +45,10 @@ function writableContract(sub: WritableSubscription) {
 }
 
 const FundsPropsSchema = z.object({
-  amount: z.bigint().min(0n, 'Amount must be larger or equal to 0').default(undefined as unknown as bigint)
+  amount: z
+    .bigint()
+    .min(0n, 'Amount must be larger or equal to 0')
+    .default(undefined as unknown as bigint)
 });
 
 type FundsProps = z.infer<typeof FundsPropsSchema>;
@@ -317,7 +320,7 @@ export function renew(contract: WritableSubscription, tokenId: bigint): DepositF
     const c = writableContract(contract);
     const tx = await c.write.renew([tokenId, amount, message]);
     events?.onDepositTxSubmitted?.(tx);
-    await contract.publicClient.waitForTransactionReceipt({hash: tx});
+    await contract.publicClient.waitForTransactionReceipt({ hash: tx });
 
     return [amount, message, tx];
   };
@@ -328,7 +331,7 @@ export function tip(contract: WritableSubscription, tokenId: bigint): DepositFun
     const c = writableContract(contract);
     const tx = await c.write.tip([tokenId, amount, message]);
     events?.onDepositTxSubmitted?.(tx);
-    await contract.publicClient.waitForTransactionReceipt({hash: tx});
+    await contract.publicClient.waitForTransactionReceipt({ hash: tx });
 
     return [amount, message, tx];
   };

@@ -51,4 +51,3 @@
 </script>
 
 <a class={twMerge(base, clazz)} href={url} {...opts}>{text}</a>
-

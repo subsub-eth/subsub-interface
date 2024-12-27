@@ -40,12 +40,7 @@ export function subscriptionQueries(addr: Address) {
   const writableSubscriptionContract = createQuery<WritableSubscription>(
     derived(writableChainEnvironment, (ce) => ({
       queryKey: subKeys.writableContract(addr),
-      queryFn: () =>
-        createWritableSubscriptionContract(
-          addr,
-          ce!.publicClient,
-          ce!.walletClient
-        )
+      queryFn: () => createWritableSubscriptionContract(addr, ce!.publicClient, ce!.walletClient)
     }))
   );
 
@@ -78,7 +73,12 @@ export function subscriptionQueries(addr: Address) {
       [writableChainEnvironment, subscriptionData],
       ([chainEnvironment, { isSuccess, data: subData }]) => ({
         queryKey: erc20Keys.writableContract(subData?.token),
-        queryFn: () => getWritableErc20Contract(subData!.token, chainEnvironment!.publicClient, chainEnvironment!.walletClient),
+        queryFn: () =>
+          getWritableErc20Contract(
+            subData!.token,
+            chainEnvironment!.publicClient,
+            chainEnvironment!.walletClient
+          ),
         enabled: isSuccess && !!subData?.token
       })
     )

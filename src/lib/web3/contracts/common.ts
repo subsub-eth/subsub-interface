@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { type Hash as ViemHash, isAddress, getAddress as getChecksumAddress} from 'viem';
+import { type Hash as ViemHash, isAddress, getAddress as getChecksumAddress } from 'viem';
 
 type RemoveUnderscoreFirstLetter<S extends string> = S extends `${infer FirstLetter}${infer U}`
   ? `${FirstLetter extends '_' ? U : `${FirstLetter}${U}`}`
@@ -25,7 +25,7 @@ export const BigNumberishSchema = z.union([z.string(), z.number(), z.bigint()]);
 export type BigNumberish = z.infer<typeof BigNumberishSchema>;
 
 export const AddressSchema = z.custom<`0x${string}`>((val) => {
-  return typeof val === 'string' &&  isAddress(val);
+  return typeof val === 'string' && isAddress(val);
 }, 'Invalid address');
 
 export type Address = z.infer<typeof AddressSchema>;
@@ -46,16 +46,16 @@ export const BaseMetadataSchema = z.object({
 });
 
 export const TokenNameSchema = z
-    .string()
-    .trim()
-    .min(3, 'Name must have at least 3 chars')
-    .max(48, 'Name can be 48 chars at most');
+  .string()
+  .trim()
+  .min(3, 'Name must have at least 3 chars')
+  .max(48, 'Name can be 48 chars at most');
 
 export const TokenSymbolSchema = z
-    .string()
-    .trim()
-    .min(2, 'Symbol must have at least 2 chars')
-    .max(12, 'Symbol can be 12 chars at most');
+  .string()
+  .trim()
+  .min(2, 'Symbol must have at least 2 chars')
+  .max(12, 'Symbol can be 12 chars at most');
 
 export const ImageUrlSchema = z
   .union([z.literal(''), z.string().trim().url('Image must be a URL')])

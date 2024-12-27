@@ -46,7 +46,7 @@ export function prettyNumber(num: number): string {
   // if (num < 0) {
   //   throw new Error("prettyNumber: cannot handle negative values");
   // }
-  let sign = "";
+  let sign = '';
   if (num < 0) {
     num = Math.abs(num);
     sign = '-';
@@ -66,8 +66,9 @@ export function prettyNumber(num: number): string {
     decimals += 2;
   }
   // fix the rounding in toFixed
-  return sign + Number(Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(
-    decimals
+  return (
+    sign +
+    Number(Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals)
   );
 }
 
@@ -96,7 +97,6 @@ export function convertDecimals(
   const diff = targetDecimals - currentDecimals;
   return value * BigInt(Math.pow(10, diff));
 }
-
 
 export const isValidNumeric = (s: string, decimals: number): boolean => {
   const regex = new RegExp(`^([0-9]*\\.?[0-9]{0,${decimals}})$`);

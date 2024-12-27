@@ -21,7 +21,7 @@ const knownTokens: Map<Address, TokenData> = new Map([
   [a('0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a2'), { icon: Icons.usdc, symbol: 'INV2' }],
   [a('0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a3'), { icon: Icons.usdt, symbol: 'INV3' }],
   [a('0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a4'), { icon: Icons.btc, symbol: 'INV4' }],
-  [a('0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a5'), { icon: Icons.eth, symbol: 'INV5' }],
+  [a('0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a5'), { icon: Icons.eth, symbol: 'INV5' }]
 ]);
 
 // TODO add chain?

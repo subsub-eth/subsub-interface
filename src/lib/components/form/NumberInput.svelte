@@ -51,7 +51,7 @@
 </script>
 
 <div>
-  <Form.Field {form} {name} >
+  <Form.Field {form} {name}>
     <Form.Control>
       {#snippet children({ attrs })}
         <Form.Label>{label}</Form.Label>

@@ -81,7 +81,12 @@ export const chainEnvironment: Readable<ReadableChainEnvironment | undefined> = 
 export const writableChainEnvironment: Readable<WritableChainEnvironment | undefined> = derived(
   [publicClient, walletClient, networkSegment],
   ([publicClient, walletClient, network]) => {
-    console.debug(`Constructing WritableChainContext from publicClient, walletClient, and page`, publicClient, walletClient, network);
+    console.debug(
+      `Constructing WritableChainContext from publicClient, walletClient, and page`,
+      publicClient,
+      walletClient,
+      network
+    );
     if (!network || !publicClient || !walletClient) {
       return;
     }

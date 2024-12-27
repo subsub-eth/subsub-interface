@@ -11,14 +11,14 @@ const preview: Preview = {
       values: [
         {
           name: 'dark',
-          value: '#0c0a09',
-        },
-      ],
+          value: '#0c0a09'
+        }
+      ]
     },
     docs: {
-      theme: themes.dark,
-    },
-  },
+      theme: themes.dark
+    }
+  }
 };
 
 export default preview;

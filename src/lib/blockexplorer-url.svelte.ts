@@ -1,4 +1,8 @@
-import { addressUrl, nftUrl as internalNftUrl, tokenUrl as internalTokenUrl } from '$lib/web3/blockexplorer';
+import {
+  addressUrl,
+  nftUrl as internalNftUrl,
+  tokenUrl as internalTokenUrl
+} from '$lib/web3/blockexplorer';
 import { getContext } from 'svelte';
 import { EXPLORER_URL } from '$lib/contexts';
 import { log } from '$lib/logger';
@@ -7,9 +11,8 @@ import { fromStore } from 'svelte/store';
 import { chainEnvironment } from './chain-context';
 
 function getExplorer(): string {
-
-  const explorer: string = getContext(EXPLORER_URL)
-    ?? fromStore(chainEnvironment).current?.chainData.explorerUrl;
+  const explorer: string =
+    getContext(EXPLORER_URL) ?? fromStore(chainEnvironment).current?.chainData.explorerUrl;
   if (!explorer) {
     const msg = 'Explorer Url not defined';
     log.error(msg);

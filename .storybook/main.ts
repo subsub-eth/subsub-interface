@@ -5,12 +5,12 @@ const config: StorybookConfig = {
     '@storybook/addon-links',
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
-    '@storybook/addon-svelte-csf',
+    '@storybook/addon-svelte-csf'
   ],
   framework: '@storybook/sveltekit',
   docs: {},
   core: {
     disableTelemetry: true
-  },
+  }
 };
 export default config;

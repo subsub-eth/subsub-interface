@@ -2,7 +2,6 @@
 
 A simple interface for the CreateZ smart contracts.
 
-
 ## Development
 
 ```bash
@@ -23,4 +22,3 @@ pnpm run build
 ```
 
 You can preview the production build with `pnpm run preview`.
-

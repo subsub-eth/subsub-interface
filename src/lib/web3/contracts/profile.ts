@@ -117,7 +117,7 @@ export function mint(profile: WritableProfile, account: Address): MintFunc {
 
     const { logs } = await profile.publicClient.waitForTransactionReceipt({ hash: tx });
     // TODO refactor boilerplate code
-    const [minted] = parseEventLogs({abi, logs, eventName: 'Minted', args: {to: account}})
+    const [minted] = parseEventLogs({ abi, logs, eventName: 'Minted', args: { to: account } });
     if (!minted) {
       throw new Error('Transaction Log not found, did the transaction revert?');
     }

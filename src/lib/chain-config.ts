@@ -114,6 +114,6 @@ export const knownErc20Tokens = (chainId: number): Array<Erc20Token> => {
     { address: '0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a2', symbol: 'INV2', name: 'invalid 2' },
     { address: '0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a3', symbol: 'INV3', name: 'invalid 3' },
     { address: '0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a4', symbol: 'INV4', name: 'invalid 4' },
-    { address: '0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a5', symbol: 'INV5', name: 'invalid 5' },
+    { address: '0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863a5', symbol: 'INV5', name: 'invalid 5' }
   ];
 };

@@ -3,12 +3,10 @@ import { convertDecimals, prettyNumber } from './helpers';
 
 describe('prettyNumber', () => {
   it('should keep 0 as 0', () => {
-
     expect(prettyNumber(0)).toBe('0');
   });
 
   it('should keep 2 decimals for small numbers', () => {
-
     // below 4 digits, keep 2 decimals
     expect(prettyNumber(5)).toBe('5.00');
     expect(prettyNumber(5.11)).toBe('5.11');
@@ -62,4 +60,4 @@ describe('convertDecimals', () => {
     expect(convertDecimals(100_000n, 5, 4)).toBe(10_000n);
     expect(convertDecimals(1n, 18, 10)).toBe(0n);
   });
-})
+});

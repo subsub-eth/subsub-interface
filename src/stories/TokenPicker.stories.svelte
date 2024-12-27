@@ -46,7 +46,7 @@
   setTemplate(template);
 </script>
 
-{#snippet template( args )}
+{#snippet template(args)}
   <QueryClientContext>
     <TokenPicker {...args} />
   </QueryClientContext>

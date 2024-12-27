@@ -1,4 +1,4 @@
-import type { Profile } from "@createz/contracts/types/ethers-contracts";
+import type { Profile } from '@createz/contracts/types/ethers-contracts';
 
 async function loadLastTokenIds(
   loadAtIndex: (num: bigint) => Promise<bigint>,

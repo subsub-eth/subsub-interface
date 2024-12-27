@@ -1,4 +1,4 @@
-import { networks } from "$lib/routes-config";
+import { networks } from '$lib/routes-config';
 
 export const prerender = true;
 

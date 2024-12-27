@@ -50,4 +50,3 @@
     Please wait
   </Button>
 </Story>
-

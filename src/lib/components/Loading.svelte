@@ -33,4 +33,3 @@
 </script>
 
 <span class={twMerge(base, fromSize(size), clazz)}></span>
-

@@ -21,7 +21,7 @@
 
   let { items, page = 1, pageSize, children }: Props<T> = $props();
 
-  let p = $state(page)
+  let p = $state(page);
 
   let totalItems = $derived(items.length);
 
