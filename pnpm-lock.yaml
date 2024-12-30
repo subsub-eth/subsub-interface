@@ -24,8 +24,8 @@ importers:
         specifier: ^2.23.0
         version: 2.23.0(typescript@5.7.2)(zod@3.24.1)
       '@web3-onboard/injected-wallets':
-        specifier: ^2.11.2
-        version: 2.11.2(typescript@5.7.2)(zod@3.24.1)
+        specifier: ^2.11.3
+        version: 2.11.3(typescript@5.7.2)(zod@3.24.1)
       bits-ui:
         specifier: 1.0.0-next.65
         version: 1.0.0-next.65(svelte@5.15.0)
@@ -1391,8 +1391,8 @@ packages:
     resolution: {integrity: sha512-2gzBgVDq0eV6tLqAHzvYY6McRlq+6TgEkfkk31JuZUOy2vq2mhwAl3/MuXmItm/GSd3ePLpQl/Kiyr1V3I56yg==}
     engines: {node: '>=16.15.1'}
 
-  '@web3-onboard/injected-wallets@2.11.2':
-    resolution: {integrity: sha512-VeI0LTFKAcikBLBOub/avzdvc2SWOh3qLjqw/Yh34YS7ArGG5jrQXSbOuVXLqQoW07TyY4SDHXTI1Yft9MiF4Q==}
+  '@web3-onboard/injected-wallets@2.11.3':
+    resolution: {integrity: sha512-DSfcJRwe7KgXHSosXSz8QUMpoSTd6ltrb3qb8xhDjwLdpYlSlcmhaH5blP/gvNeB38imiJ9xCQpnI5tpaLKneQ==}
 
   abitype@1.0.0:
     resolution: {integrity: sha512-NMeMah//6bJ56H5XRj8QCV4AwuW6hB6zqz2LnhhLdcWVQOsXki6/Pn3APeqxCma62nXIcmZWdu1DlHWS74umVQ==}
@@ -4953,7 +4953,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@web3-onboard/injected-wallets@2.11.2(typescript@5.7.2)(zod@3.24.1)':
+  '@web3-onboard/injected-wallets@2.11.3(typescript@5.7.2)(zod@3.24.1)':
     dependencies:
       '@web3-onboard/common': 2.4.2(typescript@5.7.2)(zod@3.24.1)
       joi: 17.9.1
