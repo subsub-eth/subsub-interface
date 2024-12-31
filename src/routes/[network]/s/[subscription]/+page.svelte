@@ -35,7 +35,7 @@
   import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
   import toast from '$lib/toast';
   import { log } from '$lib/logger';
-  import type { BigNumberish, Hash } from '$lib/web3/contracts/common';
+  import type { Hash } from '$lib/web3/contracts/common';
   import { chainEnvironment } from '$lib/chain-context';
   import { url } from '$lib/url';
 

@@ -12,14 +12,14 @@ const Erc20TokenSchema = z.object({
 
 export type Erc20Token = z.infer<typeof Erc20TokenSchema>;
 
-const Erc20DataSchema = Erc20TokenSchema.extend({
+export const Erc20DataSchema = Erc20TokenSchema.extend({
   decimals: z.number()
 });
 
 export type Erc20Data = z.infer<typeof Erc20DataSchema>;
 
-export interface Erc20 extends ReadableContract {}
-export interface WritableErc20 extends WritableContract {}
+export type Erc20 = ReadableContract;
+export type WritableErc20 = WritableContract;
 
 function erc20(token: Erc20) {
   return getContract({

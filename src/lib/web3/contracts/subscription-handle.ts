@@ -6,8 +6,8 @@ import type { ReadableContract, WritableContract } from '../viem';
 import { iSubscriptionHandleAbi } from '../generated/createz';
 import { getContract, pad, parseEventLogs, toHex } from 'viem';
 
-export interface SubscriptionHandle extends ReadableContract {}
-export interface WritableSubscriptionHandle extends WritableContract {}
+export type SubscriptionHandle = ReadableContract;
+export type WritableSubscriptionHandle = WritableContract;
 
 const abi = iSubscriptionHandleAbi;
 

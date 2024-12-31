@@ -12,9 +12,8 @@
 
   let { text, url, newWindow = false, class: clazz = '' }: Props = $props();
 
-  let opts: any = $state();
+  let opts: { target?: string } = $state({});
   run(() => {
-    opts = {};
     if (newWindow) opts.target = '_blank';
   });
 </script>

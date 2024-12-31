@@ -40,6 +40,7 @@
     value = $bindable(),
     disabled = false,
     required = false
+    // eslint-disable-next-line no-undef
   }: Props<T, U> = $props();
 </script>
 

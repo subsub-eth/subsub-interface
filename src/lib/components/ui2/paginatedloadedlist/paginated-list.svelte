@@ -9,20 +9,11 @@
 
   import * as Pagination from '$lib/components/ui/pagination';
 
-  // interface $$Slots /* eslint-disable-line @typescript-eslint/no-unused-vars */ {
-  //   default: {
-  //     items: Array<T> /* eslint-disable-line no-undef */;
-  //     isLoading: boolean;
-  //   };
-  //   loading: Record<string, never>;
-  //   error: Record<string, never>;
-  // }
-
-  interface Props {
+  interface Props<T> {
     /**
      * Load function that retrieves a list of items based on the page number
      */
-    load: (page: number) => Promise<Array<T>> /* eslint-disable-line no-undef */;
+    load: (page: number) => Promise<Array<T>>;
     /**
      * page to display
      */
@@ -41,7 +32,7 @@
     queryKeys?: string[];
     loading?: import('svelte').Snippet;
     error?: import('svelte').Snippet;
-    children?: import('svelte').Snippet<[any]>;
+    children?: import('svelte').Snippet<[{ items: T[]; isLoading: boolean }]>;
   }
 
   let {
@@ -53,7 +44,8 @@
     loading,
     error,
     children
-  }: Props = $props();
+    // eslint-disable-next-line no-undef
+  }: Props<T> = $props();
 
   const p = writable(page);
 

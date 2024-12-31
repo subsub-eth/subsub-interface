@@ -30,17 +30,17 @@
     value = $bindable(),
     tokenByAddress,
     knownTokens = [],
-    disabled = false,
-    required = false
+    disabled = false
+    // eslint-disable-next-line no-undef
   }: Props<T, U> = $props();
 </script>
 
 <div>
   <Form.Field {form} {name}>
     <Form.Control>
-      {#snippet children({ attrs })}
+      {#snippet children()}
         <Form.Label>{label}</Form.Label>
-        <TokenPicker bind:token={value} {tokenByAddress} {knownTokens} />
+        <TokenPicker bind:token={value} {tokenByAddress} {knownTokens} {disabled} />
       {/snippet}
     </Form.Control>
     <Form.Description>{description}</Form.Description>

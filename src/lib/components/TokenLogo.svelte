@@ -19,7 +19,7 @@
     class?: string | undefined;
   }
 
-  let { address, fallbackSymbol, isLoading = false, class: clazz = undefined }: Props = $props();
+  let { address, fallbackSymbol, class: clazz = undefined }: Props = $props();
 
   const defaultClasses = 'h-16 w-16';
   const classes = cn(defaultClasses, clazz);

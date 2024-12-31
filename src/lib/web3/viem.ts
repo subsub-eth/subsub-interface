@@ -8,8 +8,7 @@ import {
   type WalletClient,
   type Chain,
   type Transport,
-  type Account,
-  getContract
+  type Account
 } from 'viem';
 
 import { anvil } from 'viem/chains';
@@ -58,7 +57,6 @@ export const walletClient: Readable<WriteClient | undefined> = derived(
       account: currentAccount
     });
 
-    getContract;
     return client;
   }
 );

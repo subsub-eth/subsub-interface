@@ -20,12 +20,12 @@ import {
   ierc6551RegistryAbi
 } from '../generated/createz';
 
-export interface IERC6551Registry extends ReadableContract {}
-export interface WritableIERC6551Registry extends WritableContract {}
+export type IERC6551Registry = ReadableContract;
+export type WritableIERC6551Registry = WritableContract;
 
-export interface IERC6551Account extends ReadableContract {}
+export type IERC6551Account = ReadableContract;
 
-export interface IERC6551Executable extends WritableContract {}
+export type IERC6551Executable = WritableContract;
 
 function registry(reg: IERC6551Registry) {
   return getContract({

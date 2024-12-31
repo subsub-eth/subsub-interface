@@ -65,12 +65,13 @@
 
       const val = form.data;
 
-      let flags: Array<SubscriptionFlag> = [];
-      !val.minting && flags.push(FLAG_MINTING_PAUSED);
-      !val.renewal && flags.push(FLAG_RENEWAL_PAUSED);
-      !val.tipping && flags.push(FLAG_TIPPING_PAUSED);
+      let flags: Array<[boolean, SubscriptionFlag]> = [
+        [!val.minting, FLAG_MINTING_PAUSED],
+        [!val.renewal, FLAG_RENEWAL_PAUSED],
+        [!val.tipping, FLAG_TIPPING_PAUSED]
+      ];
 
-      const flagsValue = createFlags(flags);
+      const flagsValue = createFlags(flags.filter(([gate]) => gate).flatMap(([, flag]) => flag));
 
       try {
         const result = $updateMutation.mutateAsync([flagsValue]);

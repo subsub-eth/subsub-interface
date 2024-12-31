@@ -7,7 +7,7 @@
   import TrafficLight from '$lib/components/TrafficLight.svelte';
   import { type BaseProps, baseValues } from './base';
 
-  interface Props extends BaseProps {}
+  type Props = BaseProps;
 
   let { subscriptionData, paymentToken }: Props = $props();
 

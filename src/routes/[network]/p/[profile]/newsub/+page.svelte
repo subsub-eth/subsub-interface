@@ -98,7 +98,7 @@
   };
 
   const onContractCreated = (addr: Address, tx: Hash) => {
-    toast.info(`New Contract address: ${addr}`);
+    toast.info(`New Contract address: ${addr} created in ${tx}`);
     queryClient.invalidateQueries({
       queryKey: subHandleKeys.ownerList(
         $chainEnvironment!.chainData.contracts.subscriptionHandle,

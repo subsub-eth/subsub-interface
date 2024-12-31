@@ -24,7 +24,7 @@ import { subscriptionAbi as abi } from '../generated/createz';
 
 export const MULTIPLIER_BASE = 100;
 
-export interface Subscription extends ReadableContract {}
+export type Subscription = ReadableContract;
 
 export interface WritableSubscription extends Subscription, WritableContract {}
 
@@ -101,6 +101,7 @@ export type SubscriptionContractMetadata = z.infer<typeof SubscriptionContractMe
 /**
  * Translated Subscription contract data
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SubscriptionContractDataSchema = z
   .object({
     address: AddressSchema,
@@ -140,6 +141,7 @@ export type SubscriptionTokenMetadata = z.infer<typeof SubscriptionTokenMetadata
 /**
  * Translated Subscription token data
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SubscriptionDataSchema = z
   .object({
     tokenId: BigNumberishSchema,
@@ -480,36 +482,6 @@ export function listUserSubscriptionsRev(
       const id = await c.read.tokenOfOwnerByIndex([account, BigInt(totalItems - 1 - (i + index))]);
       const res = await getSubscriptionData(sub, id);
       return res;
-    };
-
-    const data = [...Array(count).keys()].map((i) => load(i));
-    return Promise.all(data);
-  };
-
-  return func;
-}
-
-export function listSubscriptionContracts(
-  ethers: Signer,
-  addresses: string[],
-  pageSize: number
-): (page: number) => Promise<Array<SubscriptionContractData>> {
-  // TODO multicall
-  const func = async (page: number): Promise<Array<SubscriptionContractData>> => {
-    const index = page * pageSize;
-    const totalItems = addresses.length;
-    const count = Math.max(Math.min(totalItems - index, pageSize), 0);
-
-    const load = async (i: number): Promise<SubscriptionContractData> => {
-      const address = addresses[i + index];
-      const contract = Subscription__factory.connect(address, ethers);
-      try {
-        const data = await getContractData(contract);
-        return data;
-      } catch (err) {
-        console.debug(`Failed to load Subscription contract: ${address}`, err);
-        throw err;
-      }
     };
 
     const data = [...Array(count).keys()].map((i) => load(i));

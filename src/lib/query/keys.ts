@@ -7,7 +7,6 @@ const ERC6551_REGISTRY = 'erc6551registry';
 const VALID_SIGNER = 'validSigner';
 const SUB_HANDLE = 'subHandle';
 const SUBSCRIPTION = 'subscription';
-const CONTRACT = 'contract';
 const WRITABLE = 'writable';
 const PROFILE = 'profile';
 const ERC20 = 'erc20';

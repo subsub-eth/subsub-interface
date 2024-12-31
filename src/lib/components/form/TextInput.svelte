@@ -27,6 +27,7 @@
     required = false,
     minlength = undefined,
     maxlength = undefined
+    // eslint-disable-next-line no-undef
   }: Props<T, U> = $props();
 </script>
 

@@ -15,10 +15,11 @@
      * number of items per page
      */
     pageSize: number;
-    // TODO FIXME types
-    children?: Snippet<[any]>;
+
+    children?: Snippet<[{ currentItems: T[] }]>;
   }
 
+  // eslint-disable-next-line no-undef
   let { items, page = 1, pageSize, children }: Props<T> = $props();
 
   let p = $state(page);

@@ -14,7 +14,7 @@ import type { ReadableContract, WritableContract } from '../viem';
 import { getContract, parseEventLogs } from 'viem';
 import { iProfileAbi } from '../generated/createz';
 
-export interface Profile extends ReadableContract {}
+export type Profile = ReadableContract;
 
 export interface WritableProfile extends Profile, WritableContract {}
 

@@ -17,6 +17,7 @@
     mutationFn: create,
 
     onError: (error) => {
+      log.error('Failed to create new ERC6551 account', error);
       // TODO
     },
     onSuccess: (addr) => {

@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
+import { log } from '$lib/logger';
 
 export const prerender = false;
 
@@ -10,7 +11,7 @@ export const load = (({ params }) => {
       tokenId: tokenId
     };
   } catch (err) {
-    console.error(`Invalid tokenId`, params.tokenId);
+    log.error(`Invalid tokenId`, params.tokenId, err);
     error(404, `Invalid tokenId: ${params.tokenId}`);
   }
 }) satisfies PageLoad;

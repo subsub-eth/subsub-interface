@@ -106,6 +106,7 @@ export const getChainByName = function (name: string): ChainData | undefined {
 };
 
 // TODO refactor
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const knownErc20Tokens = (chainId: number): Array<Erc20Token> => {
   // TODO proper implementation
   return [
