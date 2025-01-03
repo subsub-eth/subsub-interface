@@ -4,7 +4,8 @@
   import { Button } from '$lib/components/ui/button';
   import { ChevronRight } from 'lucide-svelte';
   import type { ProfileData } from '$lib/web3/contracts/profile';
-  import { url } from '$lib/url.svelte';
+  import { url } from '$lib/url';
+  import { page } from '$app/state';
 
   interface Props {
     /** profile data */
@@ -27,7 +28,7 @@
     {/if}
   </div>
   <Button
-    href={url(`/[network]/p/${profile.tokenId}/`)}
+    href={url(`/[network]/p/${profile.tokenId}/`, page)}
     size="icon"
     class="ml-auto self-center justify-self-end"
   >

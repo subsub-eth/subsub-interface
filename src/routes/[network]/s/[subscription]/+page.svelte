@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { derived as derivedStore } from 'svelte/store';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { SubscriptionContractDetails } from '$lib/components/subscription/contract';
   import Button from '$lib/components/Button.svelte';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
@@ -143,7 +143,7 @@ Subscription Contract: {addr}
         {#if $validSigner.isError}
           {$validSigner.error}
         {/if}
-        <Button label="Edit" href={url('/[network]/s/[subscription]/edit/', $page)} />
+        <Button label="Edit" href={url('/[network]/s/[subscription]/edit/', page)} />
       </div>
     </div>
 
@@ -156,7 +156,7 @@ Subscription Contract: {addr}
         <Button
           primary={true}
           label="Mint new Subscription"
-          href={$page.url.pathname + 'new/'}
+          href={page.url.pathname + 'new/'}
           isDisabled={$subscriptionData.data.mintingPaused}
         />
       </div>

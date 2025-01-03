@@ -1,6 +1,5 @@
 import { getChainByName, type ChainData } from './chain-config';
 import { derived, type Readable } from 'svelte/store';
-import { page } from '$app/stores';
 import { log } from './logger';
 import type { Profile, WritableProfile } from './web3/contracts/profile';
 import { publicClient, walletClient, type ReadClient, type WriteClient } from './web3/viem';
@@ -14,6 +13,7 @@ import type {
   SubscriptionHandle,
   WritableSubscriptionHandle
 } from './web3/contracts/subscription-handle';
+import { networkSegment } from './network-segment.svelte';
 
 export type ReadableChainEnvironment = {
   chainData: ChainData;
@@ -37,17 +37,10 @@ export type WritableChainEnvironment = {
   // TODO Badge Handle
 };
 
-const networkSegment: Readable<string | undefined> = derived(page, (page) => {
-  log.debug(`Extracting navigation segment from page params`, page);
-  const network = page?.params?.network;
-  log.debug(`network segment is`, network);
-  return network;
-});
-
 export const chainEnvironment: Readable<ReadableChainEnvironment | undefined> = derived(
   [publicClient, networkSegment],
   ([publicClient, network]) => {
-    console.debug(`Constructing ChainContext from publicClient and page`, publicClient, network);
+    log.debug(`Constructing ChainContext from publicClient and page`, publicClient, network);
     if (!network || !publicClient) {
       return;
     }
@@ -81,7 +74,7 @@ export const chainEnvironment: Readable<ReadableChainEnvironment | undefined> = 
 export const writableChainEnvironment: Readable<WritableChainEnvironment | undefined> = derived(
   [publicClient, walletClient, networkSegment],
   ([publicClient, walletClient, network]) => {
-    console.debug(
+    log.debug(
       `Constructing WritableChainContext from publicClient, walletClient, and page`,
       publicClient,
       walletClient,
