@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { writableChainEnvironment } from '$lib/chain-context';
   import NewProfile from '$lib/components/profile/NewProfile.svelte';
   import { urlFromTemplate } from '$lib/url';
@@ -8,7 +8,7 @@
   import { currentAccount } from '$lib/web3/onboard';
 
   let onSuccess = $derived((id: bigint) => {
-    goto(urlFromTemplate(`/[network]/p/${id}`, $page.params));
+    goto(urlFromTemplate(`/[network]/p/${id}`, page.params));
   });
 
   let currAcc = $derived($currentAccount!);

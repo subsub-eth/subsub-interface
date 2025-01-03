@@ -2,7 +2,7 @@
   import type { PageData } from './$types';
   import { derived as derivedStore } from 'svelte/store';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import NewSubscriptionContractForm from '$lib/components/subscription/NewSubscriptionContractForm.svelte';
   import { erc6551CreateSubscription } from '$lib/web3/contracts/subscription-handle';
   import Url from '$lib/components/Url.svelte';
@@ -106,7 +106,7 @@
       )
     });
     // TODO FIXME
-    goto(`/${$page.params.network}/s/${addr}/`);
+    goto(`/${page.params.network}/s/${addr}/`);
   };
 
   const onTxFailed = () => {

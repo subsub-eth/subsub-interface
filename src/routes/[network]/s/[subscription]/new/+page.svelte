@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import MintSubscriptionForm from '$lib/components/subscription/action/MintSubscriptionForm.svelte';
   import { mint, type WritableSubscription } from '$lib/web3/contracts/subscription';
   import { approveFunc, type WritableErc20 } from '$lib/web3/contracts/erc20';
@@ -29,7 +29,7 @@
   const onMinted = (id: bigint, tx: Hash) => {
     toast.info(`New Subscription minted: ${id} in ${tx}`);
     // TODO FIXME
-    goto($page.url.pathname + '../' + id);
+    goto(page.url.pathname + '../' + id);
   };
 
   const subscriptionContract = getContext<QueryResult<WritableSubscription>>(

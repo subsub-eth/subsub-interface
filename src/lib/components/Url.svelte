@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { urlFromTemplate } from '$lib/url';
   import { type Snippet } from 'svelte';
 
@@ -10,7 +10,7 @@
 
   let { template, children }: Props = $props();
 
-  let replacedPath = $derived(urlFromTemplate(template, $page.params));
+  let replacedPath = $derived(urlFromTemplate(template, page.params));
 </script>
 
 TODO REFACTOR

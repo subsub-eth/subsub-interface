@@ -8,7 +8,7 @@
   import { type BaseProps, baseValues } from './base';
   import WarningTeaser from '$lib/components/ui2/WarningTeaser.svelte';
   import { convertedEtherPretty } from '$lib/web3/contracts/oracle';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { url } from '$lib/url';
 
   interface Props extends BaseProps {
@@ -86,7 +86,7 @@
         {/if}
       </div>
       <Button
-        href={url(`/[network]/s/${contractData.address}/`, $page)}
+        href={url(`/[network]/s/${contractData.address}/`, page)}
         size="icon"
         class="ml-auto self-center justify-self-end"
       >

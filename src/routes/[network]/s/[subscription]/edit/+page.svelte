@@ -19,7 +19,7 @@
   import { Button } from '$lib/components/ui/button';
   import { ChevronLeft } from 'lucide-svelte';
   import { url } from '$lib/url';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
 
   interface Props {
     data: PageData;
@@ -53,7 +53,7 @@
 </script>
 
 <Button
-  href={url(`/[network]/s/${addr}/`, $page)}
+  href={url(`/[network]/s/${addr}/`, page)}
   size="icon"
   class="ml-auto self-center justify-self-end"
 >
