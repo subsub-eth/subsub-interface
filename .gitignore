@@ -13,5 +13,7 @@ vite.config.ts.timestamp-*
 
 /test-results
 
+/storybook-static
+
 # generated wagmi abi
 src/lib/web3/generated/*
