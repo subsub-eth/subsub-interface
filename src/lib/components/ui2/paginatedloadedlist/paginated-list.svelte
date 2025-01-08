@@ -1,15 +1,7 @@
-<script lang="ts" generics="T">
-  import { run } from 'svelte/legacy';
+<script lang="ts" module>
+  import type { Snippet } from 'svelte';
 
-  import { LIST } from '$lib/query/keys';
-
-  import { writable, derived as derivedStore } from 'svelte/store';
-  import { log } from '$lib/logger';
-  import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
-
-  import * as Pagination from '$lib/components/ui/pagination';
-
-  interface Props<T> {
+  export interface Props<T> {
     /**
      * Load function that retrieves a list of items based on the page number
      */
@@ -30,10 +22,20 @@
      * query key for the cache
      */
     queryKeys?: string[];
-    loading?: import('svelte').Snippet;
-    error?: import('svelte').Snippet;
-    children?: import('svelte').Snippet<[{ items: T[]; isLoading: boolean }]>;
+    loading?: Snippet;
+    error?: Snippet;
+    children?: Snippet<[{ items: T[]; isLoading: boolean }]>;
   }
+</script>
+
+<script lang="ts" generics="T">
+  import { LIST } from '$lib/query/keys';
+
+  import { writable, derived as derivedStore } from 'svelte/store';
+  import { log } from '$lib/logger';
+  import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
+
+  import * as Pagination from '$lib/components/ui/pagination';
 
   let {
     load,
@@ -48,10 +50,6 @@
   }: Props<T> = $props();
 
   const p = writable(page);
-
-  run(() => {
-    p.set(page);
-  });
 
   // we need to keep the query so it can find its previous data
   const list = createQuery(
@@ -92,29 +90,31 @@
       {@render children?.({ items, isLoading: $list.isPlaceholderData })}
     {/if}
   </div>
-  <Pagination.Root count={totalItems == 0 ? 1 : totalItems} perPage={pageSize} bind:page={$p}>
-    {#snippet children({ pages, currentPage })}
-      <Pagination.Content class="text-foreground">
-        <Pagination.Item>
-          <Pagination.PrevButton />
-        </Pagination.Item>
-        {#each pages as page (page.key)}
-          {#if page.type === 'ellipsis'}
-            <Pagination.Item>
-              <Pagination.Ellipsis />
-            </Pagination.Item>
-          {:else}
-            <Pagination.Item>
-              <Pagination.Link {page} isActive={currentPage == page.value}>
-                {page.value}
-              </Pagination.Link>
-            </Pagination.Item>
-          {/if}
-        {/each}
-        <Pagination.Item>
-          <Pagination.NextButton />
-        </Pagination.Item>
-      </Pagination.Content>
-    {/snippet}
-  </Pagination.Root>
+  {#if totalItems > pageSize}
+    <Pagination.Root count={totalItems == 0 ? 1 : totalItems} perPage={pageSize} bind:page={$p}>
+      {#snippet children({ pages, currentPage })}
+        <Pagination.Content class="text-foreground">
+          <Pagination.Item>
+            <Pagination.PrevButton />
+          </Pagination.Item>
+          {#each pages as page (page.key)}
+            {#if page.type === 'ellipsis'}
+              <Pagination.Item>
+                <Pagination.Ellipsis />
+              </Pagination.Item>
+            {:else}
+              <Pagination.Item>
+                <Pagination.Link {page} isActive={currentPage == page.value}>
+                  {page.value}
+                </Pagination.Link>
+              </Pagination.Item>
+            {/if}
+          {/each}
+          <Pagination.Item>
+            <Pagination.NextButton />
+          </Pagination.Item>
+        </Pagination.Content>
+      {/snippet}
+    </Pagination.Root>
+  {/if}
 </div>
