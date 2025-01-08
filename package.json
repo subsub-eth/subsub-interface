@@ -12,8 +12,8 @@
     "test:unit": "vitest",
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
-    "storybook": "storybook dev -p 6006 --no-open",
-    "build-storybook": "storybook build",
+    "storybook": "NODE_OPTIONS=--no-experimental-require-module storybook dev -p 6006 --no-open",
+    "build-storybook": "NODE_OPTIONS=--no-experimental-require-module storybook build",
     "postinstall": "wagmi generate"
   },
   "devDependencies": {
