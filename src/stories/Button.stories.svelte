@@ -1,13 +1,13 @@
 <script context="module">
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import { ChevronRight } from 'lucide-svelte';
-  import { Loader2 } from 'lucide-svelte';
   import { Mail } from 'lucide-svelte';
-  import { Button } from '$lib/components/ui/button';
+  import Button from '$lib/components/Button.svelte';
 
   const { Story } = defineMeta({
     title: 'Button',
-    component: Button
+    component: Button,
+    tags: ['autodocs'],
   });
 </script>
 
@@ -45,8 +45,7 @@
 </Story>
 
 <Story name="Loading">
-  <Button disabled>
-    <Loader2 class="mr-2 h-4 w-4 animate-spin" />
+  <Button loading>
     Please wait
   </Button>
 </Story>

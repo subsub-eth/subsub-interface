@@ -38,6 +38,7 @@
 
 <Story name="Default" args={{}}>
   {#snippet children(args)}
+    {/* @ts-expect-error storybook */ null}
     <ProfileTeaser {...args} />
   {/snippet}
 </Story>

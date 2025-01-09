@@ -1,70 +1,32 @@
-<script lang="ts">
-  import { twMerge } from 'tailwind-merge';
-  import Loading from './Loading.svelte';
+<script lang="ts" module>
+  import { Button, type ButtonProps } from '$lib/components/ui/button';
 
-  // TODO when loading do not show as disabled, but still unclickable
-
-  /**
-   * Is this the principal call to action on the page?
-   */
-  export let primary = false;
-  /**
-   * Button contents
-   */
-  export let label: string = '';
-  /**
-   * link target
-   */
-  export let href: string = '';
-  /**
-   * button input type
-   */
-  export let type: string = 'button';
-  /**
-   * Button disabled or not
-   */
-  export let isDisabled: boolean = false;
-  /**
-   * isLoading
-   */
-  export let isLoading: boolean = false;
-  /**
-   * Additional css classes
-   */
-  let clazz: string = '';
-  export { clazz as class };
-
-  const base = 'btn';
-
-  let props = {};
-  let classes = '';
-
-  $: mode = primary ? 'btn--primary' : 'btn--secondary';
-
-  $: {
-    const p: { disabled?: boolean } = {};
-    let c = '';
-    if (href) {
-      c = isDisabled || isLoading ? 'pointer-events-none opacity-60' : '';
-    } else {
-      p.disabled = isDisabled || isLoading;
-    }
-    props = p;
-    classes = c;
+  export interface Props extends ButtonProps {
+    loading?: boolean;
   }
 </script>
 
-<svelte:element
-  this={href ? 'a' : 'button'}
-  type={href ? undefined : type}
-  {href}
-  class={twMerge(base, mode, classes, clazz)}
-  {...props}
-  on:click
-  role={href ? 'button' : undefined}
->
-  {#if isLoading}
-    <Loading size="small" class="mr-2" />
+<script lang="ts">
+  import { urlFromTemplate, URL_PARAMS_CONTEXT } from '$lib/url';
+  import { page } from '$app/state';
+  import { getContext, hasContext } from 'svelte';
+  import { Loader2 } from 'lucide-svelte';
+
+  let { href: rawHref, loading, disabled, children, ...restProps }: Props = $props();
+
+  let href = $derived(
+    rawHref
+      ? urlFromTemplate(
+          rawHref,
+          hasContext(URL_PARAMS_CONTEXT) ? getContext(URL_PARAMS_CONTEXT) : page.params
+        )
+      : undefined
+  );
+</script>
+
+<Button disabled={disabled || loading} {href} {...restProps}>
+  {#if loading}
+    <Loader2 class="mr-2 h-4 w-4 animate-spin" />
   {/if}
-  {label}
-</svelte:element>
+  {@render children?.()}
+</Button>

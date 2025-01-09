@@ -45,9 +45,8 @@
     Claimed Tips: {data.tipsClaimed}<br />
   </div>
   <Button
-    label="Claim"
-    isLoading={$claimMutation.isPending}
-    on:click={doClaim}
-    isDisabled={data.claimable === 0n}
-  />
+    loading={$claimMutation.isPending}
+    onclick={doClaim}
+    disabled={data.claimable === 0n}
+  >Claim</Button>
 </div>

@@ -16,8 +16,10 @@
   <HeaderWallet />
 </NavigationHeader>
 
+<div class="flex flex-col">
 {#if $isAccountConnected && $chainEnvironment}
   {@render children?.()}
 {:else}
   <div>please connect</div>
 {/if}
+</div>

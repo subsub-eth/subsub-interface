@@ -116,49 +116,19 @@ Subscription Contract: {addr}
   Failed to load contract data
 {/if}
 {#if $subscriptionData.isSuccess && $subscriptionContract.isSuccess && $erc20Data.isSuccess && $subscriptionBalance.isSuccess}
-  <div class="flex flex-row space-x-4">
-    <div class="basis-1/2">
-      <!-- LEFT -->
-      <div class="rounded-xl border-2 border-solid p-2">
-        <!-- profile teaser -->
-        owner: {$subscriptionData.data.owner}
-      </div>
-      <div class="rounded-xl border-2 border-solid p-2">
-        <!-- sub details -->
-        <SubscriptionContractDetails
-          contractData={$subscriptionData.data}
-          paymentTokenData={$erc20Data.data}
-          contractBalance={$subscriptionBalance.data}
-          tokenPrice={$tokenPrice}
-          warnings={$subscriptionWarnings}
-        />
-        {#if $validSigner.isSuccess && $validSigner.data && $writableSubscriptionContract.isSuccess && $writableSubscriptionContract.data}
-          <ClaimControl
-            data={$subscriptionData.data}
-            claim={claim($writableSubscriptionContract.data)}
-            claimTo={currAcc}
-            onClaimed={claimed}
-          />
-        {/if}
-        {#if $validSigner.isError}
-          {$validSigner.error}
-        {/if}
-        <Button label="Edit" href={url('/[network]/s/[subscription]/edit/', page)} />
-      </div>
+  <div class="mx-auto flex max-w-2xl flex-col">
+    <!-- BEGIN profile teaser -->
+    <div class="rounded-xl border-2 border-solid p-2">
+      owner: {$subscriptionData.data.owner}
     </div>
+    <!-- END profile teaser -->
 
-    <div class="basis-1/2">
-      <!-- RIGHt -->
-      <!-- mint subscription -->
-      <!-- TODO Fix me -->
-      <h2>My Subscrptions</h2>
+    <!-- BEGIN user's subscription -->
+    <div class="">
       <div>
-        <Button
-          primary={true}
-          label="Mint new Subscription"
-          href={page.url.pathname + 'new/'}
-          isDisabled={$subscriptionData.data.mintingPaused}
-        />
+        <Button href={'/[network]/s/[subscription]/new'} disabled={$subscriptionData.data.mintingPaused}
+          >Mint new Subscription</Button
+        >
       </div>
       {#if $userSubsCount.isPending}
         Loading...
@@ -191,5 +161,30 @@ Subscription Contract: {addr}
         </PaginatedLoadedList>
       {/if}
     </div>
+    <!-- END user's subscription -->
+
+    <!-- BEGIN sub details -->
+    <div class="rounded-xl border-2 border-solid p-2">
+      <SubscriptionContractDetails
+        contractData={$subscriptionData.data}
+        paymentTokenData={$erc20Data.data}
+        contractBalance={$subscriptionBalance.data}
+        tokenPrice={$tokenPrice}
+        warnings={$subscriptionWarnings}
+      />
+      {#if $validSigner.isSuccess && $validSigner.data && $writableSubscriptionContract.isSuccess && $writableSubscriptionContract.data}
+        <ClaimControl
+          data={$subscriptionData.data}
+          claim={claim($writableSubscriptionContract.data)}
+          claimTo={currAcc}
+          onClaimed={claimed}
+        />
+      {/if}
+      {#if $validSigner.isError}
+        {$validSigner.error}
+      {/if}
+      <Button href={'/[network]/s/[subscription]/edit/'} >Edit</Button>
+    </div>
+    <!-- END sub details -->
   </div>
 {/if}

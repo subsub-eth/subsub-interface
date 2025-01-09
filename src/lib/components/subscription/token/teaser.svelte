@@ -1,9 +1,8 @@
 <script lang="ts">
   import * as Card from '$lib/components/ui/card';
   import * as Tooltip from '$lib/components/ui/tooltip';
-  import { Button } from '$lib/components/ui/button';
+  import Button from '$lib/components/Button.svelte';
   import { ChevronRight } from 'lucide-svelte';
-  import Url from '$lib/components/Url.svelte';
   import TrafficLight from '$lib/components/TrafficLight.svelte';
   import { type BaseProps, baseValues } from './base';
 
@@ -54,13 +53,13 @@
           </Tooltip.Root>
         </p>
       </div>
-      <Url template={`/[network]/s/${subscriptionData.address}/${subscriptionData.tokenId}/`}>
-        {#snippet children({ path })}
-          <Button href={path} size="icon" class="ml-auto self-center justify-self-end">
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        {/snippet}
-      </Url>
+      <Button
+        href={`/[network]/s/${subscriptionData.address}/${subscriptionData.tokenId}/`}
+        size="icon"
+        class="ml-auto self-center justify-self-end"
+      >
+        <ChevronRight className="h-4 w-4" />
+      </Button>
     </div>
   </Card.Content>
 </Card.Root>

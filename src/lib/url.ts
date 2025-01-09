@@ -1,5 +1,7 @@
 import type { Page } from '@sveltejs/kit';
 
+export const URL_PARAMS_CONTEXT: string = 'URL_PARAMS_CONTEXT';
+
 const isDynamic = (segment: string) =>
   segment.length > 2 && segment.startsWith('[') && segment.endsWith(']');
 

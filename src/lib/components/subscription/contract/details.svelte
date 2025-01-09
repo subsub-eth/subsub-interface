@@ -46,7 +46,7 @@
 </script>
 
 <div class="p-4 text-foreground">
-  <!-- header -->
+  <!-- title -->
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-2">
       <TokenLogo
@@ -65,6 +65,43 @@
       <WarningCollapsible messages={warnings.data} />
     {/if}
   </div>
+
+  <!-- Description -->
+  {#if contractData.image || contractData.description || externalUrl}
+    <Card.Root class="mt-4 pt-2">
+      <Card.Header>
+        <Card.Title>Details</Card.Title>
+      </Card.Header>
+      <Card.Content>
+        {#if contractData.image || contractData.description}
+          <div class="flex items-center gap-2 pt-2">
+            {#if contractData.image}
+              <div class="max-h-50 max-w-50 flex-initial basis-1/4">
+                <img src={contractData.image} alt={contractData.name} />
+              </div>
+            {/if}
+            {#if contractData.description}
+              <div class="basis-3/4 whitespace-pre-line">
+                <p>{contractData.description}</p>
+              </div>
+            {/if}
+          </div>
+        {/if}
+        {#if externalUrl}
+          <div class="flex items-center gap-2 pt-2">
+            <div>
+              <Button variant="link" target="_blank" href={externalUrl.href}>
+                <Link class="mr-2 h-4 w-4" />
+                {externalUrl.host}
+              </Button>
+            </div>
+          </div>
+        {/if}
+      </Card.Content>
+    </Card.Root>
+  {/if}
+
+
   <!-- Main Properties -->
   <div class="grid gap-4 pt-4 sm:grid-cols-2 md:grid-cols-4">
     <PropertyBox title="Fee" TitleIcon={DollarSign}>
@@ -134,43 +171,10 @@
     </PropertyBox>
     <PropertyBox title="Lockup" TitleIcon={Lock} value={`${contractData.lock / 100}%`} />
   </div>
-  <!-- Description -->
-  {#if contractData.image || contractData.description || externalUrl}
-    <Card.Root class="mt-4 pt-2">
-      <Card.Header>
-        <Card.Title>Details</Card.Title>
-      </Card.Header>
-      <Card.Content>
-        {#if contractData.image || contractData.description}
-          <div class="flex items-center gap-2 pt-2">
-            {#if contractData.image}
-              <div class="max-h-50 max-w-50 flex-initial basis-1/4">
-                <img src={contractData.image} alt={contractData.name} />
-              </div>
-            {/if}
-            {#if contractData.description}
-              <div class="basis-3/4 whitespace-pre-line">
-                <p>{contractData.description}</p>
-              </div>
-            {/if}
-          </div>
-        {/if}
-        {#if externalUrl}
-          <div class="flex items-center gap-2 pt-2">
-            <div>
-              <Button variant="link" target="_blank" href={externalUrl.href}>
-                <Link class="mr-2 h-4 w-4" />
-                {externalUrl.host}
-              </Button>
-            </div>
-          </div>
-        {/if}
-      </Card.Content>
-    </Card.Root>
-  {/if}
 
   <!-- TODO claim, tips and spent -->
 
+  <!-- technicals -->
   <CollapsibleBox rootClass="mt-4" title="Technical Details" open={technicalsOpen}>
     <DetailsProperty title="Address" help="The address of this contract">
       {#snippet value()}
