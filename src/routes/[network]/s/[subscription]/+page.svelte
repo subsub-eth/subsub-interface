@@ -145,6 +145,7 @@
           {pageSize}
         >
           {#snippet children({ items })}
+            <div class="grid grid-cols-1 gap-4">
             {#each items as item}
               <SubscriptionTeaser
                 subscriptionData={item}
@@ -152,6 +153,7 @@
                 rate={BigInt($subscriptionData.data.rate)}
               />
             {/each}
+            </div>
           {/snippet}
         </PaginatedLoadedList>
       {/if}

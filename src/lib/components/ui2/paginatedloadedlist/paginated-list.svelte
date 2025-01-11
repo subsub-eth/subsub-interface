@@ -91,7 +91,7 @@
     {/if}
   </div>
   {#if totalItems > pageSize}
-    <Pagination.Root count={totalItems == 0 ? 1 : totalItems} perPage={pageSize} bind:page={$p}>
+    <Pagination.Root class="mt-4" count={totalItems == 0 ? 1 : totalItems} perPage={pageSize} bind:page={$p}>
       {#snippet children({ pages, currentPage })}
         <Pagination.Content class="text-foreground">
           <Pagination.Item>
