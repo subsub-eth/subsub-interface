@@ -14,6 +14,7 @@
   import { convertedEtherPretty } from '$lib/web3/contracts/oracle';
   import { prettyNumberFromString } from '$lib/helpers';
   import { accountUrl, tokenUrl } from '$lib/blockexplorer-url.svelte';
+  import Markdown from '@magidoc/plugin-svelte-marked';
 
   interface Props extends BaseProps {
     contractBalance: BigNumberish;
@@ -45,64 +46,7 @@
     prettyNumberFromString(formatUnits(amount, paymentTokenData.decimals));
 </script>
 
-<div class="p-4 text-foreground">
-  <!-- title -->
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <TokenLogo
-        class="mr-4"
-        address={contractData.token}
-        fallbackSymbol={paymentTokenData.symbol}
-      />
-      <div>
-        <h2>{contractData.name}</h2>
-      </div>
-    </div>
-    {#if warnings.isPending}
-      TODO Loading
-    {/if}
-    {#if warnings.isSuccess}
-      <WarningCollapsible messages={warnings.data} />
-    {/if}
-  </div>
-
-  <!-- Description -->
-  {#if contractData.image || contractData.description || externalUrl}
-    <Card.Root class="mt-4 pt-2">
-      <Card.Header>
-        <Card.Title>Details</Card.Title>
-      </Card.Header>
-      <Card.Content>
-        {#if contractData.image || contractData.description}
-          <div class="flex items-center gap-2 pt-2">
-            {#if contractData.image}
-              <div class="max-h-50 max-w-50 flex-initial basis-1/4">
-                <img src={contractData.image} alt={contractData.name} />
-              </div>
-            {/if}
-            {#if contractData.description}
-              <div class="basis-3/4 whitespace-pre-line">
-                <p>{contractData.description}</p>
-              </div>
-            {/if}
-          </div>
-        {/if}
-        {#if externalUrl}
-          <div class="flex items-center gap-2 pt-2">
-            <div>
-              <Button variant="link" target="_blank" href={externalUrl.href}>
-                <Link class="mr-2 h-4 w-4" />
-                {externalUrl.host}
-              </Button>
-            </div>
-          </div>
-        {/if}
-      </Card.Content>
-    </Card.Root>
-  {/if}
-
-
-  <!-- Main Properties -->
+{#snippet properties()}
   <div class="grid gap-4 pt-4 sm:grid-cols-2 md:grid-cols-4">
     <PropertyBox title="Fee" TitleIcon={DollarSign}>
       {#snippet value()}
@@ -171,11 +115,10 @@
     </PropertyBox>
     <PropertyBox title="Lockup" TitleIcon={Lock} value={`${contractData.lock / 100}%`} />
   </div>
+{/snippet}
 
-  <!-- TODO claim, tips and spent -->
-
-  <!-- technicals -->
-  <CollapsibleBox rootClass="mt-4" title="Technical Details" open={technicalsOpen}>
+{#snippet technicals()}
+  <CollapsibleBox title="Technical Details" open={technicalsOpen}>
     <DetailsProperty title="Address" help="The address of this contract">
       {#snippet value()}
         <div class="flex items-center gap-2">
@@ -293,4 +236,72 @@
       help="Claimed funds from tips"
     />
   </CollapsibleBox>
+{/snippet}
+
+<div class="p-4 text-foreground">
+  <!-- title -->
+  <div class="flex items-center justify-between">
+    <div class="flex flex-auto items-center gap-2 rounded-xl border-2 border-solid bg-card p-2">
+      <TokenLogo
+        class="mr-4 flex-none"
+        address={contractData.token}
+        fallbackSymbol={paymentTokenData.symbol}
+      />
+      <div class="grow text-xl font-bold">
+        <h2>{contractData.name}</h2>
+      </div>
+      <div class="flex-none">
+        {#if externalUrl}
+          <Button class="h-4" variant="link" target="_blank" href={externalUrl.href}>
+            <Link class="mr-0 h-4 w-4" />
+            {externalUrl.host}
+          </Button>
+        {/if}
+      </div>
+    </div>
+    {#if warnings.isPending}
+      TODO Loading
+    {/if}
+    {#if warnings.isSuccess}
+      <WarningCollapsible messages={warnings.data} />
+    {/if}
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2 items-start">
+    <!-- image -->
+    {#if contractData.image}
+      <div>
+        <div class="mt-4">
+          <img
+            class="max-h-[50vh] w-full rounded-lg object-cover object-center"
+            src={contractData.image}
+            alt={contractData.name}
+          />
+        </div>
+        {@render properties()}
+        {@render technicals()}
+      </div>
+    {/if}
+    <!-- Description -->
+    {#if contractData.description}
+      <Card.Root class="mt-4 pt-2">
+        <Card.Content>
+          {#if contractData.description}
+            <div class="flex items-center gap-2 pt-2">
+              <div class="prose prose-base">
+                <Markdown source={contractData.description} />
+              </div>
+            </div>
+          {/if}
+        </Card.Content>
+      </Card.Root>
+    {/if}
+  </div>
+
+  {#if !contractData.image}
+    <!-- Main Properties -->
+    {@render properties()}
+    <!-- technicals -->
+    {@render technicals()}
+  {/if}
 </div>

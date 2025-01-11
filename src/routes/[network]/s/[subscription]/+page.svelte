@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { derived as derivedStore } from 'svelte/store';
-  import { page } from '$app/state';
   import { SubscriptionContractDetails } from '$lib/components/subscription/contract';
   import Button from '$lib/components/Button.svelte';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
@@ -37,7 +36,6 @@
   import { log } from '$lib/logger';
   import type { Hash } from '$lib/web3/contracts/common';
   import { chainEnvironment } from '$lib/chain-context';
-  import { url } from '$lib/url';
 
   interface Props {
     data: PageData;
@@ -105,10 +103,6 @@
   let currAcc = $derived($currentAccount!);
 </script>
 
-<h1>Subscription Contract Details page</h1>
-
-Subscription Contract: {addr}
-
 {#if $subscriptionData.isPending || $erc20Data.isPending}
   Loading contract data...
 {/if}
@@ -116,7 +110,7 @@ Subscription Contract: {addr}
   Failed to load contract data
 {/if}
 {#if $subscriptionData.isSuccess && $subscriptionContract.isSuccess && $erc20Data.isSuccess && $subscriptionBalance.isSuccess}
-  <div class="mx-auto flex max-w-2xl flex-col">
+  <div class="mx-auto flex max-w-screen-2xl flex-col">
     <!-- BEGIN profile teaser -->
     <div class="rounded-xl border-2 border-solid p-2">
       owner: {$subscriptionData.data.owner}
@@ -124,10 +118,11 @@ Subscription Contract: {addr}
     <!-- END profile teaser -->
 
     <!-- BEGIN user's subscription -->
-    <div class="">
-      <div>
-        <Button href={'/[network]/s/[subscription]/new'} disabled={$subscriptionData.data.mintingPaused}
-          >Mint new Subscription</Button
+    <div class="grid grid-cols-1 justify-items-stretch p-6">
+      <div class="mb-4 justify-self-end">
+        <Button
+          href={'/[network]/s/[subscription]/new'}
+          disabled={$subscriptionData.data.mintingPaused}>Mint new Subscription</Button
         >
       </div>
       {#if $userSubsCount.isPending}
@@ -164,7 +159,7 @@ Subscription Contract: {addr}
     <!-- END user's subscription -->
 
     <!-- BEGIN sub details -->
-    <div class="rounded-xl border-2 border-solid p-2">
+    <div class="p-2">
       <SubscriptionContractDetails
         contractData={$subscriptionData.data}
         paymentTokenData={$erc20Data.data}
@@ -172,6 +167,8 @@ Subscription Contract: {addr}
         tokenPrice={$tokenPrice}
         warnings={$subscriptionWarnings}
       />
+    </div>
+    <div class="m-6 grid grid-cols-2 gap-4">
       {#if $validSigner.isSuccess && $validSigner.data && $writableSubscriptionContract.isSuccess && $writableSubscriptionContract.data}
         <ClaimControl
           data={$subscriptionData.data}
@@ -183,7 +180,9 @@ Subscription Contract: {addr}
       {#if $validSigner.isError}
         {$validSigner.error}
       {/if}
-      <Button href={'/[network]/s/[subscription]/edit/'} >Edit</Button>
+      <div>
+        <Button href={'/[network]/s/[subscription]/edit/'}>Edit Contract Details</Button>
+      </div>
     </div>
     <!-- END sub details -->
   </div>

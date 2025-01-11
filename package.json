@@ -34,6 +34,7 @@
     "@sveltejs/adapter-static": "^3.0.8",
     "@sveltejs/kit": "^2.15.1",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "@tailwindcss/typography": "^0.5.16",
     "@wagmi/cli": "^2.1.22",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.17.0",
@@ -58,6 +59,7 @@
   "type": "module",
   "dependencies": {
     "@createz/contracts": "0.2.0-alpha.14",
+    "@magidoc/plugin-svelte-marked": "^6.2.0",
     "@metamask/contract-metadata": "^2.5.0",
     "@tanstack/svelte-query": "^5.62.8",
     "@types/object-hash": "^3.0.6",
@@ -69,6 +71,7 @@
     "formsnap": "2.0.0",
     "loglevelnext": "^6.0.0",
     "lucide-svelte": "^0.469.0",
+    "marked": "^15.0.6",
     "mode-watcher": "^0.5.0",
     "object-hash": "^3.0.0",
     "rxjs": "^7.8.1",

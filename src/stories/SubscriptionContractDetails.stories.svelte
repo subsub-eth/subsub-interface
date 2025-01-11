@@ -5,9 +5,23 @@
   import { contractDummy } from '$lib/static-content';
   import { zeroAddress } from '$lib/web3/helpers';
 
+const descriptionMd = `## Hello World
+
+this is some text
+
+ * bullet 1
+ * bullet 2
+
+ 1. numbered 1
+ 1. numbered 2
+
+
+some more text
+`;
+
   const testData: SubscriptionContractData = {
     name: 'Tier 1 Sub to Jane',
-    description: 'This awesome subscription gives you access to nothing',
+    description: descriptionMd,
     image: contractDummy,
     externalUrl: 'http://example.com',
     address: zeroAddress,
