@@ -284,7 +284,7 @@
     {/if}
     <!-- Description -->
     {#if contractData.description}
-      <Card.Root class="mt-4 pt-2">
+      <Card.Root class="md:mt-4 pt-2">
         <Card.Content>
           {#if contractData.description}
             <div class="flex items-center gap-2 pt-2">

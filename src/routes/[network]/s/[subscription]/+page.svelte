@@ -168,7 +168,7 @@
         warnings={$subscriptionWarnings}
       />
     </div>
-    <div class="m-6 grid grid-cols-2 gap-4">
+    <div class="m-6 mt-0 grid gap-4 sm:grid-cols-1 md:grid-cols-2">
       {#if $validSigner.isSuccess && $validSigner.data && $writableSubscriptionContract.isSuccess && $writableSubscriptionContract.data}
         <ClaimControl
           data={$subscriptionData.data}
