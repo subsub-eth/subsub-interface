@@ -1,5 +1,6 @@
 <script lang="ts">
   import onboard, { currentAccount, isAccountConnected, primaryWallet } from '$lib/web3/onboard';
+  import Button from '$lib/components/Button.svelte';
   import { truncateAddress } from './helpers';
 
   const connect = async () => {
@@ -12,11 +13,11 @@
 </script>
 
 {#if $isAccountConnected}
-  <button onclick={disconnect}>
+  <Button onclick={disconnect}>
     {truncateAddress($currentAccount + '')}
-  </button>
+  </Button>
 {:else}
-  <button onclick={connect}>Connect Wallet</button>
+  <Button onclick={connect}>Connect Wallet</Button>
 {/if}
 
 <style>

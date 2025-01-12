@@ -1,33 +1,41 @@
 <script lang="ts">
-  import { currentChains, getChain } from '$lib/chain-config';
-  import { currentChainId } from './web3/onboard';
+  import * as Select from '$lib/components/ui/select/index.js';
 
-  let currentChain = $derived(getChain($currentChainId ? $currentChainId : 0)?.[1].displayName);
-  let dropdownVisibility = $state('hidden');
+  interface Props {
+    currentChainId: number;
+    availableChains: Array<{ chainId: number; name: string; label: string }>;
+    onchange: (chainId: number) => Promise<void>;
+  }
 
-  const onOpen = () => {
-    dropdownVisibility = 'block';
-  };
+  let { currentChainId, availableChains, onchange }: Props = $props();
+
+  let value = $state(
+    availableChains.filter((c) => c.chainId === currentChainId).map((c) => c.name)[0]
+  );
+
+  let selectedChain = $derived(availableChains.find((c) => c.chainId === currentChainId));
+  $inspect(value);
 </script>
 
-<button
-  class="inline-flex items-center rounded-lg bg-blue-700 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-  type="button"
-  onclick={onOpen}>{currentChain ? currentChain : '???'}</button
->
-<!-- Dropdown menu -->
-<div
-  class="z-10 {dropdownVisibility} w-44 divide-y divide-gray-100 rounded-lg bg-white shadow dark:bg-gray-700"
->
-  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-    {#each currentChains as [, data]}
-      <li>
-        <a
-          href="/"
-          class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-          >{data.displayName}</a
-        >
-      </li>
-    {/each}
-  </ul>
-</div>
+{#if availableChains.length < 2}
+  <div>{selectedChain?.label}</div>
+{:else}
+  <Select.Root type="single" name="chain" bind:value>
+    <Select.Trigger class="border-primary bg-inherit">
+      {selectedChain?.label}
+    </Select.Trigger>
+    <Select.Content>
+      <Select.Group>
+        {#each availableChains as chain}
+          <!-- {#if chain.chainId !== currentChainId} -->
+            <Select.Item
+              value={chain.name}
+              label={chain.label}
+              onclick={() => onchange(chain.chainId)}>{chain.label}</Select.Item
+            >
+          <!-- {/if} -->
+        {/each}
+      </Select.Group>
+    </Select.Content>
+  </Select.Root>
+{/if}

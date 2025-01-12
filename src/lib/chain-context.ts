@@ -37,6 +37,9 @@ export type WritableChainEnvironment = {
   // TODO Badge Handle
 };
 
+/**
+ * the current chain derived from the current url segment
+ */
 export const chainEnvironment: Readable<ReadableChainEnvironment | undefined> = derived(
   [publicClient, networkSegment],
   ([publicClient, network]) => {

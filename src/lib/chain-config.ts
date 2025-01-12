@@ -5,8 +5,9 @@ import { zeroAddress } from './web3/helpers';
 
 export interface Chains {
   localhost: ChainData;
+  base: ChainData;
   polygon: ChainData;
-  'polygon-mumbai': ChainData;
+  'base-sepolia': ChainData;
 }
 
 export interface ChainData {
@@ -53,6 +54,23 @@ const chains: Chains = {
       }
     }
   },
+  base: {
+    isTest: false,
+    isDev: false,
+    displayName: 'Base',
+    chainId: 8453,
+    token: 'ETH',
+    rpcUrl: 'https://base.llamarpc.com',
+    explorerUrl: 'https://basescan.org',
+    contracts: {
+      profile: zeroAddress,
+      subscriptionHandle: zeroAddress,
+      erc6551Registry: zeroAddress,
+      defaultErc6551Implementation: zeroAddress,
+      testErc20: zeroAddress,
+      priceFeeds: {}
+    }
+  },
   polygon: {
     isTest: false,
     isDev: false,
@@ -70,14 +88,14 @@ const chains: Chains = {
       priceFeeds: {}
     }
   },
-  'polygon-mumbai': {
+  'base-sepolia': {
     isDev: false,
     isTest: true,
-    displayName: 'Polygon Mumbai Testnet',
-    chainId: 80001,
-    token: 'MATIC',
-    rpcUrl: 'https://polygon-mumbai-bor.publicnode.com',
-    explorerUrl: 'https://mumbai.polygonscan.com/',
+    displayName: 'Base Sepolia Testnet',
+    chainId: 84532,
+    token: 'ETH',
+    rpcUrl: 'https://sepolia.base.org',
+    explorerUrl: 'https://sepolia.basescan.org/',
     contracts: {
       profile: zeroAddress,
       subscriptionHandle: zeroAddress,
