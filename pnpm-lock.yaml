@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@createz/contracts':
-        specifier: 0.2.0-alpha.14
-        version: 0.2.0-alpha.14
+        specifier: 0.2.0-alpha.15
+        version: 0.2.0-alpha.15
       '@magidoc/plugin-svelte-marked':
         specifier: ^6.2.0
         version: 6.2.0
@@ -239,8 +239,8 @@ packages:
     peerDependencies:
       storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
 
-  '@createz/contracts@0.2.0-alpha.14':
-    resolution: {integrity: sha512-RLVT01n07y/2vl4Xf6hqpWgvHIkpJmjAttuCi0Nl7fmQ+JkQGhcmy2+VjYJ57C/084nobLk2n7XWBd8TqQmEPA==}
+  '@createz/contracts@0.2.0-alpha.15':
+    resolution: {integrity: sha512-ipUdliP3F3ua3pvA1Q+0mKzTnNw9C0KQ/MF/3dl7HDBUrtmPT4x9xEW3pqIMSFY50EeTnpVXIQagqagMVsUm9Q==}
 
   '@esbuild/aix-ppc64@0.19.12':
     resolution: {integrity: sha512-bmoCYyWdEL3wDQIVbcyzRyeKLgk2WtWLTWz1ZIAZF/EGbNOwSA6ew3PftJ1PqMiOOGu0OyFMzG53L0zqIpPeNA==}
@@ -3775,7 +3775,7 @@ snapshots:
       - '@chromatic-com/playwright'
       - react
 
-  '@createz/contracts@0.2.0-alpha.14': {}
+  '@createz/contracts@0.2.0-alpha.15': {}
 
   '@esbuild/aix-ppc64@0.19.12':
     optional: true
