@@ -9,13 +9,17 @@ import { log } from '$lib/logger';
 import type { Address } from '$lib/web3/contracts/common';
 import { fromStore } from 'svelte/store';
 import { chainEnvironment } from './chain-context';
+import { getChainExplorerUrl, isChainTestnet } from './chain-config';
 
 function getExplorer(): string {
-  const explorer: string =
-    getContext(EXPLORER_URL) ?? fromStore(chainEnvironment).current?.chainData.explorerUrl;
+  const chainData = fromStore(chainEnvironment).current?.chainData;
+  const explorer: string = getContext(EXPLORER_URL) ?? getChainExplorerUrl(chainData);
   if (!explorer) {
+    if (isChainTestnet(chainData)) {
+      return 'https://example.com';
+    }
     const msg = 'Explorer Url not defined';
-    log.error(msg);
+    log.error(msg, chainData);
     throw new Error(msg);
   }
 

@@ -267,11 +267,11 @@
     {/if}
   </div>
 
-  <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2 items-start">
+  <div class="flex flex-col justify-stretch gap-4 md:flex-row">
     <!-- image -->
     {#if contractData.image}
-      <div>
-        <div class="mt-4">
+      <div class="mt-4 md:basis-1/2">
+        <div>
           <img
             class="max-h-[50vh] w-full rounded-lg object-cover object-center"
             src={contractData.image}
@@ -284,7 +284,7 @@
     {/if}
     <!-- Description -->
     {#if contractData.description}
-      <Card.Root class="md:mt-4 pt-2">
+      <Card.Root class="mt-4 pt-2 md:basis-1/2">
         <Card.Content>
           {#if contractData.description}
             <div class="flex items-center gap-2 pt-2">

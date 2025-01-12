@@ -19,6 +19,7 @@ import {
   ierc6551ExecutableAbi,
   ierc6551RegistryAbi
 } from '../generated/createz';
+import { getChainId } from '$lib/chain-config';
 
 export type IERC6551Registry = ReadableContract;
 export type WritableIERC6551Registry = WritableContract;
@@ -85,13 +86,13 @@ export async function findDefaultProfileErc6551Account(
   tokenId: bigint
 ): Promise<Address | undefined> {
   const { erc6551Registry, chainData } = chainEnv;
-  const { contracts, chainId } = chainData;
+  const { contracts } = chainData;
   const { defaultErc6551Implementation, profile } = contracts;
   const acc = await findErc6551Account(
     erc6551Registry,
     defaultErc6551Implementation,
     new Uint8Array(32),
-    chainId,
+    getChainId(chainData),
     profile,
     tokenId
   );

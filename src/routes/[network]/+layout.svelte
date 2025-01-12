@@ -2,12 +2,13 @@
   import HeaderWallet from '$lib/HeaderWallet.svelte';
   import { chainEnvironment } from '$lib/chain-context';
   import Button from '$lib/components/Button.svelte';
-  import { currentChainId, isAccountConnected } from '$lib/web3/onboard';
-  import { walletClient } from '$lib/web3/viem';
+  import { currentChainId } from '$lib/web3/onboard';
+  import { publicClient, walletClient } from '$lib/web3/viem';
   import NavigationHeader from '../NavigationHeader.svelte';
 
   import toast from '$lib/toast';
   import { log } from '$lib/logger';
+  import { getChainDisplayName, getChainId } from '$lib/chain-config';
 
   interface Props {
     children?: import('svelte').Snippet;
@@ -32,18 +33,18 @@
   <HeaderWallet />
 </NavigationHeader>
 
-<div class="grid grid-cols-1 gap-4 justify-items-center">
-  {#if $isAccountConnected && $chainEnvironment}
-    {#if $currentChainId === $chainEnvironment.chainData.chainId}
+<div class="grid grid-cols-1 justify-items-center gap-4">
+  {#if $publicClient && $chainEnvironment}
+    {#if !$walletClient || $currentChainId === getChainId($chainEnvironment.chainData)}
       {@render children?.()}
     {:else}
       <p>Please switch to the connected network in your wallet</p>
       <Button
         onclick={() =>
           switchChain({
-            chainId: $chainEnvironment.chainData.chainId,
-            name: $chainEnvironment.chainData.displayName
-          })}>Switch to {$chainEnvironment.chainData.displayName}</Button
+            chainId: getChainId($chainEnvironment.chainData),
+            name: getChainDisplayName($chainEnvironment.chainData)
+          })}>Switch to {getChainDisplayName($chainEnvironment.chainData)}</Button
       >
     {/if}
   {:else}

@@ -8,7 +8,8 @@ import {
   type WalletClient,
   type Chain,
   type Transport,
-  type Account
+  type Account,
+  http
 } from 'viem';
 
 import { anvil } from 'viem/chains';
@@ -29,8 +30,8 @@ export interface WritableContract extends ReadableContract {
 
 export const publicClient: Readable<ReadClient | undefined> = derived(primaryWallet, (wallet) => {
   if (!wallet) {
-    log.debug('PublicClient: wallet not set!');
-    return undefined;
+    log.debug('PublicClient: wallet not set, creating default rpc connection');
+    return createPublicClient({ chain: anvil, transport: http() });
   }
   log.debug('PublicClient: primary wallet store subscribe', wallet);
   // TODO fix chain

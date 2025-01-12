@@ -19,6 +19,7 @@
   import { erc6551Keys, profileKeys, subHandleKeys } from '$lib/query/keys';
   import { ChevronLeft } from 'lucide-svelte';
   import { SubscriptionContractContext } from '$lib/components/context/web3';
+  import { getChainId } from '$lib/chain-config';
 
   interface Props {
     data: PageData;
@@ -47,7 +48,7 @@
     derivedStore(chainEnvironment, (chainEnvironment) => ({
       queryKey: erc6551Keys.profileAccount(
         chainEnvironment!.chainData.contracts.erc6551Registry,
-        chainEnvironment!.chainData.chainId,
+        getChainId(chainEnvironment!.chainData),
         chainEnvironment!.chainData.contracts.profile,
         tokenId
       ),
@@ -103,11 +104,7 @@
     <h2>Subscription Plans</h2>
     {#if $profile.isSuccess}
       {#if addressEquals(currentAcc, $profile.data.owner)}
-        <Url template={`/[network]/p/${tokenId}/newsub/`}>
-          {#snippet children({ path })}
-            <Button primary={true} label="New Subscription Contract" href={path} />
-          {/snippet}
-        </Url>
+        <Button href={`/[network]/p/${tokenId}/newsub/`}>New Subscription Contract</Button>
       {/if}
     {/if}
     <div></div>

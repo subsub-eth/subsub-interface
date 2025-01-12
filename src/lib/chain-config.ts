@@ -1,7 +1,9 @@
 import { dev } from '$app/environment';
+import type { Chain as ViemChain } from 'viem';
 import type { Address } from './web3/contracts/common';
 import type { Erc20Token } from './web3/contracts/erc20';
 import { zeroAddress } from './web3/helpers';
+import { anvil, base, baseSepolia, polygon } from 'viem/chains';
 
 export interface Chains {
   localhost: ChainData;
@@ -10,14 +12,10 @@ export interface Chains {
   'base-sepolia': ChainData;
 }
 
+export type Chain = ViemChain;
+
 export interface ChainData {
-  isDev: boolean;
-  isTest: boolean;
-  displayName: string;
-  chainId: number;
-  token: string;
-  rpcUrl: string;
-  explorerUrl: string;
+  chain: Chain;
   contracts: ContractAddresses;
 }
 
@@ -36,13 +34,7 @@ export type chain = keyof Chains;
 
 const chains: Chains = {
   localhost: {
-    isDev: true,
-    isTest: true,
-    displayName: 'Localhost',
-    chainId: 31337,
-    token: 'ETH',
-    rpcUrl: 'http://localhost:8545',
-    explorerUrl: 'https://etherscan.io',
+    chain: anvil,
     contracts: {
       profile: '0xf983714d87AFE606D38571759138ee088dbFc5da',
       subscriptionHandle: '0x38A0759EdBe82E3A53405dF797be4d24C5f4C94f',
@@ -55,13 +47,7 @@ const chains: Chains = {
     }
   },
   base: {
-    isTest: false,
-    isDev: false,
-    displayName: 'Base',
-    chainId: 8453,
-    token: 'ETH',
-    rpcUrl: 'https://base.llamarpc.com',
-    explorerUrl: 'https://basescan.org',
+    chain: base,
     contracts: {
       profile: zeroAddress,
       subscriptionHandle: zeroAddress,
@@ -72,13 +58,7 @@ const chains: Chains = {
     }
   },
   polygon: {
-    isTest: false,
-    isDev: false,
-    displayName: 'Polygon PoS Mainnet',
-    chainId: 137,
-    token: 'MATIC',
-    rpcUrl: 'https://matic-mainnet.chainstacklabs.com',
-    explorerUrl: 'https://polygonscan.com',
+    chain: polygon,
     contracts: {
       profile: zeroAddress,
       subscriptionHandle: zeroAddress,
@@ -89,13 +69,7 @@ const chains: Chains = {
     }
   },
   'base-sepolia': {
-    isDev: false,
-    isTest: true,
-    displayName: 'Base Sepolia Testnet',
-    chainId: 84532,
-    token: 'ETH',
-    rpcUrl: 'https://sepolia.base.org',
-    explorerUrl: 'https://sepolia.basescan.org/',
+    chain: baseSepolia,
     contracts: {
       profile: zeroAddress,
       subscriptionHandle: zeroAddress,
@@ -109,12 +83,24 @@ const chains: Chains = {
 
 const chainProps: Array<[chain, ChainData]> = Object.entries(chains) as Array<[chain, ChainData]>;
 
-export const currentChains = chainProps.filter(([, v]) => !v.isDev || (dev && v.isDev));
+export const currentChains = chainProps.filter(([n]) => dev || n !== 'localhost');
 
 export const chainNames = currentChains.map(([c]) => c);
 
+export const getChainId = (c: ChainData) => c.chain.id;
+
+export const getChainToken = (c: ChainData) => c.chain.nativeCurrency.symbol;
+
+export const getChainDisplayName = (c: ChainData) => c.chain.name;
+
+export const getChainRpcUrl = (c: ChainData) => c.chain.rpcUrls.default.http[0];
+
+export const isChainTestnet = (c: ChainData | undefined) => c?.chain === anvil || !!c?.chain.testnet;
+
+export const getChainExplorerUrl = (c: ChainData | undefined) => c?.chain.blockExplorers?.default;
+
 export const getChain = function (id: number) {
-  return currentChains.find(([, v]) => v.chainId === id);
+  return currentChains.find(([, v]) => getChainId(v) === id);
 };
 
 export const getChainByName = function (name: string): ChainData | undefined {
