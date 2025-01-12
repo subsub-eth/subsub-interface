@@ -1,5 +1,6 @@
 <script lang="ts">
-  import * as Select from '$lib/components/ui/select/index.js';
+  import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+  import { ChevronDown } from 'lucide-svelte';
 
   interface Props {
     currentChainId: number;
@@ -9,33 +10,25 @@
 
   let { currentChainId, availableChains, onchange }: Props = $props();
 
-  let value = $state(
-    availableChains.filter((c) => c.chainId === currentChainId).map((c) => c.name)[0]
-  );
-
   let selectedChain = $derived(availableChains.find((c) => c.chainId === currentChainId));
-  $inspect(value);
 </script>
 
 {#if availableChains.length < 2}
   <div>{selectedChain?.label}</div>
 {:else}
-  <Select.Root type="single" name="chain" bind:value>
-    <Select.Trigger class="border-primary bg-inherit">
-      {selectedChain?.label}
-    </Select.Trigger>
-    <Select.Content>
-      <Select.Group>
+  <DropdownMenu.Root>
+    <DropdownMenu.Trigger class="flex items-center gap-2"
+      >{selectedChain?.label} <ChevronDown class="h-4 w-4" /></DropdownMenu.Trigger
+    >
+    <DropdownMenu.Content>
+      <DropdownMenu.Group>
         {#each availableChains as chain}
-          <!-- {#if chain.chainId !== currentChainId} -->
-            <Select.Item
-              value={chain.name}
-              label={chain.label}
-              onclick={() => onchange(chain.chainId)}>{chain.label}</Select.Item
-            >
-          <!-- {/if} -->
+          <DropdownMenu.Item
+            onclick={() => currentChainId != chain.chainId && onchange(chain.chainId)}
+            >{chain.label}</DropdownMenu.Item
+          >
         {/each}
-      </Select.Group>
-    </Select.Content>
-  </Select.Root>
+      </DropdownMenu.Group>
+    </DropdownMenu.Content>
+  </DropdownMenu.Root>
 {/if}
