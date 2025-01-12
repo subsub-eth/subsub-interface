@@ -146,13 +146,13 @@
         >
           {#snippet children({ items })}
             <div class="grid grid-cols-1 gap-4">
-            {#each items as item}
-              <SubscriptionTeaser
-                subscriptionData={item}
-                paymentToken={$erc20Data.data}
-                rate={BigInt($subscriptionData.data.rate)}
-              />
-            {/each}
+              {#each items as item}
+                <SubscriptionTeaser
+                  subscriptionData={item}
+                  paymentToken={$erc20Data.data}
+                  rate={BigInt($subscriptionData.data.rate)}
+                />
+              {/each}
             </div>
           {/snippet}
         </PaginatedLoadedList>
@@ -170,22 +170,22 @@
         warnings={$subscriptionWarnings}
       />
     </div>
-    <div class="m-6 mt-0 grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-      {#if $validSigner.isSuccess && $validSigner.data && $writableSubscriptionContract.isSuccess && $writableSubscriptionContract.data}
+    {#if $validSigner.isSuccess && $validSigner.data && $writableSubscriptionContract.isSuccess && $writableSubscriptionContract.data}
+      <div class="m-6 mt-0 grid gap-4 sm:grid-cols-1 md:grid-cols-2">
         <ClaimControl
           data={$subscriptionData.data}
           claim={claim($writableSubscriptionContract.data)}
           claimTo={currAcc}
           onClaimed={claimed}
         />
-      {/if}
-      {#if $validSigner.isError}
-        {$validSigner.error}
-      {/if}
-      <div>
-        <Button href={'/[network]/s/[subscription]/edit/'}>Edit Contract Details</Button>
+        <div>
+          <Button href={'/[network]/s/[subscription]/edit/'}>Edit Contract Details</Button>
+        </div>
       </div>
-    </div>
+    {/if}
+    {#if $validSigner.isError}
+      {$validSigner.error}
+    {/if}
     <!-- END sub details -->
   </div>
 {/if}
