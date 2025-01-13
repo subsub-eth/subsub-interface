@@ -23,6 +23,7 @@
   import {
     ERC20_DATA_CTX,
     SUBSCRIPTION_CONTRACT_CTX,
+    SUBSCRIPTION_CONTRACT_OWNER_CTX,
     SUBSCRIPTION_DATA_CTX,
     SUBSCRIPTION_ERC20_BALANCE_CTX,
     SUBSCRIPTION_WARNIGNS_CTX,
@@ -34,8 +35,10 @@
   import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
   import toast from '$lib/toast';
   import { log } from '$lib/logger';
-  import type { Hash } from '$lib/web3/contracts/common';
+  import type { Address, Hash } from '$lib/web3/contracts/common';
   import { chainEnvironment } from '$lib/chain-context';
+  import SubscriptionContractOwnerTeaser from '$lib/components/subscription/owner/SubscriptionContractOwnerTeaser.svelte';
+  import type { ProfileData } from '$lib/web3/contracts/profile';
 
   interface Props {
     data: PageData;
@@ -53,6 +56,10 @@
   );
 
   const subscriptionData = getContext<QueryResult<SubscriptionContractData>>(SUBSCRIPTION_DATA_CTX);
+
+  const subscriptionOwner = getContext<QueryResult<Address | ProfileData>>(
+    SUBSCRIPTION_CONTRACT_OWNER_CTX
+  );
 
   const subscriptionWarnings =
     getContext<QueryResult<Array<WarningMessage>>>(SUBSCRIPTION_WARNIGNS_CTX);
@@ -112,9 +119,15 @@
 {#if $subscriptionData.isSuccess && $subscriptionContract.isSuccess && $erc20Data.isSuccess && $subscriptionBalance.isSuccess}
   <div class="mx-auto flex max-w-screen-2xl flex-col">
     <!-- BEGIN profile teaser -->
-    <div class="rounded-xl border-2 border-solid p-2">
-      owner: {$subscriptionData.data.owner}
-    </div>
+    {#if $subscriptionOwner.isPending}
+      Loading Subscription Owner
+    {/if}
+    {#if $subscriptionOwner.isError}
+      Error Loading Subscription Owner
+    {/if}
+    {#if $subscriptionOwner.isSuccess}
+      <SubscriptionContractOwnerTeaser owner={$subscriptionOwner.data} />
+    {/if}
     <!-- END profile teaser -->
 
     <!-- BEGIN user's subscription -->

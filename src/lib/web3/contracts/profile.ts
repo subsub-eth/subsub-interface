@@ -85,17 +85,22 @@ export async function ownerOf(profile: Profile, tokenId: bigint): Promise<Addres
   return owner;
 }
 
-export async function findProfile(profile: Profile, tokenId: bigint): Promise<ProfileData> {
+export async function findProfile(profile: Profile, tokenId: bigint): Promise<ProfileData | null> {
   const c = contract(profile);
-  const encoded = await c.read.tokenURI([tokenId]);
-  const metadata = decodeDataJsonTokenURI(encoded, ProfileTokenMetadataSchema);
+  try {
+    const encoded = await c.read.tokenURI([tokenId]);
+    const metadata = decodeDataJsonTokenURI(encoded, ProfileTokenMetadataSchema);
 
-  // TODO do multicall / on-chain
-  const owner = await ownerOf(profile, tokenId);
+    // TODO do multicall / on-chain
+    const owner = await ownerOf(profile, tokenId);
 
-  log.debug('Found profile', profile, tokenId, owner, metadata);
+    log.debug('Found profile', profile, tokenId, owner, metadata);
 
-  return mapProfileData(profile, tokenId, metadata, owner);
+    return mapProfileData(profile, tokenId, metadata, owner);
+  } catch (err) {
+    log.warn('Failed to locate profile at', profile.address, tokenId, err);
+    return null;
+  }
 }
 
 export type MintFunc = (

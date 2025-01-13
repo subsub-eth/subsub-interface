@@ -1,5 +1,6 @@
 <script lang="ts" module>
   export const SUBSCRIPTION_CONTRACT_CTX = 'subscriptionContract';
+  export const SUBSCRIPTION_CONTRACT_OWNER_CTX = 'subscriptionContractOwner';
   export const WRITABLE_SUBSCRIPTION_CONTRACT_CTX = 'writableSubscriptionContract';
   export const SUBSCRIPTION_DATA_CTX = 'subscriptionData';
   export const SUBSCRIPTION_ERC20_BALANCE_CTX = 'subscriptionErc20Balance';
@@ -32,6 +33,7 @@
   setContext(SUBSCRIPTION_CONTRACT_CTX, q.subscriptionContract);
   setContext(WRITABLE_SUBSCRIPTION_CONTRACT_CTX, q.writableSubscriptionContract);
   setContext(SUBSCRIPTION_DATA_CTX, q.subscriptionData);
+  setContext(SUBSCRIPTION_CONTRACT_OWNER_CTX, q.subscriptionOwner);
   setContext(SUBSCRIPTION_ERC20_BALANCE_CTX, q.subscriptionErc20Balance);
   setContext(SUBSCRIPTION_WARNIGNS_CTX, q.warnings);
 

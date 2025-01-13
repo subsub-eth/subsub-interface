@@ -24,7 +24,7 @@
   import { queryClient } from '$lib/query/config';
   import { erc6551Keys, profileKeys, subHandleKeys } from '$lib/query/keys';
   import { getErc20Contract, getErc20Data } from '$lib/web3/contracts/erc20';
-  import { knownErc20Tokens } from '$lib/chain-config';
+  import { getChainId, knownErc20Tokens } from '$lib/chain-config';
 
   interface Props {
     data: PageData;
@@ -53,7 +53,7 @@
     derivedStore(chainEnvironment, (chainEnvironment) => ({
       queryKey: erc6551Keys.profileAccount(
         chainEnvironment!.chainData.contracts.erc6551Registry,
-        chainEnvironment!.chainData.chainId,
+        getChainId(chainEnvironment!.chainData),
         chainEnvironment!.chainData.contracts.profile,
         profileId
       ),
@@ -78,7 +78,7 @@
     createErc6551Account(
       $chainEnvironment!.erc6551Registry,
       $chainEnvironment!.chainData.contracts.defaultErc6551Implementation,
-      $chainEnvironment!.chainData.chainId,
+      getChainId($chainEnvironment!.chainData),
       $chainEnvironment!.chainData.contracts.profile,
       profileId
     )

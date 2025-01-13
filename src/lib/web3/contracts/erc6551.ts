@@ -102,12 +102,12 @@ export async function findDefaultProfileErc6551Account(
   return acc;
 }
 
-export type TokenBoundAccount = [IERC6551Account, IERC6551Executable];
+export type TokenBoundAccount = [IERC6551Account, IERC6551Executable | null];
 
 export async function getErc6551Account(
   address: Address,
   publicClient: ReadClient,
-  walletClient: WriteClient
+  walletClient?: WriteClient
 ): Promise<TokenBoundAccount | null> {
   const acc = await tryGetErc6551Account(address, publicClient);
 
@@ -115,7 +115,7 @@ export async function getErc6551Account(
     return null;
   }
 
-  const exec = { address, publicClient, walletClient };
+  const exec = walletClient ? { address, publicClient, walletClient } : null;
   log.debug('Created ERC6551 contracts for address', address);
 
   return [acc, exec];
@@ -243,4 +243,14 @@ export async function isValidSigner(
     log.error('Failed to call isValidSigner', addr, potentialTokenboundAcc, error);
     throw error;
   }
+}
+
+export async function token(
+  acc: IERC6551Account
+): Promise<{ chainId: number; contractAddress: Address; tokenId: bigint }> {
+  const a = account(acc);
+  const [chainId, contractAddress, tokenId] = await a.read.token();
+
+  log.debug('Token of account is located at', chainId, contractAddress, tokenId);
+  return { chainId: Number(chainId), contractAddress, tokenId };
 }

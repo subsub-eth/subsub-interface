@@ -28,6 +28,9 @@ import {
   type WarningMessage
 } from '$lib/web3/contracts/subscription-analytics';
 import { log } from '$lib/logger';
+import { findProfile, type ProfileData } from '$lib/web3/contracts/profile';
+import { getErc6551Account, token } from '$lib/web3/contracts/erc6551';
+import { getChainId } from '$lib/chain-config';
 
 export function subscriptionQueries(addr: Address) {
   const subscriptionContract = createQuery<Subscription>(
@@ -54,6 +57,39 @@ export function subscriptionQueries(addr: Address) {
         return data;
       },
       enabled: subscriptionContract.isSuccess
+    }))
+  );
+
+  const subscriptionOwner = createQuery<Address | ProfileData>(
+    derived([subscriptionData, chainEnvironment], ([subscriptionData, chainEnvironment]) => ({
+      queryKey: subKeys.owner(addr),
+      queryFn: async () => {
+        const ownerAddr = subscriptionData.data!.owner;
+        const acc = await getErc6551Account(ownerAddr, chainEnvironment!.publicClient);
+        log.debug('Looking up owner account in address', ownerAddr, acc);
+        if (acc !== null) {
+          const [account] = acc;
+          const { chainId, contractAddress, tokenId } = await token(account);
+          log.debug('Token of owner account located', ownerAddr, chainId, contractAddress, tokenId);
+          if (
+            chainId == getChainId(chainEnvironment!.chainData) &&
+            contractAddress == chainEnvironment!.chainData.contracts.profile
+          ) {
+            log.debug('Looking up owner profile', ownerAddr, contractAddress, tokenId);
+            const profile = await findProfile(
+              { address: contractAddress, publicClient: chainEnvironment!.publicClient },
+              tokenId
+            );
+
+            if (profile) {
+              return profile;
+            }
+          }
+        }
+        log.debug('No ERC6551 Account found for owner', ownerAddr);
+        return ownerAddr;
+      },
+      enabled: subscriptionData.isSuccess
     }))
   );
 
@@ -157,6 +193,7 @@ export function subscriptionQueries(addr: Address) {
     subscriptionContract,
     writableSubscriptionContract,
     subscriptionData,
+    subscriptionOwner,
     subscriptionErc20Balance,
     erc20Contract,
     writableErc20Contract,

@@ -8,6 +8,7 @@ const VALID_SIGNER = 'validSigner';
 const SUB_HANDLE = 'subHandle';
 const SUBSCRIPTION = 'subscription';
 const WRITABLE = 'writable';
+const OWNER = 'owner';
 const PROFILE = 'profile';
 const ERC20 = 'erc20';
 export const LIST = 'list';
@@ -46,6 +47,7 @@ export const subHandleKeys = {
 
 export const subKeys = {
   contract: (address?: Address) => key(SUBSCRIPTION, address),
+  owner: (address?: Address) => key(SUBSCRIPTION, address, OWNER),
   writableContract: (address?: Address) => key(SUBSCRIPTION, address, WRITABLE),
   contractUri: (contract?: Address) => key(SUBSCRIPTION, contract, CONTRACT_DATA),
   warnings: (contractData: SubscriptionContractData) =>
