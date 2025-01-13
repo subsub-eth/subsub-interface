@@ -288,7 +288,7 @@
         <Card.Content>
           {#if contractData.description}
             <div class="flex items-center gap-2 pt-2">
-              <div class="prose prose-base">
+              <div class="prose prose-base dark:prose-invert">
                 <Markdown source={contractData.description} />
               </div>
             </div>

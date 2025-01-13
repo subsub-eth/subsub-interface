@@ -1,4 +1,6 @@
 <script lang="ts">
+  import LightSwitch from '$lib/LightSwitch.svelte';
+
   interface Props {
     children?: import('svelte').Snippet;
   }
@@ -6,7 +8,7 @@
   let { children }: Props = $props();
 </script>
 
-<header class="flex flex-row items-center justify-between bg-black p-2 text-white">
+<header class="flex flex-row items-center justify-between bg-sidebar p-2 text-foreground">
   <div>
     <a href="/">Home</a>
   </div>
@@ -16,7 +18,8 @@
     <ul>X</ul>
   </nav>
 
-  <div>
+  <div class="flex flex-row gap-4">
+    <LightSwitch />
     {@render children?.()}
   </div>
 </header>

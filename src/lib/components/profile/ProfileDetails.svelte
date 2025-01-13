@@ -31,6 +31,11 @@
   ];
 </script>
 
+<svelte:head>
+<title>{profile.name}</title>
+  <meta name="description" content="kek" />
+</svelte:head>
+
 <Card.Root class="p-4">
   <div class="flex flex-row gap-x-4">
     <div class="basis-1/4">
