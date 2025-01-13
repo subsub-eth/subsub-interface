@@ -69,8 +69,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
       viem:
-        specifier: ^2.21.55
-        version: 2.21.55(typescript@5.7.2)(zod@3.24.1)
+        specifier: ^2.22.7
+        version: 2.22.7(typescript@5.7.2)(zod@3.24.1)
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -2763,8 +2763,8 @@ packages:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
 
-  ox@0.1.2:
-    resolution: {integrity: sha512-ak/8K0Rtphg9vnRJlbOdaX9R7cmxD2MiSthjWGaQdMk3D7hrAlDoM+6Lxn7hN52Za3vrXfZ7enfke/5WjolDww==}
+  ox@0.6.0:
+    resolution: {integrity: sha512-blUzTLidvUlshv0O02CnLFqBLidNzPoAZdIth894avUAotTuWziznv6IENv5idRuOSSP3dH8WzcYw84zVdu0Aw==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -3524,8 +3524,8 @@ packages:
       typescript:
         optional: true
 
-  viem@2.21.55:
-    resolution: {integrity: sha512-PgXew7C11cAuEtOSgRyQx2kJxEOPUwIwZA9dMglRByqJuFVA7wSGZZOOo/93iylAA8E15bEdqy9xulU3oKZ70Q==}
+  viem@2.22.7:
+    resolution: {integrity: sha512-heNQKOqpgAhdvu5xBAgWCqNVDkC6FfQyQ63+JVSUomOzmnbHAO1FKf4/JRe/s1McU1F4HkgjytOunQS9mbBD2g==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -4999,7 +4999,7 @@ snapshots:
       picocolors: 1.1.1
       picomatch: 3.0.1
       prettier: 3.4.2
-      viem: 2.21.55(typescript@5.7.2)(zod@3.24.1)
+      viem: 2.22.7(typescript@5.7.2)(zod@3.24.1)
       zod: 3.24.1
     optionalDependencies:
       typescript: 5.7.2
@@ -6311,7 +6311,7 @@ snapshots:
       type-check: 0.4.0
       word-wrap: 1.2.5
 
-  ox@0.1.2(typescript@5.7.2)(zod@3.24.1):
+  ox@0.6.0(typescript@5.7.2)(zod@3.24.1):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/curves': 1.7.0
@@ -7052,7 +7052,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.21.55(typescript@5.7.2)(zod@3.24.1):
+  viem@2.22.7(typescript@5.7.2)(zod@3.24.1):
     dependencies:
       '@noble/curves': 1.7.0
       '@noble/hashes': 1.6.1
@@ -7060,7 +7060,7 @@ snapshots:
       '@scure/bip39': 1.5.0
       abitype: 1.0.7(typescript@5.7.2)(zod@3.24.1)
       isows: 1.0.6(ws@8.18.0)
-      ox: 0.1.2(typescript@5.7.2)(zod@3.24.1)
+      ox: 0.6.0(typescript@5.7.2)(zod@3.24.1)
       webauthn-p256: 0.0.10
       ws: 8.18.0
     optionalDependencies:
