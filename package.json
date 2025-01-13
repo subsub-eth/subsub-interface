@@ -60,7 +60,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@createz/contracts": "0.2.0-alpha.14",
+    "@createz/contracts": "0.2.0-alpha.15",
     "@magidoc/plugin-svelte-marked": "^6.2.0",
     "@metamask/contract-metadata": "^2.5.0",
     "@tanstack/svelte-query": "^5.62.8",
