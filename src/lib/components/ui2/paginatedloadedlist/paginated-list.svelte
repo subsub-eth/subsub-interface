@@ -31,7 +31,7 @@
 <script lang="ts" generics="T">
   import { LIST } from '$lib/query/keys';
 
-  import { writable, derived as derivedStore } from 'svelte/store';
+  import { writable, derived as derivedStore, toStore } from 'svelte/store';
   import { log } from '$lib/logger';
   import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
 
@@ -50,14 +50,15 @@
   }: Props<T> = $props();
 
   const p = writable(page);
+  const keys = toStore(() => queryKeys);
 
   // we need to keep the query so it can find its previous data
   const list = createQuery(
-    derivedStore(p, (p) => {
+    derivedStore([p, keys], ([p, keys]) => {
       // convert to 0 based calls
       const page = p - 1;
       return {
-        queryKey: queryKeys.concat([LIST, String(page)]),
+        queryKey: keys.concat([LIST, String(page)]),
         queryFn: async () => {
           log.debug('Loading page from list', page);
           try {
