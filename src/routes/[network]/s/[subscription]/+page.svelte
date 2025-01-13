@@ -15,7 +15,7 @@
   import { SubscriptionTeaser } from '$lib/components/subscription/token';
   import ClaimControl from '$lib/components/subscription/ClaimControl.svelte';
   import { createQuery } from '@tanstack/svelte-query';
-  import { currentAccount } from '$lib/web3/onboard';
+  import { currentAccount, isAccountConnected } from '$lib/web3/onboard';
   import { type Erc20Data } from '$lib/web3/contracts/erc20';
   import { isValidSigner } from '$lib/web3/contracts/erc6551';
   import { getContext } from 'svelte';
@@ -118,46 +118,48 @@
     <!-- END profile teaser -->
 
     <!-- BEGIN user's subscription -->
-    <div class="grid grid-cols-1 justify-items-stretch p-6">
-      <div class="mb-4 justify-self-end">
-        <Button
-          href={'/[network]/s/[subscription]/new'}
-          disabled={$subscriptionData.data.mintingPaused}>Mint new Subscription</Button
-        >
+    {#if $isAccountConnected}
+      <div class="grid grid-cols-1 justify-items-stretch p-6">
+        <div class="mb-4 justify-self-end">
+          <Button
+            href={'/[network]/s/[subscription]/new'}
+            disabled={$subscriptionData.data.mintingPaused}>Mint new Subscription</Button
+          >
+        </div>
+        {#if $userSubsCount.isPending}
+          Loading...
+        {/if}
+        {#if $userSubsCount.isError}
+          Failed to load subscriptions
+        {/if}
+        {#if $userSubsCount.isSuccess && $currentAccount}
+          {@const load = listUserSubscriptionsRev(
+            $subscriptionContract.data,
+            $currentAccount,
+            pageSize,
+            $userSubsCount.data
+          )}
+          <PaginatedLoadedList
+            {load}
+            queryKeys={subKeys.ownerList(addr, $currentAccount)}
+            totalItems={$userSubsCount.data}
+            {pageSize}
+          >
+            {#snippet children({ items })}
+              <div class="grid grid-cols-1 gap-4">
+                {#each items as item}
+                  <SubscriptionTeaser
+                    subscriptionData={item}
+                    paymentToken={$erc20Data.data}
+                    rate={BigInt($subscriptionData.data.rate)}
+                  />
+                {/each}
+              </div>
+            {/snippet}
+          </PaginatedLoadedList>
+        {/if}
       </div>
-      {#if $userSubsCount.isPending}
-        Loading...
-      {/if}
-      {#if $userSubsCount.isError}
-        Failed to load subscriptions
-      {/if}
-      {#if $userSubsCount.isSuccess && $currentAccount}
-        {@const load = listUserSubscriptionsRev(
-          $subscriptionContract.data,
-          $currentAccount,
-          pageSize,
-          $userSubsCount.data
-        )}
-        <PaginatedLoadedList
-          {load}
-          queryKeys={subKeys.ownerList(addr, $currentAccount)}
-          totalItems={$userSubsCount.data}
-          {pageSize}
-        >
-          {#snippet children({ items })}
-            <div class="grid grid-cols-1 gap-4">
-              {#each items as item}
-                <SubscriptionTeaser
-                  subscriptionData={item}
-                  paymentToken={$erc20Data.data}
-                  rate={BigInt($subscriptionData.data.rate)}
-                />
-              {/each}
-            </div>
-          {/snippet}
-        </PaginatedLoadedList>
-      {/if}
-    </div>
+    {/if}
     <!-- END user's subscription -->
 
     <!-- BEGIN sub details -->
