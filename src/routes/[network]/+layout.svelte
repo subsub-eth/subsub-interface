@@ -3,7 +3,7 @@
   import { chainEnvironment } from '$lib/chain-context';
   import Button from '$lib/components/Button.svelte';
   import { currentChainId } from '$lib/web3/onboard';
-  import { publicClient, walletClient } from '$lib/web3/viem';
+  import { publicClient, walletClient, switchChain as sc } from '$lib/web3/viem';
   import NavigationHeader from '../NavigationHeader.svelte';
 
   import toast from '$lib/toast';
@@ -16,17 +16,19 @@
 
   let { children }: Props = $props();
 
+  // Chain Guarding
   let switchChain = async ({ chainId, name }: { chainId: number; name: string }) => {
     try {
-      await $walletClient?.switchChain({ id: chainId });
+      if (!$walletClient) {
+        throw new Error('Wallet not connected');
+      }
+      await sc($walletClient, chainId);
       toast.success(`Switched network to ${name}!`);
     } catch (err) {
       toast.error(`Unable to switch to chain ${name}`);
       log.error('failed to switch to chain', chainId, name, err);
     }
   };
-
-  // TODO distinguish provider and signer
 </script>
 
 <NavigationHeader>

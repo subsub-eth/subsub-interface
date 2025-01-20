@@ -73,6 +73,31 @@ export async function getSubscriptionContractAddresses(
   return addresses;
 }
 
+
+export function listAllPlansRev(
+  subHandle: SubscriptionHandle,
+  pageSize: number,
+  totalItems: number
+): (page: number) => Promise<Array<Address>> {
+  // TODO multicall
+  const func = async (page: number): Promise<Array<Address>> => {
+    const index = page * pageSize;
+    const size = Math.max(Math.min(totalItems - index, pageSize), 0);
+    const c = contract(subHandle);
+
+    const load = async (i: number): Promise<Address> => {
+      // reverse index here
+      const id = await c.read.tokenByIndex([BigInt(totalItems - 1 - (i + index))]);
+      return tokenIdToAddress(id);
+    };
+
+    const data = [...Array(size).keys()].map((i) => load(i));
+    return Promise.all(data);
+  };
+
+  return func;
+}
+
 export type CreateSubscriptionFunc = (
   name: string,
   symbol: string,
@@ -130,4 +155,9 @@ export async function isManaged(tokenId: bigint, handle: SubscriptionHandle): Pr
   const c = contract(handle);
   const isManaged = await c.read.isManaged([tokenId]);
   return isManaged;
+}
+
+export async function totalSupply(handle: SubscriptionHandle): Promise<number> {
+  const c = contract(handle);
+  return Number(await c.read.totalSupply());
 }

@@ -103,7 +103,7 @@ export const getChain = function (id: number) {
   return currentChains.find(([, v]) => getChainId(v) === id);
 };
 
-export const getChainByName = function (name: string): ChainData | undefined {
+export const getChainByName = function (name: string | undefined): ChainData | undefined {
   const val = currentChains.find(([k]) => k === name);
 
   return val ? val[1] : undefined;

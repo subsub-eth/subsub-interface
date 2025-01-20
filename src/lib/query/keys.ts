@@ -42,7 +42,9 @@ export const erc20Keys = {
 };
 
 export const subHandleKeys = {
-  ownerList: (contract?: Address, owner?: Address) => key(SUB_HANDLE, contract, DATA, owner)
+  ownerList: (contract?: Address, owner?: Address) => key(SUB_HANDLE, contract, DATA, owner),
+  list: (contract?: Address) => key(SUB_HANDLE, contract, BALANCE, GLOBAL),
+  totalSupply: (contract?: Address) => key(SUB_HANDLE, contract, TOTAL_SUPPLY)
 };
 
 export const subKeys = {
