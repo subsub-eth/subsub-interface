@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-  <title>SubSub!</title>
+  <title>SubSub! - No BS Crypto Subscriptions</title>
 </svelte:head>
 
 <ModeWatcher defaultMode={'dark'} />
@@ -22,7 +22,7 @@
     {@render children?.()}
 
     <footer>
-      <a href="https://github.com/createz-eth" target="_blank">GitHub</a>
+      <a href="https://github.com/subsub-eth" target="_blank">GitHub</a>
     </footer>
     <Toaster richColors />
   </Tooltip.Provider>

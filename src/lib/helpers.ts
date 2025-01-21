@@ -103,3 +103,13 @@ export const isValidNumeric = (s: string, decimals: number): boolean => {
 
   return regex.test(s);
 };
+
+export function toStringArray(input: string | string[]): string[] {
+  if (typeof input === 'string') {
+    return [input];
+  } else if (Array.isArray(input)) {
+    return input;
+  } else {
+    throw new Error('Invalid input type. Expected string or string[].');
+  }
+}

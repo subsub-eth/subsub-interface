@@ -24,23 +24,25 @@
 
   const profileTotalSupply = createQuery<number>(
     derivedStore(chainEnvironment, (chainEnv) => ({
-      queryKey: profileKeys.totalSupply(chainEnv!.chainData.contracts.profile),
+      queryKey: profileKeys.totalSupply(chainEnv?.chainData.contracts.profile),
       queryFn: async () => {
         const supply = await totalSupply(chainEnv!.profileContract);
         log.debug('Total supply of profiles', supply);
         return supply;
-      }
+      },
+      enabled: !!chainEnv
     }))
   );
 
   const userProfileBalance = createQuery<number>(
     derivedStore([chainEnvironment, currentAccount], ([chainEnv, currentAcc]) => ({
-      queryKey: profileKeys.balance(chainEnv!.chainData.contracts.profile, currentAcc!),
+      queryKey: profileKeys.balance(chainEnv?.chainData.contracts.profile, currentAcc),
       queryFn: async () => {
         const balance = await countUserProfiles(chainEnv!.profileContract, currentAcc!);
         log.debug('Balance of users profiles', currentAcc, balance);
         return balance;
-      }
+      },
+      enabled: !!chainEnv && !!currentAcc
     }))
   );
 </script>

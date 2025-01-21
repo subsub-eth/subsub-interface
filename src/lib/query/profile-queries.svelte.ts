@@ -8,12 +8,13 @@ import { derived as derivedStore } from 'svelte/store';
 export function profileTotalSupplyQuery() {
   return createQuery<number>(
     derivedStore(chainEnvironment, (chainEnv) => ({
-      queryKey: profileKeys.totalSupply(chainEnv!.chainData.contracts.profile),
+      queryKey: profileKeys.totalSupply(chainEnv?.chainData.contracts.profile),
       queryFn: async () => {
         const supply = await totalSupply(chainEnv!.profileContract);
         log.debug('Total supply of profiles', supply);
         return supply;
-      }
+      },
+      enabled: !!chainEnv
     }))
   );
 }

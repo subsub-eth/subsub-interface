@@ -35,31 +35,33 @@
 
   const profile = createQuery<ProfileData>(
     derivedStore(chainEnvironment, (chainEnvironment) => ({
-      queryKey: profileKeys.tokenUri(chainEnvironment!.chainData.contracts.profile, tokenId),
+      queryKey: profileKeys.tokenUri(chainEnvironment?.chainData.contracts.profile, tokenId),
       queryFn: async () => {
         log.debug('find profile', chainEnvironment);
         const profile = await findProfile(chainEnvironment!.profileContract, tokenId);
         return profile!;
-      }
+      },
+      enabled: !!chainEnvironment
     }))
   );
 
   const ownerAccount = createQuery<Address>(
     derivedStore(chainEnvironment, (chainEnvironment) => ({
       queryKey: erc6551Keys.profileAccount(
-        chainEnvironment!.chainData.contracts.erc6551Registry,
-        getChainId(chainEnvironment!.chainData),
-        chainEnvironment!.chainData.contracts.profile,
+        chainEnvironment?.chainData.contracts.erc6551Registry,
+        getChainId(chainEnvironment?.chainData),
+        chainEnvironment?.chainData.contracts.profile,
         tokenId
       ),
-      queryFn: async () => (await findDefaultProfileErc6551Account(chainEnvironment!, tokenId))!
+      queryFn: async () => (await findDefaultProfileErc6551Account(chainEnvironment!, tokenId))!,
+      enabled: !!chainEnvironment
     }))
   );
 
   const subscriptionContractAddresses = createQuery<Array<Address>>(
     derivedStore([chainEnvironment, ownerAccount], ([chainEnvironment, ownerAccount]) => ({
       queryKey: subHandleKeys.ownerList(
-        chainEnvironment!.chainData.contracts.subscriptionHandle,
+        chainEnvironment?.chainData.contracts.subscriptionHandle,
         ownerAccount.data!
       ),
       queryFn: async () =>

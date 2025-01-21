@@ -87,7 +87,7 @@ export const currentChains = chainProps.filter(([n]) => dev || n !== 'localhost'
 
 export const chainNames = currentChains.map(([c]) => c);
 
-export const getChainId = (c: ChainData) => c.chain.id;
+export const getChainId = (c: ChainData | undefined) => c?.chain.id;
 
 export const getChainToken = (c: ChainData) => c.chain.nativeCurrency.symbol;
 

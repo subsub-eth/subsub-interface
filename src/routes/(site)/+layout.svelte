@@ -15,4 +15,6 @@
   <Button variant="default" href={`/${preferredNetwork}`}>go to app</Button>
 </NavigationHeader>
 
-{@render children?.()}
+<div class="flex justify-center p-4">
+  {@render children?.()}
+</div>
