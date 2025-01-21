@@ -11,7 +11,8 @@ export type ObservedQueryResult<T> = QueryObserverResult<T>;
 const qc = new QueryClient({
   defaultOptions: {
     queries: {
-      enabled: browser
+      enabled: browser,
+      staleTime: 10 * 60 * 1000
     }
   }
 });
