@@ -35,21 +35,25 @@
   <HeaderWallet />
 </NavigationHeader>
 
-<div class="grid grid-cols-1 justify-items-center gap-4">
+<div class="">
   {#if $publicClient && $chainEnvironment}
     {#if !$walletClient || $currentChainId === getChainId($chainEnvironment.chainData)}
       {@render children?.()}
     {:else}
-      <p>Please switch to the connected network in your wallet</p>
-      <Button
-        onclick={() =>
-          switchChain({
-            chainId: getChainId($chainEnvironment.chainData),
-            name: getChainDisplayName($chainEnvironment.chainData)
-          })}>Switch to {getChainDisplayName($chainEnvironment.chainData)}</Button
-      >
+      <div class="col-span-2 grid justify-items-center gap-4">
+        <p>Please switch to the connected network in your wallet</p>
+        <Button
+          onclick={() =>
+            switchChain({
+              chainId: getChainId($chainEnvironment.chainData)!,
+              name: getChainDisplayName($chainEnvironment.chainData)
+            })}>Switch to {getChainDisplayName($chainEnvironment.chainData)}</Button
+        >
+      </div>
     {/if}
   {:else}
-    <p>Please connect your wallet</p>
+    <div class="col-span-2">
+      <p>Unable to connect to chain</p>
+    </div>
   {/if}
 </div>

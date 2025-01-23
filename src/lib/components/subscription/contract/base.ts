@@ -1,5 +1,6 @@
 import { prettyNumber } from '$lib/helpers';
 import type { ObservedQueryResult } from '$lib/query/config';
+import type { OwnerData } from '$lib/query/subscription-queries';
 import type { Erc20Data } from '$lib/web3/contracts/erc20';
 import type { Price } from '$lib/web3/contracts/oracle';
 import {
@@ -25,6 +26,11 @@ export type BaseProps = {
    * Loads price of payment token
    */
   tokenPrice: ObservedQueryResult<Price | null>;
+
+  /**
+   * Loads the owner of this subscription
+   */
+  owner?: ObservedQueryResult<OwnerData>;
 
   /**
    * Warnings about the subscription plan

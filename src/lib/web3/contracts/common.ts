@@ -31,6 +31,8 @@ export const AddressSchema = z.custom<`0x${string}`>((val) => {
 export type Address = z.infer<typeof AddressSchema>;
 export type address = Address;
 
+export type EnsName = string;
+
 export const asChecksumAddress = (addr: string) => AddressSchema.parse(getChecksumAddress(addr));
 
 export const AttributeSchema = z.object({

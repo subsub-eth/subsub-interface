@@ -1,4 +1,4 @@
-import type { Address } from '$lib/web3/contracts/common';
+import type { Address, EnsName } from '$lib/web3/contracts/common';
 import { derived } from 'svelte/store';
 import { chainEnvironment, writableChainEnvironment } from '$lib/chain-context';
 import { currentAccount } from '$lib/web3/onboard';
@@ -60,7 +60,7 @@ export function subscriptionQueries(addr: Address) {
     }))
   );
 
-  const subscriptionOwner = createQuery<Address | ProfileData>(
+  const subscriptionOwner = createQuery<Address | EnsName | ProfileData>(
     derived([subscriptionData, chainEnvironment], ([subscriptionData, chainEnvironment]) => ({
       queryKey: subKeys.owner(addr),
       queryFn: async () => {

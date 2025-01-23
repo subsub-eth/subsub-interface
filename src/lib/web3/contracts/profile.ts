@@ -6,13 +6,15 @@ import {
   ImageUrlSchema,
   type Address,
   BigNumberishSchema,
-  type Hash
+  type Hash,
+  type EnsName
 } from './common';
 import { decodeDataJsonTokenURI } from '../helpers';
 import { log } from '$lib/logger';
 import type { ReadableContract, WritableContract } from '../viem';
 import { getContract, parseEventLogs } from 'viem';
 import { iProfileAbi } from '../generated/createz';
+import { isAddress } from '$lib/web3/helpers';
 
 export type Profile = ReadableContract;
 
@@ -67,6 +69,23 @@ async function mapProfileData(
     image: metadata.image,
     externalUrl: metadata.external_url
   };
+}
+
+export type OwnerData = Address | EnsName | ProfileData;
+
+/**
+ *  extracts a owner name to display
+ *  @param addressTransform is applied to a raw address
+ */
+export function ownerName(data: OwnerData, addressTransform?: (addr: Address) => string): string {
+  if (typeof data !== 'string') {
+    // ProfileData
+    return data.name;
+  } else if (isAddress(data)) {
+    return addressTransform ? addressTransform(data) : data;
+  }
+  // ens
+  return data;
 }
 
 export async function countUserProfiles(profile: Profile, account: Address): Promise<number> {

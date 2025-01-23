@@ -29,7 +29,7 @@
   import QueryClientContext from '$lib/components/context/QueryClientContext.svelte';
   import { type Component } from 'svelte';
 
-  // @ts-expect-error load function might be undefined due to Partial<>
+  // @ts-expect-error load function might be undefined due to Partial
   setTemplate<Component<Props<number>>>(template);
 </script>
 

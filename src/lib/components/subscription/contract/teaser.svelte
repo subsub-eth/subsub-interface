@@ -33,7 +33,7 @@
       />
       <div class="">
         {#if showOwner}
-          <p class="text-sm font-medium leading-none">Owner Jane</p>
+          <p class="text-sm font-medium leading-none">Owner TODO</p>
         {/if}
         <h5 class="font-bold">
           {contractData.name}

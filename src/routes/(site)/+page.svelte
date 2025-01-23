@@ -2,7 +2,7 @@
   import { toStringArray } from '$lib/helpers';
 </script>
 
-<div class="max-w-screen-xl">
+<div class="max-w-screen-lg">
   <div>
     <h1 class="text-6xl font-bold">SubSub</h1>
 

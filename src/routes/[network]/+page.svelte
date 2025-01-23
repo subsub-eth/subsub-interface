@@ -26,9 +26,7 @@
   let subHandleContract = $derived($chainEnvironment!.subscriptionHandleContract);
 </script>
 
-<h1>network: {data.network}</h1>
-
-<div class="basis-1/2">
+<div class="">
   <h2>Latest Creators</h2>
   {#if $profileTotalSupply.isError}
     Failed to load Profiles
@@ -50,7 +48,7 @@
   {/if}
 </div>
 
-<div class="basis-1/2">
+<div class="">
   <h2>Latest Subscription Plans</h2>
   {#if $subHandleTotalSupply.isError}
     Failed to load Subscription Plans
