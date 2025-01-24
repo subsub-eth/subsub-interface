@@ -18,6 +18,15 @@
      * number of items per page
      */
     pageSize: number;
+
+    /**
+     * hide paging controls
+     */
+    hidePagingControls?: boolean;
+    /**
+     * Css class to apply to item list content
+     */
+    listClass?: string;
     /**
      * query key for the cache
      */
@@ -36,12 +45,15 @@
   import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
 
   import * as Pagination from '$lib/components/ui/pagination';
+  import { cn } from '$lib/utils';
 
   let {
     load,
     page = 1,
     totalItems,
     pageSize,
+    hidePagingControls = false,
+    listClass,
     queryKeys = [],
     loading,
     error,
@@ -58,7 +70,7 @@
       // convert to 0 based calls
       const page = p - 1;
       return {
-        queryKey: keys.concat([LIST, String(page)]),
+        queryKey: keys.concat([LIST, `${page}:${pageSize}`]),
         queryFn: async () => {
           log.debug('Loading page from list', page);
           try {
@@ -78,7 +90,7 @@
 </script>
 
 <div>
-  <div>
+  <div class={cn(listClass)}>
     {#if $list.isPending}
       {#if loading}{@render loading()}{:else}Loading list data{/if}
     {/if}
@@ -91,8 +103,13 @@
       {@render children?.({ items, isLoading: $list.isPlaceholderData })}
     {/if}
   </div>
-  {#if totalItems > pageSize}
-    <Pagination.Root class="mt-4" count={totalItems == 0 ? 1 : totalItems} perPage={pageSize} bind:page={$p}>
+  {#if !hidePagingControls && totalItems > pageSize}
+    <Pagination.Root
+      class="mt-4"
+      count={totalItems == 0 ? 1 : totalItems}
+      perPage={pageSize}
+      bind:page={$p}
+    >
       {#snippet children({ pages, currentPage })}
         <Pagination.Content class="text-foreground">
           <Pagination.Item>
