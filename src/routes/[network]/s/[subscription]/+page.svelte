@@ -117,7 +117,7 @@
   Failed to load contract data
 {/if}
 {#if $subscriptionData.isSuccess && $subscriptionContract.isSuccess && $erc20Data.isSuccess && $subscriptionBalance.isSuccess}
-  <div class="mx-auto flex max-w-screen-2xl flex-col">
+  <div class="mx-auto flex max-w-(--breakpoint-2xl) flex-col">
     <!-- BEGIN profile teaser -->
     {#if $subscriptionOwner.isPending}
       Loading Subscription Owner

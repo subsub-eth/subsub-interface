@@ -19,7 +19,7 @@
 </script>
 
 <a
-  class={twMerge('rounded-full bg-cyan-500 px-4 py-2 text-sm text-white shadow-sm', clazz)}
+  class={twMerge('rounded-full bg-cyan-500 px-4 py-2 text-sm text-white shadow-xs', clazz)}
   href={url}
   {...opts}>{text}</a
 >
