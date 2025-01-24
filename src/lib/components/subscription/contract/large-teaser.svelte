@@ -1,5 +1,7 @@
 <script lang="ts" module>
-  export type Props = BaseProps;
+  export interface Props extends BaseProps {
+    rootClass?: string;
+  }
 </script>
 
 <script lang="ts">
@@ -9,19 +11,20 @@
   import { truncateAddress } from '$lib/helpers';
   import type { Address } from '$lib/web3/contracts/common';
   import { ownerName } from '$lib/web3/contracts/profile';
+  import { cn } from '$lib/utils';
 
-  let { contractData, paymentTokenData, owner }: Props = $props();
+  let { contractData, paymentTokenData, owner, rootClass }: Props = $props();
 
   let { rate, activeSubs } = $derived(baseValues({ contractData }));
 
   let truncateOwnerAddress = (addr: Address) => truncateAddress(addr, 7);
 </script>
 
-<Card.Root>
+<Card.Root class={cn(rootClass)}>
   <Card.Content class="p-0">
     <div class="">
       <div>
-        <Link href={`/[network]/s/${contractData.address}}`}>
+        <Link href={`/[network]/s/${contractData.address}`}>
           {#if contractData.image}
             <img
               class="max-h-[50vh] w-full rounded-lg object-cover object-center"
