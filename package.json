@@ -72,7 +72,7 @@
     "formsnap": "2.0.0",
     "loglevelnext": "^6.0.0",
     "marked": "^15.0.6",
-    "mode-watcher": "^0.5.0",
+    "mode-watcher": "^0.5.1",
     "object-hash": "^3.0.0",
     "rxjs": "^7.8.1",
     "svelte-sonner": "^0.3.28",
