@@ -3,7 +3,8 @@
   import { chainEnvironment } from '$lib/chain-context';
   import Button from '$lib/components/Button.svelte';
   import { currentChainId } from '$lib/web3/onboard';
-  import { publicClient, walletClient, switchChain as sc } from '$lib/web3/viem';
+  import { switchChain as sc } from '$lib/web3/viem';
+  import { publicClient, walletClient } from '$lib/web3/viem-context';
   import NavigationHeader from '../NavigationHeader.svelte';
 
   import toast from '$lib/toast';

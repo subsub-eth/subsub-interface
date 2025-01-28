@@ -2,7 +2,8 @@ import { getChainByName, type ChainData } from './chain-config';
 import { derived, type Readable } from 'svelte/store';
 import { log } from './logger';
 import type { Profile, WritableProfile } from './web3/contracts/profile';
-import { publicClient, walletClient, type ReadClient, type WriteClient } from './web3/viem';
+import { type ReadClient, type WriteClient } from './web3/viem';
+import { publicClient, walletClient } from './web3/viem-context';
 import type {
   IERC6551Account,
   IERC6551Executable,
