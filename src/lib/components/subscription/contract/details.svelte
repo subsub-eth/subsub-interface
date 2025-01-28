@@ -50,7 +50,7 @@
   <div class="grid gap-4 pt-4 sm:grid-cols-2 md:grid-cols-4">
     <PropertyBox title="Fee" TitleIcon={DollarSign}>
       {#snippet value()}
-        <p class="text-sm font-medium leading-none">
+        <p class="text-sm leading-none font-medium">
           <Tooltip.Root>
             <Tooltip.Trigger>
               <span class="text-xl font-bold">{rate}</span>
@@ -62,7 +62,7 @@
         </p>
       {/snippet}
       {#snippet subValue()}
-        <p class="text-xs text-muted-foreground">
+        <p class="text-muted-foreground text-xs">
           {#if tokenPrice.isPending}
             ...
           {/if}
@@ -77,7 +77,7 @@
     </PropertyBox>
     <PropertyBox title="Funds" TitleIcon={Activity}>
       {#snippet value()}
-        <p class="text-sm font-medium leading-none">
+        <p class="text-sm leading-none font-medium">
           <Tooltip.Root>
             <Tooltip.Trigger>
               <span class="text-xl font-bold">{formatFromToken(contractBalance)}</span>
@@ -88,7 +88,7 @@
         </p>
       {/snippet}
       {#snippet subValue()}
-        <p class="text-xs text-muted-foreground">
+        <p class="text-muted-foreground text-xs">
           {#if tokenPrice.isPending}
             ...
           {/if}
@@ -108,7 +108,7 @@
         </p>
       {/snippet}
       {#snippet subValue()}
-        <p class="text-xs text-muted-foreground">
+        <p class="text-muted-foreground text-xs">
           Total Subs: {String(totalSupply)}
         </p>
       {/snippet}
@@ -238,10 +238,10 @@
   </CollapsibleBox>
 {/snippet}
 
-<div class="p-4 text-foreground">
+<div class="text-foreground p-4">
   <!-- title -->
   <div class="flex items-center justify-between">
-    <div class="flex flex-auto items-center gap-2 rounded-xl border-2 border-solid bg-card p-2">
+    <div class="bg-card flex flex-auto items-center gap-2 rounded-xl border-2 border-solid p-2">
       <TokenLogo
         class="mr-4 flex-none"
         address={contractData.token}

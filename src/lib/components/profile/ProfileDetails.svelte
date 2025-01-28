@@ -32,7 +32,7 @@
 </script>
 
 <svelte:head>
-<title>{profile.name}</title>
+  <title>{profile.name}</title>
   <meta name="description" content="kek" />
 </svelte:head>
 
@@ -67,7 +67,7 @@
     <div class="flex flex-row items-center gap-x-4">
       <div class="basis-1/4 text-sm font-medium">External Link:</div>
       <Button variant="link" class="basis-3/4 justify-start truncate p-0">
-        <span class="overflow-hidden truncate">{profile.externalUrl}</span>
+        <span class="truncate overflow-hidden">{profile.externalUrl}</span>
       </Button>
     </div>
     {#each addresses as [label, address]}

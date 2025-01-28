@@ -8,7 +8,7 @@
   let { children }: Props = $props();
 </script>
 
-<header class="flex flex-row items-center justify-between bg-sidebar p-2 text-foreground">
+<header class="bg-sidebar text-foreground flex flex-row items-center justify-between p-2">
   <div>
     <a href="/">Home</a>
   </div>

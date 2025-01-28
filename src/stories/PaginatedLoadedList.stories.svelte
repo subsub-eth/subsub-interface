@@ -39,7 +39,7 @@
       {#snippet children({ items, isLoading })}
         {@const loading = isLoading ? 'text-red-500' : ''}
         {#each items as item}
-          <div class={cn('text-xl font-bold text-foreground', loading)}>{item}</div>
+          <div class={cn('text-foreground text-xl font-bold', loading)}>{item}</div>
         {/each}
       {/snippet}
       {#snippet error()}

@@ -33,14 +33,14 @@
       />
       <div class="">
         {#if showOwner}
-          <p class="text-sm font-medium leading-none">Owner TODO</p>
+          <p class="text-sm leading-none font-medium">Owner TODO</p>
         {/if}
         <h5 class="font-bold">
           {contractData.name}
         </h5>
       </div>
       <div>
-        <p class="text-sm font-medium leading-none">
+        <p class="text-sm leading-none font-medium">
           <Tooltip.Root>
             <Tooltip.Trigger>
               <span class="text-xl font-bold">{rate}</span>
@@ -50,7 +50,7 @@
           {paymentTokenData.symbol}
           / month
         </p>
-        <p class="text-xs text-muted-foreground">
+        <p class="text-muted-foreground text-xs">
           {#if tokenPrice.isPending}
             ...
           {/if}
@@ -69,7 +69,7 @@
           font={200}
           value={(activeSubs / totalSupply) * 100}
         />
-        <p class="text-sm font-medium leading-none">
+        <p class="text-sm leading-none font-medium">
           <Tooltip.Root>
             <Tooltip.Trigger>
               <span class="text-xl font-bold">{activeSubs}</span> / {totalSupply} active

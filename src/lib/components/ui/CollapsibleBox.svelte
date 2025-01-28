@@ -27,11 +27,11 @@
   }: Props = $props();
 </script>
 
-<Card.Root class={cn(rootClass, "mt-4 pb-4")}>
+<Card.Root class={cn(rootClass, 'mt-4 pb-4')}>
   <Collapsible.Root bind:open>
     <Card.Header class="pt-4">
       <Collapsible.Trigger class="flex justify-between">
-        <Card.Title class={cn(titleClass, 'text-lg flex-none')}>{title}</Card.Title>
+        <Card.Title class={cn(titleClass, 'flex-none text-lg')}>{title}</Card.Title>
         {#if open}
           <ChevronsDownUp className="h-4 w-4 flex-none" />
         {:else}
