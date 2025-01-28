@@ -7,7 +7,7 @@
   const { Story } = defineMeta({
     title: 'Button',
     component: Button,
-    tags: ['autodocs'],
+    tags: ['autodocs']
   });
 </script>
 
@@ -45,7 +45,5 @@
 </Story>
 
 <Story name="Loading">
-  <Button loading>
-    Please wait
-  </Button>
+  <Button loading>Please wait</Button>
 </Story>

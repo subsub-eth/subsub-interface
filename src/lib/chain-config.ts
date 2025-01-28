@@ -95,7 +95,8 @@ export const getChainDisplayName = (c: ChainData) => c.chain.name;
 
 export const getChainRpcUrl = (c: ChainData) => c.chain.rpcUrls.default.http[0];
 
-export const isChainTestnet = (c: ChainData | undefined) => c?.chain === anvil || !!c?.chain.testnet;
+export const isChainTestnet = (c: ChainData | undefined) =>
+  c?.chain === anvil || !!c?.chain.testnet;
 
 export const getChainExplorerUrl = (c: ChainData | undefined) => c?.chain.blockExplorers?.default;
 

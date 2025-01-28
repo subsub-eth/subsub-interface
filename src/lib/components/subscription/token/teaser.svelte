@@ -29,13 +29,13 @@
     <div class="flex items-center gap-2 sm:gap-6 sm:pl-2">
       <TrafficLight status={subscriptionData.isActive ? 'green' : 'red'} />
       <div>
-        <p class="text-sm font-medium leading-none">
+        <p class="text-sm leading-none font-medium">
           <span class="text-xl font-bold">{unspent}</span>
           {paymentToken.symbol} remaining
         </p>
       </div>
       <div class="flex items-center gap-0 sm:gap-1 md:gap-2">
-        <p class="text-sm font-medium leading-none">
+        <p class="text-sm leading-none font-medium">
           <Tooltip.Root>
             <Tooltip.Trigger>
               {#if subscriptionData.isActive && timeLeftWithUnit}

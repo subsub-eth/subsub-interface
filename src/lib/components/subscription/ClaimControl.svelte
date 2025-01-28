@@ -36,7 +36,7 @@
 </script>
 
 <Card.Root>
-  <Card.Title class="p-6 pb-0 pt-4 text-lg font-bold">Earnings</Card.Title>
+  <Card.Title class="p-6 pt-4 pb-0 text-lg font-bold">Earnings</Card.Title>
   <Card.Content>
     <div>
       <DetailsProperty title="Current Epoch" value={`${data.currentEpoch}`} />

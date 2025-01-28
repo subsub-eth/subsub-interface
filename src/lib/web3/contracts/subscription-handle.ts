@@ -73,7 +73,6 @@ export async function getSubscriptionContractAddresses(
   return addresses;
 }
 
-
 export function listAllPlansRev(
   subHandle: SubscriptionHandle,
   pageSize: number,

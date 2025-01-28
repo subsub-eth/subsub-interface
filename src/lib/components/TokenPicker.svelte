@@ -77,7 +77,7 @@
 
 <Dialog.Root bind:open>
   <Dialog.Trigger {disabled}>
-    <div class="flex gap-2 text-lg font-semibold text-foreground">
+    <div class="text-foreground flex gap-2 text-lg font-semibold">
       {#if !token}
         <span>Select Token</span>
       {:else}
@@ -125,7 +125,7 @@
             {#each $searchQuery.data as t}
               <li>
                 <button
-                  class="my-2 flex w-full cursor-pointer gap-4 p-2 hover:bg-secondary"
+                  class="hover:bg-secondary my-2 flex w-full cursor-pointer gap-4 p-2"
                   onclick={() => selectToken(t.address, t.symbol)}
                 >
                   <TokenLogo
@@ -135,7 +135,7 @@
                   />
                   <div class="flex flex-col text-left">
                     <div>{t.name}</div>
-                    <div class="text-sm text-muted-foreground">
+                    <div class="text-muted-foreground text-sm">
                       {t.symbol}
                       <span class="text-xs">({truncateAddress(t.address)})</span>
                     </div>

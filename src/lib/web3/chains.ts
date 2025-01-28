@@ -1,6 +1,12 @@
 import type { Chain } from '@web3-onboard/common';
 
-import { currentChains, getChainDisplayName, getChainId, getChainRpcUrl, getChainToken } from '../chain-config';
+import {
+  currentChains,
+  getChainDisplayName,
+  getChainId,
+  getChainRpcUrl,
+  getChainToken
+} from '../chain-config';
 
 export const onBoardChains: Chain[] = currentChains.map(([, v]) => {
   return {

@@ -77,7 +77,7 @@
   let timeUnits = $derived(timeUnitsWithNames(timeLeftUnits));
 </script>
 
-<div class="p-4 text-foreground">
+<div class="text-foreground p-4">
   <!-- header -->
   <div class="flex items-center gap-4 pt-2">
     <TrafficLight status={subscriptionData.isActive ? 'green' : 'red'} />
@@ -108,7 +108,7 @@
       subValue={usdPrice(subscriptionData.unspent)}
     >
       {#snippet value()}
-        <div class="text-sm font-medium leading-none">
+        <div class="text-sm leading-none font-medium">
           <span class="text-2xl font-bold">{unspent}</span>
           {paymentToken.symbol}
         </div>
@@ -120,7 +120,7 @@
       subValue={usdPrice(subscriptionData.deposited)}
     >
       {#snippet value()}
-        <div class="text-sm font-medium leading-none">
+        <div class="text-sm leading-none font-medium">
           <span class="text-2xl font-bold">{formatTokenAmount(subscriptionData.deposited)}</span>
           {paymentToken.symbol}
         </div>
@@ -132,7 +132,7 @@
       subValue={usdPrice(subscriptionData.tips)}
     >
       {#snippet value()}
-        <div class="text-sm font-medium leading-none">
+        <div class="text-sm leading-none font-medium">
           <span class="text-2xl font-bold">{formatTokenAmount(subscriptionData.tips)}</span>
           {paymentToken.symbol}
         </div>
@@ -146,7 +146,7 @@
       {#snippet value()}
         <div class="flex items-center gap-4 pt-2">
           <TokenLogo
-            class="basis-1/7 h-12 w-12"
+            class="h-12 w-12 basis-1/7"
             address={paymentToken.address}
             fallbackSymbol={paymentToken.symbol}
           />
@@ -154,24 +154,24 @@
             {#if multiplierActive}
               <h4>Default</h4>
             {/if}
-            <p class="text-sm font-medium leading-none">
+            <p class="text-sm leading-none font-medium">
               <span class="text-xl font-bold">{defaultRate}</span>
               {paymentToken.symbol} / month
             </p>
             {#if tokenPrice.data}
-              <p class="text-xs text-muted-foreground">${rateUsd(rawRate)} / month</p>
+              <p class="text-muted-foreground text-xs">${rateUsd(rawRate)} / month</p>
             {/if}
           </div>
           {#if multiplierActive}
             <div>
               <h4>Multiplier {multiplier / 100}x</h4>
               <div>
-                <p class="text-sm font-medium leading-none">
+                <p class="text-sm leading-none font-medium">
                   <span class="text-xl font-bold">{multipliedRate}</span>
                   {paymentToken.symbol} / month
                 </p>
                 {#if tokenPrice.data}
-                  <p class="text-xs text-muted-foreground">
+                  <p class="text-muted-foreground text-xs">
                     ${rateUsd(multipliedRawRate)} / month
                   </p>
                 {/if}
@@ -193,7 +193,7 @@
               {paymentToken.symbol}
             </p>
             {#if tokenPrice.data}
-              <p class="text-xs text-muted-foreground">
+              <p class="text-muted-foreground text-xs">
                 {usdPrice(subscriptionData.withdrawable)}
               </p>
             {/if}
@@ -205,7 +205,7 @@
               {paymentToken.symbol}
             </p>
             {#if tokenPrice.data}
-              <p class="text-xs text-muted-foreground">
+              <p class="text-muted-foreground text-xs">
                 {usdPrice(lockedAmount)}
               </p>
             {/if}

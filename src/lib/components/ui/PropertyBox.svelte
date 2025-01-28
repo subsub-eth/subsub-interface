@@ -27,7 +27,7 @@
       {title}
     </Card.Title>
     {#if TitleIcon}
-      <TitleIcon class="h-4 w-4 text-muted-foreground" />
+      <TitleIcon class="text-muted-foreground h-4 w-4" />
     {/if}
   </Card.Header>
   <Card.Content>
@@ -39,7 +39,7 @@
     {/if}
     {@const sv = extract(subValue)}
     {#if sv.st}
-      <p class="text-xs text-muted-foreground">{sv.st}</p>
+      <p class="text-muted-foreground text-xs">{sv.st}</p>
     {:else if sv.sn}
       {@render sv.sn()}
     {/if}

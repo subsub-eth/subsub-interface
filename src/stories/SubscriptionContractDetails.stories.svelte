@@ -5,7 +5,7 @@
   import { contractDummy } from '$lib/static-content';
   import { zeroAddress } from '$lib/web3/helpers';
 
-const descriptionMd = `## Hello World
+  const descriptionMd = `## Hello World
 
 this is some text
 
