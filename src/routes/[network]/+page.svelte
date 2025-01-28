@@ -10,13 +10,6 @@
   import { subscriptionHandleTotalSupplyQuery } from '$lib/query/subscription-handle-queries.svelte';
   import { listAllProfilesRev } from '$lib/web3/contracts/profile';
   import { listAllPlansRev } from '$lib/web3/contracts/subscription-handle';
-  import type { PageData } from './$types';
-
-  interface Props {
-    data: PageData;
-  }
-
-  let { data }: Props = $props();
 
   const pageSize = 6;
 
