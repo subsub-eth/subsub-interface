@@ -36,7 +36,7 @@
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.0.3",
-    "@wagmi/cli": "^2.1.22",
+    "@wagmi/cli": "^2.2.0",
     "bits-ui": "1.0.0-next.77",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^9.1.0",
