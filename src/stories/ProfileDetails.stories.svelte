@@ -1,6 +1,7 @@
 <script lang="ts" module>
-  import { defineMeta } from '@storybook/addon-svelte-csf';
+  import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import ProfileDetails from '$lib/components/profile/ProfileDetails.svelte';
+  import { type Props } from '$lib/components/profile/ProfileDetails.svelte';
   import { EXPLORER_URL } from '$lib/contexts';
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { zeroAddress } from '$lib/web3/helpers';
@@ -31,13 +32,16 @@
   import { setContext } from 'svelte';
 
   setContext(EXPLORER_URL, 'https://example.com');
+
+  // @ts-expect-error load function might be undefined due to Partial
+  setTemplate(template);
 </script>
 
-<Story name="Default" args={{}}>
-  {#snippet children(args)}
-    <ProfileDetails {...args} />
-  {/snippet}
-</Story>
+{#snippet template(args: Props)}
+  <ProfileDetails {...args} />
+{/snippet}
+
+<Story name="Default" args={{}} />
 
 <Story
   name="Image not found"

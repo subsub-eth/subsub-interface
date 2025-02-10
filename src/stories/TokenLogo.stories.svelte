@@ -2,6 +2,7 @@
   import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import { zeroAddress } from '$lib/web3/helpers';
   import TokenLogo from '$lib/components/TokenLogo.svelte';
+  import type { Props } from '$lib/components/TokenLogo.svelte';
 
   const { Story } = defineMeta({
     title: 'TokenLogo',
@@ -33,10 +34,11 @@
 </script>
 
 <script lang="ts">
+  // @ts-expect-error load function might be undefined due to Partial
   setTemplate(template);
 </script>
 
-{#snippet template(args)}
+{#snippet template(args: Props)}
   <TokenLogo {...args} />
 {/snippet}
 

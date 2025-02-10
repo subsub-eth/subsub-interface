@@ -1,6 +1,7 @@
 <script lang="ts" module>
   import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import { SubscriptionDetails } from '$lib/components/subscription/token/index';
+  import { type Props } from '$lib/components/subscription/token/details.svelte';
   import { EXPLORER_URL } from '$lib/contexts';
   import type { ObservedQueryResult } from '$lib/query/config';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
@@ -44,6 +45,7 @@
     args: {
       subscriptionData: subData,
       paymentToken: erc20,
+      // @ts-expect-error Partial mock
       tokenPrice: tokenPrice,
       rate: 5_000_000_000_000,
       technicalsOpen: true
@@ -58,10 +60,12 @@
   import * as Tooltip from '$lib/components/ui/tooltip';
 
   setContext(EXPLORER_URL, 'http://example.com');
+
+  // @ts-expect-error load function might be undefined due to Partial
   setTemplate(template);
 </script>
 
-{#snippet template(args)}
+{#snippet template(args: Props)}
   <QueryClientContext>
     <Tooltip.Provider>
       <SubscriptionDetails {...args} />
@@ -114,6 +118,8 @@
 
 <Story name="technicals closed" args={{ technicalsOpen: false }} />
 
+{/* @ts-expect-error partial type */ null}
 <Story name="pending price data" args={{ tokenPrice: { isPending: true } }} />
 
+{/* @ts-expect-error partial type */ null}
 <Story name="error price data" args={{ tokenPrice: { isError: true } }} />

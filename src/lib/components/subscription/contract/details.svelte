@@ -1,3 +1,11 @@
+<script lang="ts" module>
+  export interface Props extends BaseProps {
+    contractBalance: BigNumberish;
+    /** open the technical details collapsible */
+    technicalsOpen?: boolean;
+  }
+</script>
+
 <script lang="ts">
   import * as Card from '$lib/components/ui/card';
   import * as Tooltip from '$lib/components/ui/tooltip';
@@ -15,12 +23,6 @@
   import { prettyNumberFromString } from '$lib/helpers';
   import { accountUrl, tokenUrl } from '$lib/blockexplorer-url.svelte';
   import Markdown from '@magidoc/plugin-svelte-marked';
-
-  interface Props extends BaseProps {
-    contractBalance: BigNumberish;
-    /** open the technical details collapsible */
-    technicalsOpen?: boolean;
-  }
 
   let {
     contractData,

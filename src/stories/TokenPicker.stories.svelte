@@ -2,6 +2,7 @@
   import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import { zeroAddress } from '$lib/web3/helpers';
   import TokenPicker from '$lib/components/TokenPicker.svelte';
+  import type { Props } from '$lib/components/TokenPicker.svelte';
 
   let token = zeroAddress;
   let tokenSymbol = 'TEST';
@@ -43,10 +44,11 @@
   import type { Erc20Data, Erc20Token } from '$lib/web3/contracts/erc20';
   import { waitFor } from '$lib/helpers';
 
+  // @ts-expect-error load function might be undefined due to Partial
   setTemplate(template);
 </script>
 
-{#snippet template(args)}
+{#snippet template(args: Props)}
   <QueryClientContext>
     <TokenPicker {...args} />
   </QueryClientContext>

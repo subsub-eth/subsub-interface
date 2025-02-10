@@ -1,10 +1,12 @@
 <script lang="ts" module>
   import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import { SubscriptionContractTeaser } from '$lib/components/subscription/contract';
+  import { type Props } from '$lib/components/subscription/contract/teaser.svelte';
   import type { SubscriptionContractData } from '$lib/web3/contracts/subscription';
   import { contractDummy } from '$lib/static-content';
   import { zeroAddress } from '$lib/web3/helpers';
 
+  // @ts-expect-error Partial
   const testData: SubscriptionContractData = {
     name: 'Tier 1 Sub to Jane',
     description: 'This awesome subscription gives you access to nothing',
@@ -55,7 +57,9 @@
     args: {
       contractData: testData,
       paymentTokenData: erc20,
+      // @ts-expect-error Partial
       tokenPrice: tokenPrice,
+      // @ts-expect-error Partial
       warnings: warnings
     },
     parameters: {
@@ -81,10 +85,11 @@
   import type { WarningMessage } from '$lib/web3/contracts/subscription-analytics';
   import { createMessages } from './fixtures';
 
+  // @ts-expect-error load function might be undefined due to Partial
   setTemplate(template);
 </script>
 
-{#snippet template(args)}
+{#snippet template(args: Props)}
   <QueryClientContext>
     <Tooltip.Provider>
       <SubscriptionContractTeaser {...args} />
@@ -100,6 +105,7 @@
   name="no warnings"
   args={{
     contractData: { ...testData },
+    // @ts-expect-error partial type
     warnings: { ...warnings, data: createMessages(0, 0, 0) }
   }}
 />
@@ -108,10 +114,13 @@
   name="paused"
   args={{
     contractData: { ...testData },
+    // @ts-expect-error partial type
     warnings: { ...warnings, data: createMessages(0, 0, 1) }
   }}
 />
 
+{/* @ts-expect-error partial type */ null}
 <Story name="pending price data" args={{ tokenPrice: { isPending: true } }} />
 
+{/* @ts-expect-error partial type */ null}
 <Story name="error price data" args={{ tokenPrice: { isError: true } }} />

@@ -1,3 +1,12 @@
+<script lang="ts" module>
+  export interface Props extends BaseProps {
+    /**
+     * show owner in teaser
+     */
+    showOwner?: boolean;
+  }
+</script>
+
 <script lang="ts">
   import TokenLogo from '$lib/components/TokenLogo.svelte';
   import * as Card from '$lib/components/ui/card';
@@ -10,13 +19,6 @@
   import { convertedEtherPretty } from '$lib/web3/contracts/oracle';
   import { page } from '$app/state';
   import { url } from '$lib/url';
-
-  interface Props extends BaseProps {
-    /**
-     * show owner in teaser
-     */
-    showOwner?: boolean;
-  }
 
   let { contractData, paymentTokenData, tokenPrice, warnings, showOwner = false }: Props = $props();
 

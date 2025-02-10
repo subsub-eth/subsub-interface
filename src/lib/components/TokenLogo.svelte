@@ -1,15 +1,8 @@
-<script lang="ts">
-  import * as Avatar from '$lib/components/ui/avatar';
-  import findTokenIcon from '$lib/token-icons';
-  import type { Address } from '$lib/web3/contracts/common';
-  import { cn } from '$lib/utils';
-
-  /** show loading state indicator */
-
+<script lang="ts" module>
   /**
    * Additional css classes
    */
-  interface Props {
+  export interface Props {
     /** address of the token */
     address: Address;
     /** fallback symbol name to show */
@@ -18,6 +11,15 @@
     isLoading?: boolean;
     class?: string | undefined;
   }
+</script>
+
+<script lang="ts">
+  import * as Avatar from '$lib/components/ui/avatar';
+  import findTokenIcon from '$lib/token-icons';
+  import type { Address } from '$lib/web3/contracts/common';
+  import { cn } from '$lib/utils';
+
+  /** show loading state indicator */
 
   let { address, fallbackSymbol, class: clazz = undefined }: Props = $props();
 
