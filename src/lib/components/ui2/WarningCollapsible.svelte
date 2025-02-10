@@ -1,16 +1,18 @@
-<script lang="ts">
-  import { type WarningMessage } from '$lib/web3/contracts/subscription-analytics';
-  import { cn } from '$lib/utils';
-  import { AlertTriangle, ChevronsDownUp, ChevronsUpDown } from 'lucide-svelte';
-  import * as Collapsible from '$lib/components/ui/collapsible';
-
-  interface Props {
+<script lang="ts" module>
+  export interface Props {
     /** warning messages to be displayed */
     messages: Array<WarningMessage> | undefined;
     /** Collapsible is opened */
     open?: boolean;
     class?: string;
   }
+</script>
+
+<script lang="ts">
+  import { type WarningMessage } from '$lib/web3/contracts/subscription-analytics';
+  import { cn } from '$lib/utils';
+  import { AlertTriangle, ChevronsDownUp, ChevronsUpDown } from 'lucide-svelte';
+  import * as Collapsible from '$lib/components/ui/collapsible';
 
   let { messages, open = $bindable(false), class: clazz = 'h-8 w-8' }: Props = $props();
 

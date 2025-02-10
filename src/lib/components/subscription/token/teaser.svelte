@@ -1,3 +1,7 @@
+<script lang="ts" module>
+  export type Props = BaseProps;
+</script>
+
 <script lang="ts">
   import * as Card from '$lib/components/ui/card';
   import * as Tooltip from '$lib/components/ui/tooltip';
@@ -5,8 +9,6 @@
   import { ChevronRight } from 'lucide-svelte';
   import TrafficLight from '$lib/components/TrafficLight.svelte';
   import { type BaseProps, baseValues } from './base';
-
-  type Props = BaseProps;
 
   let { subscriptionData, paymentToken }: Props = $props();
 

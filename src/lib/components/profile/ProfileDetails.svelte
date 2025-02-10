@@ -1,3 +1,12 @@
+<script lang="ts" module>
+  export interface Props {
+    /** profile data */
+    profile: ProfileData;
+    /** tokenbound account of this profile */
+    tokenboundAccount?: Address | undefined;
+  }
+</script>
+
 <script lang="ts">
   import * as Avatar from '$lib/components/ui/avatar';
   import * as Card from '$lib/components/ui/card';
@@ -9,13 +18,6 @@
   import toast from '$lib/toast';
   import type { Address } from '$lib/web3/contracts/common';
   import { accountUrl, nftUrl } from '$lib/blockexplorer-url.svelte';
-
-  interface Props {
-    /** profile data */
-    profile: ProfileData;
-    /** tokenbound account of this profile */
-    tokenboundAccount?: Address | undefined;
-  }
 
   let { profile, tokenboundAccount = undefined }: Props = $props();
 

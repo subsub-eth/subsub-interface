@@ -1,3 +1,12 @@
+<script lang="ts" module>
+  export interface Props extends BaseProps {
+    /** Loads the USD price of the payment token */
+    tokenPrice: ObservedQueryResult<Price | null>;
+    /** open the technical details collapsible */
+    technicalsOpen?: boolean;
+  }
+</script>
+
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
   import { Coins, Droplet, ExternalLink, Gem, Hourglass, Percent, PiggyBank } from 'lucide-svelte';
@@ -14,13 +23,6 @@
   import { formatEther, formatUnits } from '$lib/web3/helpers';
   import type { BigNumberish } from '$lib/web3/contracts/common';
   import { accountUrl, nftUrl } from '$lib/blockexplorer-url.svelte';
-
-  interface Props extends BaseProps {
-    /** Loads the USD price of the payment token */
-    tokenPrice: ObservedQueryResult<Price | null>;
-    /** open the technical details collapsible */
-    technicalsOpen?: boolean;
-  }
 
   let {
     subscriptionData,

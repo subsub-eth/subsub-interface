@@ -1,6 +1,7 @@
 <script lang="ts" module>
   import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import WarningCollapsible from '$lib/components/ui2/WarningCollapsible.svelte';
+  import type { Props } from '$lib/components/ui2/WarningCollapsible.svelte';
   import { createMessages } from './fixtures';
 
   const { Story } = defineMeta({
@@ -15,10 +16,11 @@
 </script>
 
 <script lang="ts">
+  // @ts-expect-error load function might be undefined due to Partial
   setTemplate(template);
 </script>
 
-{#snippet template(args)}
+{#snippet template(args: Props)}
   <WarningCollapsible {...args} />
 {/snippet}
 

@@ -39,6 +39,7 @@
 
 <Story name="Default">
   {#snippet children(args)}
+    {/* @ts-expect-error partial type */ null}
     <PropertyBox {...args} TitleIcon={PauseCircle} />
   {/snippet}
 </Story>

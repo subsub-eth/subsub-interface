@@ -1,6 +1,7 @@
 <script lang="ts" module>
   import { defineMeta, setTemplate } from '@storybook/addon-svelte-csf';
   import { SubscriptionTeaser } from '$lib/components/subscription/token';
+  import { type Props } from '$lib/components/subscription/token/teaser.svelte';
   import type { Erc20Data } from '$lib/web3/contracts/erc20';
   import type { SubscriptionData } from '$lib/web3/contracts/subscription';
   import { zeroAddress } from '$lib/web3/helpers';
@@ -56,10 +57,11 @@
 <script lang="ts">
   import * as Tooltip from '$lib/components/ui/tooltip';
 
+  // @ts-expect-error load function might be undefined due to Partial
   setTemplate(template);
 </script>
 
-{#snippet template(args)}
+{#snippet template(args: Props)}
   <Tooltip.Provider>
     <SubscriptionTeaser {...args} />
   </Tooltip.Provider>

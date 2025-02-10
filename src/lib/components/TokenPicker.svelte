@@ -1,3 +1,17 @@
+<script lang="ts" module>
+  export interface Props {
+    /** address of the selected token */
+    token?: Address | undefined;
+    /** symbol of the selected token if any, initially derived from known tokens and token */
+    tokenSymbol?: string | undefined;
+    /** load function to search token on a specific address */
+    tokenByAddress: (address: Address) => Promise<Erc20Data>;
+    /** list of known tokens to display for quick pick */
+    knownTokens?: Array<Erc20Token>;
+    disabled?: boolean;
+  }
+</script>
+
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
   import { AddressSchema, type Address } from '$lib/web3/contracts/common';
@@ -11,18 +25,6 @@
   import { addressEquals, isAddress } from '$lib/web3/helpers';
   import { log } from '$lib/logger';
   import { tokenSearch } from '$lib/query/keys';
-
-  interface Props {
-    /** address of the selected token */
-    token?: Address | undefined;
-    /** symbol of the selected token if any, initially derived from known tokens and token */
-    tokenSymbol?: string | undefined;
-    /** load function to search token on a specific address */
-    tokenByAddress: (address: Address) => Promise<Erc20Data>;
-    /** list of known tokens to display for quick pick */
-    knownTokens?: Array<Erc20Token>;
-    disabled?: boolean;
-  }
 
   let {
     token = $bindable(undefined),
