@@ -5,7 +5,6 @@
   import { page } from '$app/state';
   import NewSubscriptionContractForm from '$lib/components/subscription/NewSubscriptionContractForm.svelte';
   import { erc6551CreateSubscription } from '$lib/web3/contracts/subscription-handle';
-  import Url from '$lib/components/Url.svelte';
   import { addressEquals } from '$lib/web3/helpers';
   import { writableChainEnvironment as chainEnvironment } from '$lib/chain-context';
   import { currentAccount } from '$lib/web3/onboard';
@@ -25,6 +24,7 @@
   import { erc6551Keys, profileKeys, subHandleKeys } from '$lib/query/keys';
   import { getErc20Contract, getErc20Data } from '$lib/web3/contracts/erc20';
   import { getChainId, knownErc20Tokens } from '$lib/chain-config';
+  import { url } from '$lib/url';
 
   interface Props {
     data: PageData;
@@ -78,7 +78,7 @@
     createErc6551Account(
       $chainEnvironment!.erc6551Registry,
       $chainEnvironment!.chainData.contracts.defaultErc6551Implementation,
-      getChainId($chainEnvironment!.chainData),
+      getChainId($chainEnvironment!.chainData)!,
       $chainEnvironment!.chainData.contracts.profile,
       profileId
     )
@@ -91,7 +91,7 @@
     return await getErc20Data(contract);
   });
 
-  let knownTokens = $derived(knownErc20Tokens($chainEnvironment!.chainData.chainId));
+  let knownTokens = $derived(knownErc20Tokens($chainEnvironment!.chainData.chain.id));
 
   const onTxSubmitted = (tx: Hash) => {
     toast.info(`Transaction submitted: ${tx}`);
@@ -116,11 +116,8 @@
   let subHandle = $derived($chainEnvironment!.subscriptionHandleContract);
 </script>
 
-<Url template={`/[network]/p/${profileId}/`}>
-  {#snippet children({ path })}
-    <Button label="back" href={path} />
-  {/snippet}
-</Url>
+<Button href={url(`/[network]/p/${profileId}/`, page)}>Back</Button>
+
 <h1>New Subscription Contract</h1>
 
 TODO: handle erc6551 properly for write access
@@ -139,7 +136,7 @@ TODO: handle erc6551 properly for write access
     {:else}
       <NewSubscriptionContractForm
         formId={`${$erc6551AccountAddress.data}`}
-        create={erc6551CreateSubscription(_erc6551Account[1], subHandle)}
+        create={erc6551CreateSubscription(_erc6551Account[1]!, subHandle)}
         {tokenByAddress}
         {knownTokens}
         {onTxFailed}

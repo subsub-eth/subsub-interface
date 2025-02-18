@@ -8,13 +8,14 @@
   } from '$lib/web3/contracts/profile';
   import { chainEnvironment } from '$lib/chain-context';
   import { currentAccount } from '$lib/web3/onboard';
-  import Url from '$lib/components/Url.svelte';
   import { createQuery } from '@tanstack/svelte-query';
   import { derived as derivedStore } from 'svelte/store';
   import { log } from '$lib/logger';
   import { PaginatedLoadedList } from '$lib/components/ui2/paginatedloadedlist';
   import ProfileTeaser from '$lib/components/profile/ProfileTeaser.svelte';
   import { profileKeys } from '$lib/query/keys';
+  import { url } from '$lib/url';
+  import { page } from '$app/state';
 
   const pageSize = 5;
 
@@ -54,11 +55,7 @@
     <h2>My Profiles</h2>
 
     <div>
-      <Url template={`/[network]/p/new/`}>
-        {#snippet children({ path })}
-          <Button href={path} label="Mint new Profile" primary />
-        {/snippet}
-      </Url>
+      <Button href={url(`/[network]/p/new/`, page)}>Mint new Profile</Button>
     </div>
 
     <div>
