@@ -30,9 +30,9 @@
 <div>
   <Form.Field {form} {name}>
     <Form.Control>
-      {#snippet children({ attrs })}
+      {#snippet children({ props })}
         <Form.Label>{label}</Form.Label>
-        <Textarea {...attrs} bind:value {placeholder} {required} {disabled} />
+        <Textarea {...props} bind:value {placeholder} {required} {disabled} />
       {/snippet}
     </Form.Control>
     {#if description}

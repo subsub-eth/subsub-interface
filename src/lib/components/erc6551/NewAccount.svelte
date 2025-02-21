@@ -35,9 +35,7 @@
 <div>
   <p>please deploy new account because foo</p>
 
-  <Button
-    label="Deploy new Account"
-    on:click={() => $mutation.mutate()}
-    isLoading={$mutation.isPending}
-  />
+  <Button onclick={() => $mutation.mutate()} disabled={$mutation.isPending}
+    >Deploy new Account</Button
+  >
 </div>

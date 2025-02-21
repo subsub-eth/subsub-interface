@@ -155,12 +155,9 @@
     />
 
     <div>
-      <Button
-        primary={true}
-        label={needsApproval ? 'Approve' : 'Create'}
-        type="submit"
-        isDisabled={$approveMutation.isPending || $mintMutation.isPending}
-      />
+      <Button type="submit" disabled={$approveMutation.isPending || $mintMutation.isPending}
+        >{needsApproval ? 'Approve' : 'Create'}
+      </Button>
     </div>
     <div>
       {#if $errors._errors}

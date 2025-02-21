@@ -116,12 +116,9 @@
     />
 
     <div>
-      <Button
-        type="submit"
-        isDisabled={$depositMutation.isPending || $approveMutation.isPending}
-        label={approvalMode ? 'Approve' : submitLabel}
-        primary={true}
-      />
+      <Button type="submit" disabled={$depositMutation.isPending || $approveMutation.isPending}
+        >{approvalMode ? 'Approve' : submitLabel}
+      </Button>
     </div>
     <div>
       {#if $errors._errors}

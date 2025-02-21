@@ -47,20 +47,17 @@
 <div>
   <Form.Field {form} {name}>
     <Form.Control>
-      {#snippet children({ attrs })}
+      {#snippet children({ props })}
         <Form.Label>{label}</Form.Label>
-        <Select.Root
-          selected={selectOptions.find((o) => o.value === value)}
-          onSelectedChange={(v) => v && (value = v.value)}
-          {required}
-          {disabled}
-        >
-          <Select.Trigger class="w-[180px]" {...attrs}>
-            <Select.Value {placeholder} />
+        <Select.Root type="single" bind:value {required} {disabled}>
+          <Select.Trigger class="w-[180px]" {...props}>
+            {value
+              ? selectOptions.filter(({ value: v }) => v === value).map(({ label }) => label)
+              : placeholder}
           </Select.Trigger>
           <Select.Content>
             <Select.Group>
-              <Select.Label>{groupLabel}</Select.Label>
+              <Select.GroupHeading>{groupLabel}</Select.GroupHeading>
               {#each selectOptions as epochSize}
                 <Select.Item value={epochSize.value} label={epochSize.label}
                   >{epochSize.label}</Select.Item
@@ -68,7 +65,6 @@
               {/each}
             </Select.Group>
           </Select.Content>
-          <Select.Input name={attrs.name} bind:value />
         </Select.Root>
       {/snippet}
     </Form.Control>

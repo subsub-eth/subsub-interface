@@ -29,9 +29,9 @@
 <div>
   <Form.Field {form} {name}>
     <Form.Control>
-      {#snippet children({ attrs })}
+      {#snippet children({ props })}
         <Form.Label>{label}</Form.Label>
-        <Switch {...attrs} bind:checked={value} {required} {disabled} />
+        <Switch {...props} bind:checked={value} {required} {disabled} />
       {/snippet}
     </Form.Control>
     {#if description}

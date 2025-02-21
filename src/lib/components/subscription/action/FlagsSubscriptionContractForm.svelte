@@ -114,7 +114,7 @@
       description="Pause and unpause receiving of tips on this subscription plan"
       bind:value={$formData.tipping}
     />
-    <Button label="apply" type="submit" isLoading={$updateMutation.isPending} />
+    <Button type="submit" disabled={$updateMutation.isPending}>apply</Button>
     <div>
       {#if $errors._errors}
         {#each $errors._errors as err}

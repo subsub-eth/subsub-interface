@@ -16,3 +16,6 @@ yarn.lock
 
 /src/lib/components/ui/*/**
 !/src/lib/components/ui/*.svelte
+
+# Formatted by shadcn svelte
+/components.json

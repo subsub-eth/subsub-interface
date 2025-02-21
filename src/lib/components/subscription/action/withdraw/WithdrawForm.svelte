@@ -81,12 +81,9 @@
     <AmountInput {form} name="amount" label="Amount" bind:value={$formData.amount} required />
 
     <div>
-      <Button
-        type="submit"
-        isDisabled={$withdrawMutation.isPending}
-        label={submitLabel}
-        primary={true}
-      />
+      <Button type="submit" disabled={$withdrawMutation.isPending}>
+        {submitLabel}
+      </Button>
     </div>
     <div>
       {#if $errors._errors}

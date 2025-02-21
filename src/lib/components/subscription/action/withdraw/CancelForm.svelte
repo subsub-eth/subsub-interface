@@ -30,10 +30,10 @@
   <div>
     <Button
       type="button"
-      isDisabled={$cancelMutation.isPending}
-      label={submitLabel}
-      primary={true}
-      on:click={() => $cancelMutation.mutate()}
-    />
+      disabled={$cancelMutation.isPending}
+      onclick={() => $cancelMutation.mutate()}
+    >
+      {submitLabel}
+    </Button>
   </div>
 </div>

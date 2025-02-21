@@ -83,7 +83,7 @@
               size="icon"
               variant="ghost"
               class="ml-2 h-4 w-4 self-center"
-              on:click={toClipboard(address)}
+              onclick={toClipboard(address)}
             >
               <ClipboardCopy className="h-4 w-4" />
             </Button>

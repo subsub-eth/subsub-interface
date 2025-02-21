@@ -34,9 +34,9 @@
 <div>
   <Form.Field {form} {name}>
     <Form.Control>
-      {#snippet children({ attrs })}
+      {#snippet children({ props })}
         <Form.Label>{label}</Form.Label>
-        <Input {...attrs} bind:value {placeholder} {required} {disabled} {minlength} {maxlength} />
+        <Input {...props} bind:value {placeholder} {required} {disabled} {minlength} {maxlength} />
       {/snippet}
     </Form.Control>
     {#if description}

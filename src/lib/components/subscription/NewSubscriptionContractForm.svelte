@@ -117,7 +117,7 @@
         const subSettings: SubSettings = {
           token: val.token,
           rate: val.rate,
-          lock: lock,
+          lock: Number(lock),
           epochSize: epochSize,
           maxSupply: val.maxSupply
         };
@@ -198,7 +198,7 @@
     />
     <MaxSupplyInput {form} name="maxSupply" bind:value={$formData.maxSupply} required />
     <div>
-      <Button label="create" type="submit" isDisabled={$createContract.isPending} primary={true} />
+      <Button type="submit" disabled={$createContract.isPending}>create</Button>
     </div>
     <div>
       {#if $errors._errors}

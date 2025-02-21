@@ -64,13 +64,13 @@
 <div>
   <Form.Field {form} {name}>
     <Form.Control>
-      {#snippet children({ attrs })}
+      {#snippet children({ props })}
         <Form.Label>{label}</Form.Label>
         <Checkbox id={`${name}-unlimited`} bind:checked={isUnlimited} {disabled} />
         <Label for={`${name}-unlimited`}>Unlimited</Label>
         <Input
           class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          {...attrs}
+          {...props}
           bind:value={stringValue}
           {placeholder}
           disabled={inputDisabled || disabled}

@@ -37,7 +37,7 @@
   const isOwner = createQuery<boolean>(
     derivedStore([chainEnvironment, currentAccount], ([chainEnvironment, currentAccount]) => ({
       queryKey: profileKeys.tokenOwner(
-        chainEnvironment!.chainData.contracts.profile,
+        chainEnvironment?.chainData.contracts.profile,
         profileId,
         currentAccount!
       ),

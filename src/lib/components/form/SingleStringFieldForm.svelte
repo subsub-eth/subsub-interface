@@ -87,8 +87,8 @@
       <TextInput {form} name="field" {label} bind:value={$formData.field} />
     {/if}
     {#if isTainted($tainted?.field)}
-      <Button label="apply" type="submit" isLoading={$handleMutation.isPending} />
-      <Button label="reset" on:click={() => reset()} />
+      <Button type="submit" disabled={$handleMutation.isPending}>apply</Button>
+      <Button onclick={() => reset()}>reset</Button>
     {/if}
     <div>
       {#if $errors._errors}
