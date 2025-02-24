@@ -64,10 +64,10 @@ importers:
         version: 2.6.0
       tailwind-variants:
         specifier: ^0.3.0
-        version: 0.3.0(tailwindcss@4.0.0)
+        version: 0.3.0(tailwindcss@4.0.8)
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@4.0.0)
+        version: 1.0.7(tailwindcss@4.0.8)
       viem:
         specifier: ^2.23.2
         version: 2.23.2(typescript@5.7.2)(zod@3.24.1)
@@ -128,7 +128,7 @@ importers:
         version: 5.0.3(svelte@5.19.3)(vite@6.1.0(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1))
       '@tailwindcss/typography':
         specifier: ^0.5.16
-        version: 0.5.16(tailwindcss@4.0.0)
+        version: 0.5.16(tailwindcss@4.0.8)
       '@tailwindcss/vite':
         specifier: ^4.0.8
         version: 4.0.8(vite@6.1.0(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1))
@@ -178,8 +178,8 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1(picomatch@3.0.1)(svelte@5.19.3)(typescript@5.7.2)
       tailwindcss:
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^4.0.8
+        version: 4.0.8
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -3198,9 +3198,6 @@ packages:
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
 
-  tailwindcss@4.0.0:
-    resolution: {integrity: sha512-ULRPI3A+e39T7pSaf1xoi58AqqJxVCLg8F/uM5A3FadUbnyDTgltVnXJvdkTjwCOGA6NazqHVcwPJC5h2vRYVQ==}
-
   tailwindcss@4.0.8:
     resolution: {integrity: sha512-Me7N5CKR+D2A1xdWA5t5+kjjT7bwnxZOE6/yDI/ixJdJokszsn2n++mdU5yJwrsTpqFX2B9ZNMBJDwcqk9C9lw==}
 
@@ -4494,13 +4491,13 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.0.8
       '@tailwindcss/oxide-win32-x64-msvc': 4.0.8
 
-  '@tailwindcss/typography@0.5.16(tailwindcss@4.0.0)':
+  '@tailwindcss/typography@0.5.16(tailwindcss@4.0.8)':
     dependencies:
       lodash.castarray: 4.4.0
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 4.0.0
+      tailwindcss: 4.0.8
 
   '@tailwindcss/vite@4.0.8(vite@6.1.0(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1))':
     dependencies:
@@ -6524,16 +6521,14 @@ snapshots:
 
   tailwind-merge@2.6.0: {}
 
-  tailwind-variants@0.3.0(tailwindcss@4.0.0):
+  tailwind-variants@0.3.0(tailwindcss@4.0.8):
     dependencies:
       tailwind-merge: 2.6.0
-      tailwindcss: 4.0.0
+      tailwindcss: 4.0.8
 
-  tailwindcss-animate@1.0.7(tailwindcss@4.0.0):
+  tailwindcss-animate@1.0.7(tailwindcss@4.0.8):
     dependencies:
-      tailwindcss: 4.0.0
-
-  tailwindcss@4.0.0: {}
+      tailwindcss: 4.0.8
 
   tailwindcss@4.0.8: {}
 
