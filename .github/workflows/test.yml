@@ -57,6 +57,9 @@ jobs:
       - run: pnpm run lint
         name: Linting
 
+      - run: pnpm run check
+        name: Svelte Check
+
   unit-test:
     name: Unit Tests
     runs-on: ubuntu-latest
