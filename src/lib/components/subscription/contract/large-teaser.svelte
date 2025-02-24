@@ -38,10 +38,10 @@
         <div class="flex flex-col">
           <h5 class="font-bold">{contractData.name}</h5>
           <h6>
-            {#if !owner || owner.isPending}
-              {truncateOwnerAddress(contractData.owner)}
-            {:else}
+            {#if !!owner && owner.isSuccess}
               {ownerName(owner.data, truncateOwnerAddress)}
+            {:else}
+              {truncateOwnerAddress(contractData.owner)}
             {/if}
           </h6>
         </div>

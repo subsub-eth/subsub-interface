@@ -92,7 +92,7 @@ export async function findDefaultProfileErc6551Account(
     erc6551Registry,
     defaultErc6551Implementation,
     new Uint8Array(32),
-    getChainId(chainData),
+    getChainId(chainData)!,
     profile,
     tokenId
   );

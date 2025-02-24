@@ -22,7 +22,7 @@
 <div class="flex flex-row gap-4">
   {#if $chainEnvironment}
     <ChainSelector
-      currentChainId={getChainId($chainEnvironment.chainData)}
+      currentChainId={getChainId($chainEnvironment.chainData)!}
       {availableChains}
       onchange={onChainChange}
     />

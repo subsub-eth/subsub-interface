@@ -9,6 +9,8 @@ type ToastFunc = (message: string | ComponentType, data?: ExternalToast) => stri
 
 function send(func: ToastFunc, msg: Msg) {
   if (Array.isArray(msg)) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: type error due to legacy code in svelte-sonner
     return func(Message, { componentProps: { message: msg } });
   }
   return func(msg);

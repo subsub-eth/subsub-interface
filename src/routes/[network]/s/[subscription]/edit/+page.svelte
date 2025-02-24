@@ -79,7 +79,7 @@
     onExternalUrlChanged={updated((h) => `External URL updated in Tx ${h}`)}
   />
   <FlagsSubscriptionContractForm
-    formId={`flags-${data.address}`}
+    formId={`flags-${data.subscriptionAddr}`}
     data={$subscriptionData.data}
     setFlags={setFlags($subscriptionContract.data)}
     onFlagsChanged={flagsUpdated}

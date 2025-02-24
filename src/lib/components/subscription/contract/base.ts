@@ -1,8 +1,8 @@
 import { prettyNumber } from '$lib/helpers';
 import type { ObservedQueryResult } from '$lib/query/config';
-import type { OwnerData } from '$lib/query/subscription-queries';
 import type { Erc20Data } from '$lib/web3/contracts/erc20';
 import type { Price } from '$lib/web3/contracts/oracle';
+import type { OwnerData } from '$lib/web3/contracts/profile';
 import {
   activeSubscriptions,
   monthlyRate,

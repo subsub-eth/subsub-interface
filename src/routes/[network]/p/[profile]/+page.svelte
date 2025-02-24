@@ -11,7 +11,6 @@
   import { derived as derivedStore } from 'svelte/store';
   import type { Address } from '$lib/web3/contracts/common';
   import { findProfile } from '$lib/web3/contracts/profile';
-  import Url from '$lib/components/Url.svelte';
   import { PaginatedList } from '$lib/components/ui2/paginatedlist';
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { log } from '$lib/logger';
@@ -20,6 +19,8 @@
   import { ChevronLeft } from 'lucide-svelte';
   import { SubscriptionContractContext } from '$lib/components/context/web3';
   import { getChainId } from '$lib/chain-config';
+  import { url } from '$lib/url';
+  import { page } from '$app/state';
 
   interface Props {
     data: PageData;
@@ -87,15 +88,11 @@
     {/if}
     {#if $profile.isSuccess}
       <!-- TODO "back link" to profile -->
-      <Url template={`/[network]/p/${data.ownerAddress}/`}>
-        {#snippet children({ path })}
-          <a href={path}>
-            <div class="flex items-center gap-1">
-              <ChevronLeft className="h-4 w-4" /> <span>{'ownerName'}'s profile</span>
-            </div>
-          </a>
-        {/snippet}
-      </Url>
+      <a href={url(`/[network]/p/${data.profile}/`, page)}>
+        <div class="flex items-center gap-1">
+          <ChevronLeft className="h-4 w-4" /> <span>{'ownerName'}'s profile</span>
+        </div>
+      </a>
 
       <ProfileDetails profile={$profile.data} />
     {/if}
