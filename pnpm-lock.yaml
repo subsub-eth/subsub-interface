@@ -94,8 +94,8 @@ importers:
         specifier: ^8.4.7
         version: 8.4.7(react@18.3.1)(storybook@8.4.7(prettier@3.4.2))
       '@storybook/addon-svelte-csf':
-        specifier: 5.0.0-next.21
-        version: 5.0.0-next.21(@storybook/svelte@8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.19.3))(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.19.3)(vite@6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1)))(storybook@8.4.7(prettier@3.4.2))(svelte@5.19.3)(vite@6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1))
+        specifier: 5.0.0-next.27
+        version: 5.0.0-next.27(@storybook/svelte@8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.19.3))(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.19.3)(vite@6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1)))(storybook@8.4.7(prettier@3.4.2))(svelte@5.19.3)(vite@6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1))
       '@storybook/blocks':
         specifier: ^8.4.7
         version: 8.4.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.4.7(prettier@3.4.2))
@@ -897,11 +897,12 @@ packages:
     peerDependencies:
       storybook: ^8.4.7
 
-  '@storybook/addon-svelte-csf@5.0.0-next.21':
-    resolution: {integrity: sha512-ZTU5sNCOUneCzHpHHHE9uXCRhuDep3eQezOqi3jF2PcyxZf/awewXX93TaJ3/4IgzxKKYb7eJFT84AQ8uiqP4g==}
+  '@storybook/addon-svelte-csf@5.0.0-next.27':
+    resolution: {integrity: sha512-iWEg084pWy2m9Z7jLDg+zXS8cjA2eRBrLe127KV9P1RYtyYzh45ALN72wVNoHmWzLNQl2CAh0ggTCKjMHHEjRg==}
     peerDependencies:
-      '@storybook/svelte': ^8.0.0
+      '@storybook/svelte': ^0.0.0-0 || ^8.2.0 || ^9.0.0-0
       '@sveltejs/vite-plugin-svelte': ^4.0.0 || ^5.0.0
+      storybook: ^0.0.0-0 || ^8.2.0 || ^9.0.0-0
       svelte: ^5.0.0
       vite: ^5.0.0 || ^6.0.0
 
@@ -954,10 +955,8 @@ packages:
   '@storybook/csf@0.1.12':
     resolution: {integrity: sha512-9/exVhabisyIVL0VxTCxo01Tdm8wefIXKXfltAPTSr8cbLn5JAxGQ6QV3mjdecLGEOucfoVhAKtJfVHxEK1iqw==}
 
-  '@storybook/docs-tools@8.4.7':
-    resolution: {integrity: sha512-yAZil0x/mFRThjWDGUVVCZil7i04cDBGOh9G+1YcQjnsMnwU2SNm78FWGz0CrMI1snBOkOsGoAduxLpO4xIiAA==}
-    peerDependencies:
-      storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
+  '@storybook/csf@0.1.13':
+    resolution: {integrity: sha512-7xOOwCLGB3ebM87eemep89MYRFTko+D8qE7EdAAq74lgdqRR5cOUtYWJLjO2dLtP94nqoOdHJo6MdLLKzg412Q==}
 
   '@storybook/global@5.0.0':
     resolution: {integrity: sha512-FcOqPAXACP0I3oJ/ws6/rrPT9WGhu915Cg8D02a9YxLo0DE9zI+a9A5gRGvmQ09fiWPukqI8ZAEoQEdWUKMQdQ==}
@@ -981,11 +980,6 @@ packages:
 
   '@storybook/manager-api@8.5.8':
     resolution: {integrity: sha512-ik3yikvYxAJMDFg0s3Pm7hZWucAlkFaaO7e2RlfOctaJFdaEi3evR4RS7GdmS38uKBEk31RC7x+nnIJkqEC59A==}
-    peerDependencies:
-      storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
-
-  '@storybook/node-logger@8.4.7':
-    resolution: {integrity: sha512-bsNMy9RgN4jVw5MMHMf0T04dX8a1lLTWq4iZoZkfdbshDKn5Z16brzPVwhFg2IE0YTEZi9XyA1NJLPgUTCcp7g==}
     peerDependencies:
       storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
 
@@ -1032,11 +1026,6 @@ packages:
 
   '@storybook/theming@8.4.7':
     resolution: {integrity: sha512-99rgLEjf7iwfSEmdqlHkSG3AyLcK0sfExcr0jnc6rLiAkBhzuIsvcHjjUwkR210SOCgXqBPW0ZA6uhnuyppHLw==}
-    peerDependencies:
-      storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
-
-  '@storybook/types@8.4.7':
-    resolution: {integrity: sha512-zuf0uPFjODB9Ls9/lqXnb1YsDKFuaASLOpTzpRlz9amFtTepo1dB0nVF9ZWcseTgGs7UxA4+ZR2SZrduXw/ihw==}
     peerDependencies:
       storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
 
@@ -1781,8 +1770,8 @@ packages:
     resolution: {integrity: sha512-MZ4iQ6JwHOBQjahnjwaC1ZtIBH+2ohjamzAO3oaHcXYup7qxjF2fixyH+Q71voWHeOkI2q/TnJao/KfXYIZWbw==}
     engines: {node: '>= 0.4'}
 
-  es-toolkit@1.30.1:
-    resolution: {integrity: sha512-ZXflqanzH8BpHkDhFa10bBf6ONDCe84EPUm7SSICGzuuROSluT2ynTPtwn9PcRelMtorCRozSknI/U0MNYp0Uw==}
+  es-toolkit@1.32.0:
+    resolution: {integrity: sha512-ZfSfHP1l6ubgW/B/FRtqb9bYdMvI6jizbOSfbwwJNcOQ1QE6TFsC3jpQkZ900uUPSR3t3SU5Ds7UWKnYz+uP8Q==}
 
   es5-ext@0.10.64:
     resolution: {integrity: sha512-p2snDhiLaXe6dahss1LddxqEm+SkuDvV8dnIQG0MWjyHpcMNfXKPE+/Cc0y+PhxJX3A4xGNeFCj5oc0BUh6deg==}
@@ -1931,11 +1920,11 @@ packages:
   esrap@1.2.2:
     resolution: {integrity: sha512-F2pSJklxx1BlQIQgooczXCPHmcWpn6EsP5oo73LQfonG9fIlIENQ8vMmfGXeojP9MrkzUNAfyU5vdFlR9shHAw==}
 
-  esrap@1.3.2:
-    resolution: {integrity: sha512-C4PXusxYhFT98GjLSmb20k9PREuUdporer50dhzGuJu9IJXktbMddVCMLAERl5dAHyAi73GWWCE4FVHGP1794g==}
-
   esrap@1.4.3:
     resolution: {integrity: sha512-Xddc1RsoFJ4z9nR7W7BFaEPIp4UXoeQ0+077UdWLxbafMQFyU79sQJMk7kxNgRwQ9/aVgaKacCHC2pUACGwmYw==}
+
+  esrap@1.4.5:
+    resolution: {integrity: sha512-CjNMjkBWWZeHn+VX+gS8YvFwJ5+NDhg8aWZBSFJPR8qQduDNjbJodA2WcwCm7uQa5Rjqj+nZvVmceg1RbHFB9g==}
 
   esrecurse@4.3.0:
     resolution: {integrity: sha512-KmfKL3b6G+RXvP8N1vr3Tq1kL/oCFgn2NYXEtqP8/L3pKapUA4G8cFVaoF3SU323CD4XypR/ffioHmkti6/Tag==}
@@ -3952,25 +3941,22 @@ snapshots:
       storybook: 8.4.7(prettier@3.4.2)
       ts-dedent: 2.2.0
 
-  '@storybook/addon-svelte-csf@5.0.0-next.21(@storybook/svelte@8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.19.3))(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.19.3)(vite@6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1)))(storybook@8.4.7(prettier@3.4.2))(svelte@5.19.3)(vite@6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1))':
+  '@storybook/addon-svelte-csf@5.0.0-next.27(@storybook/svelte@8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.19.3))(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.19.3)(vite@6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1)))(storybook@8.4.7(prettier@3.4.2))(svelte@5.19.3)(vite@6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1))':
     dependencies:
-      '@storybook/csf': 0.1.12
-      '@storybook/docs-tools': 8.4.7(storybook@8.4.7(prettier@3.4.2))
-      '@storybook/node-logger': 8.4.7(storybook@8.4.7(prettier@3.4.2))
+      '@storybook/csf': 0.1.13
       '@storybook/svelte': 8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.19.3)
-      '@storybook/types': 8.4.7(storybook@8.4.7(prettier@3.4.2))
       '@sveltejs/vite-plugin-svelte': 5.0.3(svelte@5.19.3)(vite@6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1))
       dedent: 1.5.3
-      es-toolkit: 1.30.1
-      esrap: 1.3.2
+      es-toolkit: 1.32.0
+      esrap: 1.4.5
       magic-string: 0.30.17
+      storybook: 8.4.7(prettier@3.4.2)
       svelte: 5.19.3
       svelte-ast-print: 0.4.2(svelte@5.19.3)
       vite: 6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.6.1)
       zimmerframe: 1.1.2
     transitivePeerDependencies:
       - babel-plugin-macros
-      - storybook
 
   '@storybook/addon-toolbars@8.4.7(storybook@8.4.7(prettier@3.4.2))':
     dependencies:
@@ -4005,7 +3991,7 @@ snapshots:
 
   '@storybook/core@8.4.7(prettier@3.4.2)':
     dependencies:
-      '@storybook/csf': 0.1.12
+      '@storybook/csf': 0.1.13
       better-opn: 3.0.2
       browser-assert: 1.2.1
       esbuild: 0.24.2
@@ -4032,9 +4018,9 @@ snapshots:
     dependencies:
       type-fest: 2.19.0
 
-  '@storybook/docs-tools@8.4.7(storybook@8.4.7(prettier@3.4.2))':
+  '@storybook/csf@0.1.13':
     dependencies:
-      storybook: 8.4.7(prettier@3.4.2)
+      type-fest: 2.19.0
 
   '@storybook/global@5.0.0': {}
 
@@ -4054,10 +4040,6 @@ snapshots:
       storybook: 8.4.7(prettier@3.4.2)
 
   '@storybook/manager-api@8.5.8(storybook@8.4.7(prettier@3.4.2))':
-    dependencies:
-      storybook: 8.4.7(prettier@3.4.2)
-
-  '@storybook/node-logger@8.4.7(storybook@8.4.7(prettier@3.4.2))':
     dependencies:
       storybook: 8.4.7(prettier@3.4.2)
 
@@ -4147,10 +4129,6 @@ snapshots:
       storybook: 8.4.7(prettier@3.4.2)
 
   '@storybook/theming@8.4.7(storybook@8.4.7(prettier@3.4.2))':
-    dependencies:
-      storybook: 8.4.7(prettier@3.4.2)
-
-  '@storybook/types@8.4.7(storybook@8.4.7(prettier@3.4.2))':
     dependencies:
       storybook: 8.4.7(prettier@3.4.2)
 
@@ -4971,7 +4949,7 @@ snapshots:
     dependencies:
       es-errors: 1.3.0
 
-  es-toolkit@1.30.1: {}
+  es-toolkit@1.32.0: {}
 
   es5-ext@0.10.64:
     dependencies:
@@ -5253,11 +5231,11 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.0
       '@types/estree': 1.0.6
 
-  esrap@1.3.2:
+  esrap@1.4.3:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  esrap@1.4.3:
+  esrap@1.4.5:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
