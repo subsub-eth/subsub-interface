@@ -12,10 +12,10 @@ const injected = injectedWalletsModule();
 const wallets = [injected];
 
 const appMetadata = {
-  name: 'CreateZ',
+  name: 'SubSub',
   icon: '<svg />',
   logo: '<svg />',
-  description: 'Connecting to CreateZ',
+  description: 'Connecting to SubSub',
   recommendedInjectedWallets: [
     { name: 'Coinbase', url: 'https://wallet.coinbase.com/' },
     { name: 'MetaMask', url: 'https://metamask.io' }

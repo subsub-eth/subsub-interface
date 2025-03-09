@@ -3,7 +3,7 @@ import { AddressSchema, type Address, type Hash } from './common';
 import { log } from '$lib/logger';
 import { execute, type IERC6551Executable } from './erc6551';
 import type { ReadableContract, WritableContract } from '../viem';
-import { iSubscriptionHandleAbi } from '../generated/createz';
+import { iSubscriptionHandleAbi } from '../generated/subsub';
 import { getContract, pad, parseEventLogs, toHex } from 'viem';
 
 export type SubscriptionHandle = ReadableContract;

@@ -1,6 +1,6 @@
-# CreateZ Interface
+# SubSub Interface
 
-A simple interface for the CreateZ smart contracts.
+A simple interface for the SubSub smart contracts.
 
 ## Development
 

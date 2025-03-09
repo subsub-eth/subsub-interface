@@ -6,7 +6,7 @@ import { log } from '$lib/logger';
 import { prettyNumber } from '$lib/helpers';
 import type { ReadClient } from '../viem';
 import { formatEther, formatUnits, getContract } from 'viem';
-import { aggregatorV3InterfaceAbi } from '../generated/createz';
+import { aggregatorV3InterfaceAbi } from '../generated/subsub';
 
 /**
  * tuple of price in USD as an integer and the number of decimals

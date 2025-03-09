@@ -3,7 +3,7 @@ import { foundry } from '@wagmi/cli/plugins';
 
 export default defineConfig([
   {
-    out: 'src/lib/web3/generated/createz.ts',
+    out: 'src/lib/web3/generated/subsub.ts',
     contracts: [],
     plugins: [
       foundry({

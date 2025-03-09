@@ -13,7 +13,7 @@ import { decodeDataJsonTokenURI } from '../helpers';
 import { log } from '$lib/logger';
 import type { ReadableContract, WritableContract } from '../viem';
 import { getContract, parseEventLogs } from 'viem';
-import { iProfileAbi } from '../generated/createz';
+import { iProfileAbi } from '../generated/subsub';
 import { isAddress } from '$lib/web3/helpers';
 
 export type Profile = ReadableContract;

@@ -20,7 +20,7 @@ import {
   type WriteClient
 } from '../viem';
 import { getContract, parseEventLogs } from 'viem';
-import { subscriptionAbi as abi } from '../generated/createz';
+import { subscriptionAbi as abi } from '../generated/subsub';
 
 export const MULTIPLIER_BASE = 100;
 

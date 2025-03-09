@@ -18,7 +18,7 @@ import {
   ierc6551AccountAbi,
   ierc6551ExecutableAbi,
   ierc6551RegistryAbi
-} from '../generated/createz';
+} from '../generated/subsub';
 import { getChainId } from '$lib/chain-config';
 
 export type IERC6551Registry = ReadableContract;
