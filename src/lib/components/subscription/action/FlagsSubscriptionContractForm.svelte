@@ -117,7 +117,7 @@
     <Button type="submit" disabled={$updateMutation.isPending}>apply</Button>
     <div>
       {#if $errors._errors}
-        {#each $errors._errors as err}
+        {#each $errors._errors as err (err)}
           {err}
         {/each}
       {/if}

@@ -14,7 +14,7 @@
       {@const desc = toStringArray(description)}
       <div class="rounded-lg border p-4">
         <h3 class="mb-4 text-xl font-bold">{title}</h3>
-        {#each desc as d}
+        {#each desc as d (d)}
           <p>{d}</p>
         {/each}
       </div>

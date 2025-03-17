@@ -40,7 +40,6 @@
     value = $bindable(),
     disabled = false,
     required = false
-    // eslint-disable-next-line no-undef
   }: Props<T, U> = $props();
 </script>
 
@@ -58,7 +57,7 @@
           <Select.Content>
             <Select.Group>
               <Select.GroupHeading>{groupLabel}</Select.GroupHeading>
-              {#each selectOptions as epochSize}
+              {#each selectOptions as epochSize (epochSize.label)}
                 <Select.Item value={epochSize.value} label={epochSize.label}
                   >{epochSize.label}</Select.Item
                 >

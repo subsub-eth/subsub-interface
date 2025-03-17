@@ -31,7 +31,6 @@
     step = undefined,
     min = undefined,
     max = undefined
-    // eslint-disable-next-line no-undef
   }: Props<T, U> = $props();
 
   const setValue = (val: string | bigint) => {

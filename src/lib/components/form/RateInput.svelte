@@ -35,7 +35,6 @@
     rateDecimals = 18,
     disabled = false,
     required = false
-    // eslint-disable-next-line no-undef
   }: Props<T, U> = $props();
 
   const initValue = formatUnits(BigInt(value ?? 0), rateDecimals);

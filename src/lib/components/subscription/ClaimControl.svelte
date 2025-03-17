@@ -44,7 +44,7 @@
       <DetailsProperty title="Next Epoch starts at" value={`${epochEnd}`} />
       <DetailsProperty title="Claimable Funds" value={`${data.claimable}`} />
       <DetailsProperty title="Claimed Deposits" value={`${data.depositsClaimed}`} />
-      <DetailsProperty title="Claimed Tips" value={``} />
+      <DetailsProperty title="Claimed Tips" value={`${data.tipsClaimed}`} />
       <DetailsProperty title="" value={`${data.tipsClaimed}`} />
     </div>
   </Card.Content>

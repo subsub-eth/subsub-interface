@@ -63,7 +63,7 @@
     </div>
     {#if errors.length}
       <ul class="list-outside list-disc border border-red-500 p-4 pl-8 text-white">
-        {#each errors as error}
+        {#each errors as error (error.title)}
           <li>
             {error.text}
           </li>
@@ -71,10 +71,10 @@
       </ul>
     {/if}
     <Collapsible.Content>
-      {#each [warnings, paused] as msgs}
+      {#each [warnings, paused] as msgs (msgs)}
         {#if msgs.length}
           <ul class="list-outside list-disc border border-yellow-500 p-4 pl-8 text-white">
-            {#each msgs as msg}
+            {#each msgs as msg (msg.title)}
               <li>
                 {msg.text}
               </li>

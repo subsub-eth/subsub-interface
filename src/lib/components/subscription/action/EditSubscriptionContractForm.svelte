@@ -32,7 +32,7 @@
 </script>
 
 <SingleStringFieldForm
-  formId={`description`}
+  formId="description"
   label="Description"
   type="textarea"
   value={data.description}
@@ -44,7 +44,7 @@
   onValueChanged={onDescriptionChanged}
 />
 <SingleStringFieldForm
-  formId={`image`}
+  formId="image"
   label="Image"
   value={data.image}
   handle={async (s, e) => {
@@ -56,7 +56,7 @@
   onValueChanged={onImageChanged}
 />
 <SingleStringFieldForm
-  formId={`externalUrl`}
+  formId="externalUrl"
   label="External URL"
   value={data.externalUrl}
   handle={async (s, e) => {

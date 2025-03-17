@@ -7,6 +7,6 @@
   let { message }: Props = $props();
 </script>
 
-{#each message as msg}
+{#each message as msg (msg)}
   {msg}<br />
 {/each}

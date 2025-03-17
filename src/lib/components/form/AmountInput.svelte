@@ -31,7 +31,6 @@
     decimals = 18,
     disabled = false,
     required = false
-    // eslint-disable-next-line no-undef
   }: Props<T, U> = $props();
 
   const initValue = value === undefined ? '' : formatUnits(value, decimals);

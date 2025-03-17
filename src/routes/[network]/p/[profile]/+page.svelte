@@ -10,7 +10,7 @@
   import { createQuery } from '@tanstack/svelte-query';
   import { derived as derivedStore } from 'svelte/store';
   import type { Address } from '$lib/web3/contracts/common';
-  import { findProfile } from '$lib/web3/contracts/profile';
+  import { findProfile, ownerName } from '$lib/web3/contracts/profile';
   import { PaginatedList } from '$lib/components/ui2/paginatedlist';
   import type { ProfileData } from '$lib/web3/contracts/profile';
   import { log } from '$lib/logger';
@@ -90,7 +90,7 @@
       <!-- TODO "back link" to profile -->
       <a href={url(`/[network]/p/${data.profile}/`, page)}>
         <div class="flex items-center gap-1">
-          <ChevronLeft className="h-4 w-4" /> <span>{'ownerName'}'s profile</span>
+          <ChevronLeft className="h-4 w-4" /> <span>{ownerName}'s profile</span>
         </div>
       </a>
 
@@ -117,7 +117,7 @@
     {#if $subscriptionContractAddresses.isSuccess}
       <PaginatedList {pageSize} items={$subscriptionContractAddresses.data}>
         {#snippet children({ currentItems })}
-          {#each currentItems as planAddr}
+          {#each currentItems as planAddr (planAddr)}
             <SubscriptionContractContext address={planAddr}>
               {#snippet children({ subscriptionData, erc20Data, tokenPrice, warnings })}
                 {#if subscriptionData.isPending || erc20Data.isPending}

@@ -135,7 +135,7 @@
       <div class="grid grid-cols-1 justify-items-stretch p-6">
         <div class="mb-4 justify-self-end">
           <Button
-            href={'/[network]/s/[subscription]/new'}
+            href="/[network]/s/[subscription]/new"
             disabled={$subscriptionData.data.mintingPaused}>Mint new Subscription</Button
           >
         </div>
@@ -160,7 +160,7 @@
           >
             {#snippet children({ items })}
               <div class="grid grid-cols-1 gap-4">
-                {#each items as item}
+                {#each items as item (item.address)}
                   <SubscriptionTeaser
                     subscriptionData={item}
                     paymentToken={$erc20Data.data}
@@ -194,7 +194,7 @@
           onClaimed={claimed}
         />
         <div>
-          <Button href={'/[network]/s/[subscription]/edit/'}>Edit Contract Details</Button>
+          <Button href="/[network]/s/[subscription]/edit/">Edit Contract Details</Button>
         </div>
       </div>
     {/if}

@@ -124,7 +124,7 @@
             No results
           {/if}
           <ul class="">
-            {#each $searchQuery.data as t}
+            {#each $searchQuery.data as t (t.address)}
               <li>
                 <button
                   class="hover:bg-secondary my-2 flex w-full cursor-pointer gap-4 p-2"

@@ -31,17 +31,14 @@
     tokenByAddress,
     knownTokens = [],
     disabled = false
-    // eslint-disable-next-line no-undef
   }: Props<T, U> = $props();
 </script>
 
 <div>
   <Form.Field {form} {name}>
     <Form.Control>
-      {#snippet children()}
-        <Form.Label>{label}</Form.Label>
-        <TokenPicker bind:token={value} {tokenByAddress} {knownTokens} {disabled} />
-      {/snippet}
+      <Form.Label>{label}</Form.Label>
+      <TokenPicker bind:token={value} {tokenByAddress} {knownTokens} {disabled} />
     </Form.Control>
     <Form.Description>{description}</Form.Description>
     <Form.FieldErrors />

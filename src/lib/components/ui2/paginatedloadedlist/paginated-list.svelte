@@ -58,7 +58,6 @@
     loading,
     error,
     children
-    // eslint-disable-next-line no-undef
   }: Props<T> = $props();
 
   const p = writable(page);

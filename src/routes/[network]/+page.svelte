@@ -35,7 +35,7 @@
       {pageSize}
     >
       {#snippet children({ items })}
-        {#each items as profileData}
+        {#each items as profileData (profileData.address)}
           <ProfileTeaser profile={profileData} />
         {/each}
       {/snippet}
@@ -58,7 +58,7 @@
       {pageSize}
     >
       {#snippet children({ items })}
-        {#each items as planAddr}
+        {#each items as planAddr (planAddr)}
           <SubscriptionContractContext address={planAddr}>
             {#snippet children({ subscriptionData, erc20Data, tokenPrice, warnings })}
               {#if subscriptionData.isPending || erc20Data.isPending}

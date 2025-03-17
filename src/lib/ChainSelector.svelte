@@ -22,7 +22,7 @@
     >
     <DropdownMenu.Content>
       <DropdownMenu.Group>
-        {#each availableChains as chain}
+        {#each availableChains as chain (chain.chainId)}
           <DropdownMenu.Item
             onclick={() => currentChainId != chain.chainId && onchange(chain.chainId)}
             >{chain.label}</DropdownMenu.Item

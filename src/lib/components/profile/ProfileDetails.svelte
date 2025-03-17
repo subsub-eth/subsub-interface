@@ -72,7 +72,7 @@
         <span class="truncate overflow-hidden">{profile.externalUrl}</span>
       </Button>
     </div>
-    {#each addresses as [label, address]}
+    {#each addresses as [label, address] (label)}
       {#if address}
         <div class="flex flex-row items-center gap-x-4">
           <div class="basis-1/4 text-sm font-medium">{label}:</div>

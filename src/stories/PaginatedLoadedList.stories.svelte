@@ -38,7 +38,7 @@
     <PaginatedLoadedList {...args}>
       {#snippet children({ items, isLoading })}
         {@const loading = isLoading ? 'text-red-500' : ''}
-        {#each items as item}
+        {#each items as item (item)}
           <div class={cn('text-foreground text-xl font-bold', loading)}>{item}</div>
         {/each}
       {/snippet}

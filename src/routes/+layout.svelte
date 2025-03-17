@@ -16,7 +16,7 @@
   <title>SubSub! - No BS Crypto Subscriptions</title>
 </svelte:head>
 
-<ModeWatcher defaultMode={'dark'} />
+<ModeWatcher defaultMode="dark" />
 <QueryClientContext>
   <Tooltip.Provider>
     {@render children?.()}
