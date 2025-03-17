@@ -25,13 +25,13 @@ importers:
         version: 3.0.6
       '@web3-onboard/common':
         specifier: ^2.4.2
-        version: 2.4.2(typescript@5.7.3)(zod@3.24.1)
+        version: 2.4.2(typescript@5.7.3)(zod@3.24.2)
       '@web3-onboard/core':
         specifier: ^2.24.0
-        version: 2.24.0(typescript@5.7.3)(zod@3.24.1)
+        version: 2.24.0(typescript@5.7.3)(zod@3.24.2)
       '@web3-onboard/injected-wallets':
         specifier: ^2.11.3
-        version: 2.11.3(typescript@5.7.3)(zod@3.24.1)
+        version: 2.11.3(typescript@5.7.3)(zod@3.24.2)
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -70,10 +70,10 @@ importers:
         version: 1.0.7(tailwindcss@4.0.8)
       viem:
         specifier: ^2.23.2
-        version: 2.23.5(typescript@5.7.3)(zod@3.24.1)
+        version: 2.23.5(typescript@5.7.3)(zod@3.24.2)
       zod:
-        specifier: ^3.24.1
-        version: 3.24.1
+        specifier: ^3.24.2
+        version: 3.24.2
     devDependencies:
       '@chromatic-com/storybook':
         specifier: ^3.2.4
@@ -3541,9 +3541,6 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
-  zod@3.24.1:
-    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
-
   zod@3.24.2:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
@@ -4806,7 +4803,7 @@ snapshots:
 
   '@wagmi/cli@2.2.0(typescript@5.7.3)':
     dependencies:
-      abitype: 1.0.7(typescript@5.7.3)(zod@3.24.1)
+      abitype: 1.0.7(typescript@5.7.3)(zod@3.24.2)
       bundle-require: 4.2.1(esbuild@0.19.12)
       cac: 6.7.14
       change-case: 5.4.4
@@ -4822,27 +4819,27 @@ snapshots:
       picocolors: 1.1.1
       picomatch: 3.0.1
       prettier: 3.4.2
-      viem: 2.23.5(typescript@5.7.3)(zod@3.24.1)
-      zod: 3.24.1
+      viem: 2.23.5(typescript@5.7.3)(zod@3.24.2)
+      zod: 3.24.2
     optionalDependencies:
       typescript: 5.7.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@web3-onboard/common@2.4.2(typescript@5.7.3)(zod@3.24.1)':
+  '@web3-onboard/common@2.4.2(typescript@5.7.3)(zod@3.24.2)':
     dependencies:
       joi: 17.9.1
-      viem: 2.12.0(typescript@5.7.3)(zod@3.24.1)
+      viem: 2.12.0(typescript@5.7.3)(zod@3.24.2)
     transitivePeerDependencies:
       - bufferutil
       - typescript
       - utf-8-validate
       - zod
 
-  '@web3-onboard/core@2.24.0(typescript@5.7.3)(zod@3.24.1)':
+  '@web3-onboard/core@2.24.0(typescript@5.7.3)(zod@3.24.2)':
     dependencies:
-      '@web3-onboard/common': 2.4.2(typescript@5.7.3)(zod@3.24.1)
+      '@web3-onboard/common': 2.4.2(typescript@5.7.3)(zod@3.24.2)
       bnc-sdk: 4.6.9
       bowser: 2.11.0
       eventemitter3: 4.0.7
@@ -4853,16 +4850,16 @@ snapshots:
       rxjs: 7.8.1
       svelte: 3.59.2
       svelte-i18n: 4.0.1(svelte@3.59.2)
-      viem: 2.12.0(typescript@5.7.3)(zod@3.24.1)
+      viem: 2.12.0(typescript@5.7.3)(zod@3.24.2)
     transitivePeerDependencies:
       - bufferutil
       - typescript
       - utf-8-validate
       - zod
 
-  '@web3-onboard/injected-wallets@2.11.3(typescript@5.7.3)(zod@3.24.1)':
+  '@web3-onboard/injected-wallets@2.11.3(typescript@5.7.3)(zod@3.24.2)':
     dependencies:
-      '@web3-onboard/common': 2.4.2(typescript@5.7.3)(zod@3.24.1)
+      '@web3-onboard/common': 2.4.2(typescript@5.7.3)(zod@3.24.2)
       joi: 17.9.1
       lodash.uniqby: 4.7.0
     transitivePeerDependencies:
@@ -4871,20 +4868,20 @@ snapshots:
       - utf-8-validate
       - zod
 
-  abitype@1.0.0(typescript@5.7.3)(zod@3.24.1):
+  abitype@1.0.0(typescript@5.7.3)(zod@3.24.2):
     optionalDependencies:
       typescript: 5.7.3
-      zod: 3.24.1
+      zod: 3.24.2
 
-  abitype@1.0.7(typescript@5.7.3)(zod@3.24.1):
+  abitype@1.0.7(typescript@5.7.3)(zod@3.24.2):
     optionalDependencies:
       typescript: 5.7.3
-      zod: 3.24.1
+      zod: 3.24.2
 
-  abitype@1.0.8(typescript@5.7.3)(zod@3.24.1):
+  abitype@1.0.8(typescript@5.7.3)(zod@3.24.2):
     optionalDependencies:
       typescript: 5.7.3
-      zod: 3.24.1
+      zod: 3.24.2
 
   acorn-jsx@5.3.2(acorn@8.14.1):
     dependencies:
@@ -6076,14 +6073,14 @@ snapshots:
       type-check: 0.4.0
       word-wrap: 1.2.5
 
-  ox@0.6.7(typescript@5.7.3)(zod@3.24.1):
+  ox@0.6.7(typescript@5.7.3)(zod@3.24.2):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
       '@scure/bip32': 1.6.2
       '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.7.3)(zod@3.24.1)
+      abitype: 1.0.8(typescript@5.7.3)(zod@3.24.2)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.7.3
@@ -6698,14 +6695,14 @@ snapshots:
   validator@13.12.0:
     optional: true
 
-  viem@2.12.0(typescript@5.7.3)(zod@3.24.1):
+  viem@2.12.0(typescript@5.7.3)(zod@3.24.2):
     dependencies:
       '@adraffy/ens-normalize': 1.10.0
       '@noble/curves': 1.2.0
       '@noble/hashes': 1.3.2
       '@scure/bip32': 1.3.2
       '@scure/bip39': 1.2.1
-      abitype: 1.0.0(typescript@5.7.3)(zod@3.24.1)
+      abitype: 1.0.0(typescript@5.7.3)(zod@3.24.2)
       isows: 1.0.4(ws@8.13.0)
       ws: 8.13.0
     optionalDependencies:
@@ -6715,15 +6712,15 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.23.5(typescript@5.7.3)(zod@3.24.1):
+  viem@2.23.5(typescript@5.7.3)(zod@3.24.2):
     dependencies:
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
       '@scure/bip32': 1.6.2
       '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.7.3)(zod@3.24.1)
+      abitype: 1.0.8(typescript@5.7.3)(zod@3.24.2)
       isows: 1.0.6(ws@8.18.0)
-      ox: 0.6.7(typescript@5.7.3)(zod@3.24.1)
+      ox: 0.6.7(typescript@5.7.3)(zod@3.24.2)
       ws: 8.18.0
     optionalDependencies:
       typescript: 5.7.3
@@ -6854,7 +6851,4 @@ snapshots:
       zod: 3.24.2
     optional: true
 
-  zod@3.24.1: {}
-
-  zod@3.24.2:
-    optional: true
+  zod@3.24.2: {}
