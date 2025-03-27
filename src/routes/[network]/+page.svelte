@@ -35,7 +35,7 @@
       {pageSize}
     >
       {#snippet children({ items })}
-        {#each items as profileData (profileData.address)}
+        {#each items as profileData (profileData.tokenId)}
           <ProfileTeaser profile={profileData} />
         {/each}
       {/snippet}

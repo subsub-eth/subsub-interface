@@ -38,7 +38,7 @@
     ])}
     {@render valueProp(
       'Your subscription accrues value',
-      'Your subscription is a unique object that tracks the funds and time you spent. These properties can be used to give you special perks!'
+      'Your subscription is a unique object that tracks the funds and time you spent. These properties can be used to give you special perks! Loyalty pays off!'
     )}
     {@render valueProp(
       'Transfer or even sell your subscription',
