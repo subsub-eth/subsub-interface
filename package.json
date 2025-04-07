@@ -47,7 +47,7 @@
     "globals": "^16.0.0",
     "lucide-svelte": "^0.487.0",
     "postcss": "^8.5.2",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.3",
     "prettier-plugin-svelte": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "storybook": "^8.4.7",
