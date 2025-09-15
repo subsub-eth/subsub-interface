@@ -42,8 +42,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       marked:
-        specifier: ^15.0.7
-        version: 15.0.7
+        specifier: ^16.3.0
+        version: 16.3.0
       mode-watcher:
         specifier: ^0.5.1
         version: 0.5.1(svelte@5.25.3)
@@ -2470,9 +2470,9 @@ packages:
     engines: {node: '>= 18'}
     hasBin: true
 
-  marked@15.0.7:
-    resolution: {integrity: sha512-dgLIeKGLx5FwziAnsk4ONoGwHwGPJzselimvlVskE9XLN4Orv9u2VA3GWw/lYUqjfA0rUT/6fqKwfZJapP9BEg==}
-    engines: {node: '>= 18'}
+  marked@16.3.0:
+    resolution: {integrity: sha512-K3UxuKu6l6bmA5FUwYho8CfJBlsUWAooKtdGgMcERSpF7gcBUrCGsLH7wDaaNOzwq18JzSUDyoEb/YsrqMac3w==}
+    engines: {node: '>= 20'}
     hasBin: true
 
   math-intrinsics@1.1.0:
@@ -5814,7 +5814,7 @@ snapshots:
 
   marked@14.1.2: {}
 
-  marked@15.0.7: {}
+  marked@16.3.0: {}
 
   math-intrinsics@1.1.0: {}
 
